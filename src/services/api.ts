@@ -75,6 +75,57 @@ export interface MessagePayload {
   url?: string;
 }
 
+export interface SystemSetting {
+  id?: string;
+  key: string;
+  value: string | number | boolean;
+  description?: string;
+  is_active?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface Bank {
+  id: number;
+  name: string;
+  slug: string;
+  code: string;
+  longcode: string;
+  gateway: string | null;
+  pay_with_bank: boolean;
+  supports_transfer: boolean;
+  available_for_direct_debit: boolean;
+  active: boolean;
+  country: string;
+  currency: string;
+  type: string;
+  is_deleted: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PromoCode {
+  id?: string;
+  code: string;
+  discount_type: string;
+  discount_value: number;
+  expiry_date: string;
+  usage_limit: number;
+  is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface Filter {
+  id?: string;
+  name: string;
+  type: string;
+  values: string[];
+  is_active: boolean;
+  display_order: number;
+  icon: string;
+}
+
 // ─── Admin ────────────────────────────────────────────────────────────────────
 
 export const getAdminStats = async () => {
@@ -135,8 +186,8 @@ export const getPopularItems = async (limit = 3) => {
   return { data: res.data, error: null };
 };
 
-export const getAllTransactions = async () => {
-  const res = await api.get("/admin/transactions");
+export const getAllTransactions = async (limit: number = 50) => {
+  const res = await api.get("/admin/transactions", { params: { limit } });
   return { data: res.data, error: null };
 };
 
@@ -150,6 +201,37 @@ export const updatePayoutStatus = async (
   status: string,
 ) => {
   const res = await api.patch(`/admin/payouts/${payoutId}`, { status });
+  return { data: res.data, error: null };
+};
+
+export const getPendingRiders = async () => {
+  const res = await api.get("/admin/riders/pending");
+  return { data: res.data, error: null };
+};
+
+export const updateRiderStatusAdmin = async (
+  riderId: string | number,
+  status: string,
+) => {
+  const res = await api.put(`/admin/riders/${riderId}/status`, { status });
+  return { data: res.data, error: null };
+};
+
+export const getPendingNameChange = async (riderId: string | number) => {
+  // Using the path provided in request, though it matches status update path
+  const res = await api.get(`/admin/riders/${riderId}/status`);
+  return { data: res.data, error: null };
+};
+
+export const approveVendorNameChange = async (vendorId: string | number) => {
+  const res = await api.post(`/admin/vendors/${vendorId}/approve-name`);
+  return { data: res.data, error: null };
+};
+
+export const rejectVendorNameChange = async (vendorId: string | number) => {
+  const res = await api.post(`/admin/vendors/${vendorId}/approve-name`, {
+    status: "rejected",
+  });
   return { data: res.data, error: null };
 };
 
@@ -505,6 +587,120 @@ export const subscribeToMessages = (
 
 export const removeSupabaseChannel = (channel: { unsubscribe: () => void }) => {
   channel.unsubscribe();
+};
+
+// ─── System ───────────────────────────────────────────────────────────────────
+
+export const getSystemSettings = async () => {
+  const res = await api.get("/system/settings");
+  return { data: res.data, error: null };
+};
+
+export const createSystemSetting = async (setting: SystemSetting) => {
+  const res = await api.post("/system/settings", setting);
+  return { data: res.data, error: null };
+};
+
+export const updateSystemSetting = async (
+  key: string,
+  updates: Partial<SystemSetting>,
+) => {
+  const res = await api.put(`/system/settings/${key}`, updates);
+  return { data: res.data, error: null };
+};
+
+export const deleteSystemSetting = async (key: string) => {
+  const res = await api.delete(`/system/settings/${key}`);
+  return { data: res.data, error: null };
+};
+
+export const getDeliveryQuote = async (payload: {
+  vendor_id: string;
+  customer_address: string;
+}) => {
+  const res = await api.post("/system/delivery-quote", payload);
+  return { data: res.data, error: null };
+};
+
+export const getMySystemTransactions = async () => {
+  const res = await api.get("/system/transactions");
+  return { data: res.data, error: null };
+};
+
+export const requestPayout = async (data: any) => {
+  const res = await api.post("/system/payout-request", data);
+  return { data: res.data, error: null };
+};
+
+export const validatePromoCode = async (code: string) => {
+  const res = await api.get(`/system/promo-codes/validate/${code}`);
+  return { data: res.data, error: null };
+};
+
+export const getBanks = async () => {
+  const res = await api.get("/system/banks");
+  return { data: res.data, error: null };
+};
+
+export const resolveAccount = async (
+  accountNumber: string,
+  bankCode: string,
+) => {
+  const res = await api.get("/system/resolve-account", {
+    params: { account_number: accountNumber, bank_code: bankCode },
+  });
+  return { data: res.data, error: null };
+};
+
+export const getAllPromoCodes = async () => {
+  const res = await api.get("/system/promo-codes");
+  return { data: res.data, error: null };
+};
+
+export const createPromoCode = async (data: PromoCode) => {
+  const res = await api.post("/system/promo-codes", data);
+  return { data: res.data, error: null };
+};
+
+export const updatePromoCode = async (
+  promoId: string,
+  updates: Partial<PromoCode>,
+) => {
+  const res = await api.put(`/system/promo-codes/${promoId}`, updates);
+  return { data: res.data, error: null };
+};
+
+export const deletePromoCode = async (promoId: string) => {
+  const res = await api.delete(`/system/promo-codes/${promoId}`);
+  return { data: res.data, error: null };
+};
+
+export const getAllFilters = async () => {
+  const res = await api.get("/system/filters");
+  return { data: res.data, error: null };
+};
+
+export const createFilter = async (filter: Filter) => {
+  const res = await api.post("/system/filters", filter);
+  return { data: res.data, error: null };
+};
+
+export const getActiveFilters = async () => {
+  const res = await api.get("/system/filters/active");
+  return { data: res.data, error: null };
+};
+
+export const updateFilter = async (
+  filterId: string,
+  updates: Partial<Filter>,
+) => {
+  const res = await api.put(`/system/filters/${filterId}`, updates);
+  return { data: res.data, error: null };
+};
+
+export const deleteFilter = async (filterId: string) => {
+  const res = await api.delete(`/system/filters/${filterId}`);
+  return { data: res.data, error: null };
 };
 
 // ─── Misc ─────────────────────────────────────────────────────────────────────

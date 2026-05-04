@@ -14,6 +14,7 @@ import {
   Bell,
   CheckCircle,
   Clock,
+  Settings,
   Loader2,
 } from "lucide-react";
 import {
@@ -32,6 +33,7 @@ import Content from "../page/Content";
 import OrderManagement from "../page/OrderManagent";
 import Restrict from "../page/Restrict";
 import Help from "../page/Help";
+import SystemSettings from "../page/SystemSettings";
 import api from "../../services/api";
 
 type MenuItem = { id: string; label: string; icon: React.ReactNode };
@@ -133,6 +135,7 @@ const AdminDashboard: React.FC = () => {
     // },
     { id: "pages", label: "Pages & Restriction", icon: <FileText size={20} /> },
     { id: "content", label: "Content Management", icon: <Folder size={20} /> },
+    { id: "settings", label: "System Settings", icon: <Settings size={20} /> },
     { id: "help", label: "Help & Support", icon: <HelpCircle size={20} /> },
   ];
 
@@ -470,6 +473,8 @@ const AdminDashboard: React.FC = () => {
         return <Restrict />;
       case "content":
         return <Content />;
+      case "settings":
+        return <SystemSettings />;
       case "help":
         return <Help />;
       default:
