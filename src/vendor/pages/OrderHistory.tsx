@@ -17,11 +17,11 @@ interface Order {
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  completed: "text-green-600 bg-green-50 border-green-200",
-  pending: "text-yellow-600 bg-yellow-50 border-yellow-200",
-  accepted: "text-blue-600 bg-blue-50 border-blue-200",
-  preparing: "text-blue-600 bg-blue-50 border-blue-200",
-  canceled: "text-red-600 bg-red-50 border-red-200",
+  completed: "text-emerald-700 bg-emerald-50 border-emerald-100",
+  pending: "text-amber-700 bg-amber-50 border-amber-100",
+  accepted: "text-blue-700 bg-blue-50 border-blue-100",
+  preparing: "text-blue-700 bg-blue-50 border-blue-100",
+  canceled: "text-red-700 bg-red-50 border-red-100",
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -90,8 +90,8 @@ const OrderHistory = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-green-600 animate-spin mx-auto mb-4" />
-          <p className="text-gray-400 font-bold uppercase tracking-widest text-sm">
+          <Loader2 className="w-12 h-12 text-emerald-600 animate-spin mx-auto mb-4" />
+          <p className="text-gray-400 font-medium text-sm">
             Loading history...
           </p>
         </div>
@@ -103,18 +103,18 @@ const OrderHistory = () => {
       <VendorNav />
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-4 shadow-lg sticky top-0 z-20">
+      <div className="bg-white text-gray-900 px-6 py-4 border-b border-gray-100 sticky top-0 z-20">
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate(-1)}
-            className="p-2 hover:bg-white/20 rounded-xl transition-all active:scale-95"
+            className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
           >
             <ArrowLeft className="w-6 h-6" />
           </button>
-          <h1 className="text-xl font-bold tracking-tighter uppercase">
+          <h1 className="text-2xl font-semibold text-gray-900">
             Order History
           </h1>
-          <span className="ml-auto bg-white/20 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest">
+          <span className="ml-auto bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-medium">
             {orders.length} orders
           </span>
         </div>
@@ -123,17 +123,17 @@ const OrderHistory = () => {
       <div className="max-w-2xl mx-auto px-4 py-6">
         {orders.length === 0 ? (
           <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-            <div className="bg-white p-10 rounded-3xl shadow-xl border border-gray-50">
+            <div className="bg-white p-10 rounded-2xl border border-gray-100 shadow-sm">
               <Package className="w-20 h-20 text-gray-200 mx-auto mb-6" />
-              <h2 className="text-2xl font-black text-gray-800 mb-2 uppercase tracking-tighter">
+              <h2 className="text-2xl font-semibold text-gray-900 mb-2">
                 No Orders Yet
               </h2>
-              <p className="text-gray-400 max-w-xs mx-auto text-sm font-medium">
+              <p className="text-gray-400 max-w-xs mx-auto text-sm">
                 Once you receive orders, they'll all appear here.
               </p>
               <Link
                 to="/vendor-dashboard"
-                className="mt-8 inline-block px-8 py-3 bg-green-600 text-white rounded-2xl font-bold uppercase tracking-widest text-sm hover:bg-green-700 transition-all active:scale-95"
+                className="mt-8 inline-block px-8 py-3 bg-emerald-600 text-white rounded-xl font-semibold text-sm hover:bg-emerald-700 transition-colors"
               >
                 Go to Dashboard
               </Link>
@@ -144,12 +144,12 @@ const OrderHistory = () => {
             {orders.map((order, i) => (
               <div
                 key={order.id}
-                className="bg-white rounded-[2rem] shadow-xl border border-gray-50 hover:border-green-200 hover:shadow-2xl transition-all p-5"
+                className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:border-emerald-200 transition-colors p-5"
                 style={{ animation: `slideIn 0.4s ease-out ${i * 0.05}s both` }}
               >
                 <div className="flex gap-4">
                   {/* Image */}
-                  <div className="w-20 h-20 rounded-2xl bg-green-50 flex items-center justify-center flex-shrink-0 shadow-inner overflow-hidden">
+                  <div className="w-20 h-20 rounded-2xl bg-emerald-50 flex items-center justify-center flex-shrink-0 overflow-hidden">
                     {order.image ? (
                       <img
                         src={order.image}
@@ -164,22 +164,22 @@ const OrderHistory = () => {
                   {/* Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2 mb-1">
-                      <h3 className="font-black text-gray-800 uppercase tracking-tighter truncate">
+                      <h3 className="font-semibold text-gray-900 truncate">
                         {order.customerName}
                       </h3>
-                      <span className="text-[10px] font-bold text-gray-300 flex-shrink-0 font-mono">
+                      <span className="text-[10px] font-medium text-gray-400 flex-shrink-0 font-mono">
                         #{order.id.slice(0, 6).toUpperCase()}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-400 font-medium mb-3">
+                    <p className="text-xs text-gray-400 mb-3">
                       {order.date} · {order.time}
                     </p>
                     <div className="flex items-center justify-between">
-                      <span className="font-black text-green-600 text-lg tracking-tighter">
+                      <span className="font-semibold text-emerald-600 text-lg">
                         {order.amount}
                       </span>
                       <span
-                        className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${STATUS_STYLES[order.status] || "text-gray-500 bg-gray-50 border-gray-200"}`}
+                        className={`px-3 py-1 rounded-full text-xs font-medium border ${STATUS_STYLES[order.status] || "text-gray-500 bg-gray-50 border-gray-200"}`}
                       >
                         {STATUS_LABELS[order.status] || order.status}
                       </span>

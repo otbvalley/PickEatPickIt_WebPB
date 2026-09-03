@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Navigation, Loader, MapPin, Target, X } from "lucide-react";
 import { RiderNav } from "../component/RiderNav";
 import { useToast } from "../../context/ToastContext";
+import { riderHeartbeat, riderMarkArrived } from "../../services/api";
 
 type GoogleMap = google.maps.Map | null;
 type GoogleMarker = google.maps.Marker | null;
@@ -9,6 +11,8 @@ type GooglePolyline = google.maps.Polyline | null;
 
 const FoodDeliveryMap = () => {
   const toast = useToast();
+  const [searchParams] = useSearchParams();
+  const orderId = searchParams.get("orderId");
   const mapRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<GoogleMap>(null);
   const [currentLocationMarker, setCurrentLocationMarker] =
@@ -32,6 +36,33 @@ const FoodDeliveryMap = () => {
   const [distance, setDistance] = useState<string>("");
   const [duration, setDuration] = useState<string>("");
   const [isNavigating, setIsNavigating] = useState(false);
+
+  // Keep a ref to the latest location so the heartbeat interval always
+  // sends the freshest coordinates without needing to restart itself.
+  const currentLocationRef = useRef<{ lat: number; lng: number } | null>(
+    null,
+  );
+  useEffect(() => {
+    currentLocationRef.current = currentLocation;
+  }, [currentLocation]);
+
+  // Periodically report the rider's live location to the backend while
+  // this map view is active.
+  useEffect(() => {
+    const HEARTBEAT_INTERVAL_MS = 20000;
+    const sendHeartbeat = () => {
+      const loc = currentLocationRef.current;
+      if (!loc) return;
+      riderHeartbeat({ latitude: loc.lat, longitude: loc.lng }).catch(
+        (err) => {
+          console.error("Failed to send rider heartbeat:", err);
+        },
+      );
+    };
+
+    const intervalId = setInterval(sendHeartbeat, HEARTBEAT_INTERVAL_MS);
+    return () => clearInterval(intervalId);
+  }, []);
 
   // Load Google Maps Script
   useEffect(() => {
@@ -240,6 +271,11 @@ const FoodDeliveryMap = () => {
         ) {
           clearInterval(interval);
           setIsNavigating(false);
+          if (orderId) {
+            riderMarkArrived(orderId).catch((err) => {
+              console.error("Failed to notify backend of arrival:", err);
+            });
+          }
           toast.success("🎉 You have arrived at your destination!", "Arrived!");
           return prev;
         }

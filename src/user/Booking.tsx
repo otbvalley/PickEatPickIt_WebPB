@@ -139,13 +139,13 @@ const Booking: React.FC = () => {
     switch (status) {
       case "pending":
       case "accepted":
-        return "bg-orange-500 text-white";
+        return "bg-blue-50 text-blue-700";
       case "completed":
-        return "bg-green-600 text-white";
+        return "bg-emerald-50 text-emerald-700";
       case "canceled":
-        return "bg-red-500 text-white";
+        return "bg-red-50 text-red-700";
       default:
-        return "bg-gray-500 text-white";
+        return "bg-gray-100 text-gray-600";
     }
   };
 
@@ -163,9 +163,7 @@ const Booking: React.FC = () => {
             className="max-w-4xl mx-auto px-6 py-6"
           >
             <div className="flex items-center justify-between mb-8">
-              <h1 className="text-3xl font-black  tracking-tighter uppercase">
-                Orders
-              </h1>
+              <h1 className="text-2xl font-semibold text-gray-900">Orders</h1>
               <div className="relative">
                 <Bell className="w-6 h-6 text-gray-400" />
                 <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></span>
@@ -173,24 +171,24 @@ const Booking: React.FC = () => {
             </div>
 
             {/* Custom Tabs */}
-            <div className="flex p-1 bg-gray-100 rounded-2xl mb-8 relative">
+            <div className="flex p-1 bg-gray-50 rounded-xl border border-gray-100 mb-8 relative">
               {["accepted", "completed", "canceled"].map((tab) => (
                 <button
                   key={tab}
                   onClick={() =>
                     setActiveTab(tab as "accepted" | "canceled" | "completed")
                   }
-                  className={`flex-1 py-3 text-sm font-black uppercase  tracking-widest relative z-10 transition-colors ${
+                  className={`flex-1 py-2.5 text-sm font-medium capitalize rounded-lg relative z-10 transition-colors ${
                     activeTab === tab
                       ? "text-white"
-                      : "text-gray-400 hover:text-gray-600"
+                      : "text-gray-500 hover:text-gray-700"
                   }`}
                 >
                   {tab}
                   {activeTab === tab && (
                     <motion.div
                       layoutId="activeTab"
-                      className="absolute inset-0 bg-green-600 rounded-xl -z-10 shadow-lg"
+                      className="absolute inset-0 bg-emerald-600 rounded-lg -z-10"
                     />
                   )}
                 </button>
@@ -202,7 +200,7 @@ const Booking: React.FC = () => {
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className="h-32 bg-gray-50 rounded-[2rem] animate-pulse"
+                    className="h-32 bg-gray-50 rounded-2xl animate-pulse"
                   />
                 ))}
               </div>
@@ -216,11 +214,11 @@ const Booking: React.FC = () => {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95 }}
-                      className="bg-white p-6 rounded-[2.5rem] border border-gray-50 shadow-xl group hover:border-green-500/30 transition-all"
+                      className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm group transition-all"
                     >
                       <div className="flex justify-between items-start mb-6">
                         <div className="flex gap-4">
-                          <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center text-2xl shadow-inner overflow-hidden">
+                          <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center text-2xl overflow-hidden">
                             {order.image_url ? (
                               <img
                                 src={order.image_url}
@@ -238,24 +236,24 @@ const Booking: React.FC = () => {
                             )}
                           </div>
                           <div>
-                            <h3 className="text-lg font-black  tracking-tighter uppercase">
+                            <h3 className="text-base font-semibold text-gray-900">
                               {order.restaurant_name}
                             </h3>
-                            <p className="text-gray-400 text-xs font-bold uppercase tracking-widest">
-                              {order.items_count} ITEMS • ₦
+                            <p className="text-gray-500 text-sm">
+                              {order.items_count} items • ₦
                               {order.total_amount.toLocaleString()}
                             </p>
                           </div>
                         </div>
                         <span
-                          className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase  tracking-widest ${getStatusColor(order.status)}`}
+                          className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}
                         >
                           {order.status}
                         </span>
                       </div>
 
                       <div className="flex items-center justify-between pl-20">
-                        <span className="text-xs font-bold text-gray-400 flex items-center gap-2">
+                        <span className="text-xs text-gray-400 flex items-center gap-2">
                           <Clock className="w-4 h-4" />{" "}
                           {new Date(order.scheduled_time).toLocaleDateString()}
                         </span>
@@ -267,7 +265,7 @@ const Booking: React.FC = () => {
                               ? handleTrackOrder(order)
                               : null
                           }
-                          className="flex items-center gap-2 px-6 py-3 bg-gray-50 hover:bg-green-600 hover:text-white text-gray-700 rounded-xl text-xs font-black uppercase  tracking-widest transition-all active:scale-95"
+                          className="flex items-center gap-2 px-5 py-2.5 bg-gray-50 hover:bg-emerald-600 hover:text-white text-gray-700 rounded-xl text-xs font-medium transition-colors"
                         >
                           {order.status === "pending" ||
                           order.status === "accepted"
@@ -289,7 +287,7 @@ const Booking: React.FC = () => {
                 <div className="w-40 h-40 bg-gray-50 rounded-full flex items-center justify-center mb-6">
                   <Package className="w-16 h-16 text-gray-300" />
                 </div>
-                <h3 className="text-xl font-black  tracking-tighter uppercase text-gray-400">
+                <h3 className="text-base font-semibold text-gray-500">
                   No Orders Found
                 </h3>
                 <p className="text-gray-400 text-sm mt-2 max-w-xs">
@@ -309,37 +307,37 @@ const Booking: React.FC = () => {
             <div className="flex items-center gap-4 mb-8">
               <button
                 onClick={() => setCurrentView("bookings")}
-                className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center hover:scale-105 transition-all"
+                className="w-12 h-12 bg-gray-50 rounded-xl border border-gray-100 flex items-center justify-center hover:bg-gray-100 transition-colors"
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
-              <h1 className="text-2xl font-black  tracking-tighter uppercase">
+              <h1 className="text-2xl font-semibold text-gray-900">
                 Tracking
               </h1>
             </div>
 
             {selectedOrder && (
-              <div className="space-y-8">
+              <div className="space-y-6">
                 {/* Code Check */}
-                <div className="bg-gradient-to-br from-green-500 to-emerald-700 p-8 rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden">
+                <div className="bg-emerald-600 p-8 rounded-2xl text-white relative overflow-hidden">
                   <div className="absolute top-0 right-0 p-10 opacity-10">
                     <Truck className="w-32 h-32" />
                   </div>
-                  <p className="text-xs font-black uppercase  tracking-widest opacity-80 mb-2">
+                  <p className="text-xs font-medium opacity-80 mb-2">
                     Security Code
                   </p>
-                  <h2 className="text-5xl font-black font-mono tracking-widest mb-4">
+                  <h2 className="text-4xl font-semibold font-mono tracking-wide mb-4">
                     {selectedOrder.id.slice(0, 4)}{" "}
                     {selectedOrder.id.slice(4, 8)}
                   </h2>
-                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest bg-white/20 w-fit px-4 py-2 rounded-lg backdrop-blur-md">
+                  <div className="flex items-center gap-2 text-xs font-medium bg-white/20 w-fit px-4 py-2 rounded-lg">
                     <CheckCircle className="w-4 h-4" /> Show to courier
                   </div>
                 </div>
 
                 {/* Timeline */}
-                <div className="bg-white p-8 rounded-[2.5rem] border border-gray-50 shadow-xl">
-                  <h3 className="text-xl font-black  tracking-tighter uppercase mb-8">
+                <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
+                  <h3 className="text-base font-semibold text-gray-900 mb-8">
                     Progress
                   </h3>
                   <div className="space-y-8 pl-4 border-l-2 border-dashed border-gray-200 ml-4 relative">
@@ -356,20 +354,20 @@ const Booking: React.FC = () => {
                       return (
                         <div key={i} className="relative pl-8">
                           <div
-                            className={`absolute -left-[37px] top-0 w-5 h-5 rounded-full border-4 border-white ${isOrderProgress(step) && step.completed !== false ? "bg-green-500 shadow-lg shadow-green-500/50" : "bg-gray-300"}`}
+                            className={`absolute -left-[37px] top-0 w-5 h-5 rounded-full border-4 border-white ${isOrderProgress(step) && step.completed !== false ? "bg-emerald-500" : "bg-gray-300"}`}
                           />
                           <div className="flex justify-between items-start">
                             <div>
                               <p
-                                className={`font-bold text-sm ${isOrderProgress(step) && step.completed !== false ? "text-gray-800" : "text-gray-400"}`}
+                                className={`font-medium text-sm ${isOrderProgress(step) && step.completed !== false ? "text-gray-800" : "text-gray-400"}`}
                               >
                                 {step.message}
                               </p>
-                              <p className="text-xs text-green-600 font-bold uppercase tracking-widest mt-1">
+                              <p className="text-xs text-emerald-600 font-medium mt-1">
                                 Confirmed
                               </p>
                             </div>
-                            <span className="text-xs font-black text-gray-400 ">
+                            <span className="text-xs font-medium text-gray-400">
                               {isOrderProgress(step)
                                 ? step.time
                                 : new Date(
@@ -387,31 +385,31 @@ const Booking: React.FC = () => {
                 </div>
 
                 {/* Driver/ETA */}
-                <div className="bg-gray-50 p-6 rounded-[2rem] flex items-center justify-between border border-gray-100">
+                <div className="bg-gray-50 p-6 rounded-2xl flex items-center justify-between border border-gray-100">
                   <div className="flex items-center gap-4">
                     <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center shadow-sm">
-                      <MapPin className="w-6 h-6 text-green-500" />
+                      <MapPin className="w-6 h-6 text-emerald-600" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-black uppercase  tracking-widest text-gray-400">
+                      <p className="text-xs font-medium text-gray-500">
                         Estimated Arrival
                       </p>
-                      <p className="text-xl font-black  text-gray-800">
+                      <p className="text-xl font-semibold text-gray-800">
                         10:45 AM
                       </p>
                     </div>
                   </div>
-                  <button className="w-12 h-12 bg-green-500 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-all">
+                  <button className="w-12 h-12 bg-emerald-600 text-white rounded-full flex items-center justify-center hover:bg-emerald-700 transition-colors">
                     <RefreshCw className="w-5 h-5" />
                   </button>
                 </div>
 
                 {/* Merchant Details */}
                 {selectedOrder.vendor && (
-                  <div className="bg-white p-8 rounded-[2.5rem] border border-gray-50 shadow-xl overflow-hidden relative">
+                  <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm overflow-hidden relative">
                     <div className="flex items-start justify-between mb-6">
                       <div className="flex gap-4">
-                        <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center text-2xl shadow-inner overflow-hidden border border-gray-100">
+                        <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center text-2xl overflow-hidden border border-gray-100">
                           {selectedOrder.vendor.logo_url ? (
                             <img
                               src={selectedOrder.vendor.logo_url}
@@ -425,10 +423,10 @@ const Booking: React.FC = () => {
                           )}
                         </div>
                         <div>
-                          <p className="text-[10px] font-black uppercase  tracking-widest text-gray-400 mb-1">
+                          <p className="text-xs text-gray-400 mb-1">
                             Merchant
                           </p>
-                          <h3 className="text-xl font-black  tracking-tighter uppercase">
+                          <h3 className="text-base font-semibold text-gray-900">
                             {selectedOrder.vendor.business_name}
                           </h3>
                         </div>
@@ -437,36 +435,32 @@ const Booking: React.FC = () => {
                         onClick={() =>
                           handleMessageMerchant(selectedOrder.vendor_id)
                         }
-                        className="w-14 h-14 bg-green-500 text-white rounded-full flex items-center justify-center shadow-lg shadow-green-500/30 hover:scale-110 transition-all active:scale-95"
+                        className="w-12 h-12 bg-emerald-600 text-white rounded-full flex items-center justify-center hover:bg-emerald-700 transition-colors"
                       >
-                        <MessageSquare className="w-6 h-6" />
+                        <MessageSquare className="w-5 h-5" />
                       </button>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                        <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-green-500 shadow-sm">
+                        <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-emerald-600 shadow-sm">
                           <MapPin className="w-5 h-5" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-[8px] font-black uppercase  text-gray-400">
-                            Address
-                          </p>
-                          <p className="text-xs font-bold truncate">
+                          <p className="text-xs text-gray-400">Address</p>
+                          <p className="text-sm text-gray-700 truncate">
                             {selectedOrder.vendor.business_address ||
                               "No address provided"}
                           </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                        <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-green-500 shadow-sm">
+                        <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-emerald-600 shadow-sm">
                           <Phone className="w-5 h-5" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-[8px] font-black uppercase  text-gray-400">
-                            Phone
-                          </p>
-                          <p className="text-xs font-bold truncate">
+                          <p className="text-xs text-gray-400">Phone</p>
+                          <p className="text-sm text-gray-700 truncate">
                             {selectedOrder.vendor.business_phone ||
                               "No phone provided"}
                           </p>

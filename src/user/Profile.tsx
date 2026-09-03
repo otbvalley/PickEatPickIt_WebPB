@@ -9,7 +9,6 @@ import {
   ChevronRight,
   ShieldCheck,
   Bell,
-  Sparkles,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Navbar } from "../component/Navbar";
@@ -123,7 +122,7 @@ const Profile: React.FC = () => {
             exit={{ opacity: 0 }}
             className="max-w-3xl mx-auto px-6 py-12 space-y-8"
           >
-            <div className="h-64 w-full bg-gray-50 rounded-[3rem] animate-pulse" />
+            <div className="h-64 w-full bg-gray-50 rounded-2xl animate-pulse" />
             <div className="space-y-4">
               {[1, 2, 3, 4].map((i) => (
                 <div
@@ -140,39 +139,33 @@ const Profile: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             className="max-w-4xl mx-auto px-6 py-12 pb-32"
           >
-            {/* Cinematic Profile Header */}
-            <div className="relative mb-16">
-              <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-emerald-500/10 blur-3xl -z-10 rounded-full" />
-              <div className="bg-white backdrop-blur-2xl rounded-[3rem] p-10 border border-gray-100 shadow-3xl text-center relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-8 opacity-10">
-                  <Sparkles className="w-24 h-24 text-green-500" />
-                </div>
-
+            {/* Profile Header */}
+            <div className="relative mb-10">
+              <div className="bg-white rounded-2xl p-10 border border-gray-100 shadow-sm text-center relative overflow-hidden">
                 <motion.div
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  whileHover={{ scale: 1.05 }}
                   className="relative inline-block mb-8"
                 >
-                  <div className="w-36 h-36 rounded-[2.5rem] bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-2xl shadow-green-500/30 transform -rotate-3 hover:rotate-0 transition-transform duration-500">
-                    <span className="text-5xl font-black text-white  tracking-tighter uppercase">
+                  <div className="w-32 h-32 rounded-2xl bg-emerald-600 flex items-center justify-center">
+                    <span className="text-4xl font-semibold text-white">
                       {initials}
                     </span>
                   </div>
-                  <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-white rounded-2xl flex items-center justify-center shadow-xl border-4 border-gray-50">
-                    <ShieldCheck className="w-5 h-5 text-green-500" />
+                  <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm border border-gray-100">
+                    <ShieldCheck className="w-5 h-5 text-emerald-600" />
                   </div>
                 </motion.div>
 
-                <h1 className="text-4xl font-black  tracking-tighter uppercase text-gray-800 mb-2">
+                <h1 className="text-2xl font-semibold text-gray-900 mb-2">
                   {fullName || "Cinematic User"}
                 </h1>
-                <p className="text-gray-400 font-bold uppercase  tracking-widest text-[10px] mb-6">
+                <p className="text-gray-500 text-sm mb-6">
                   {userProfile.email || "premium@pickitpickeat.com"}
                 </p>
 
                 <div className="flex items-center justify-center gap-6">
-                  <div className="px-6 py-2 bg-green-500/10 rounded-full border border-green-500/20 text-green-600 font-black  text-xs uppercase tracking-widest">
+                  <div className="px-4 py-1.5 bg-emerald-50 rounded-full text-emerald-700 font-medium text-xs">
                     Verified Global Member
                   </div>
                 </div>
@@ -189,19 +182,19 @@ const Profile: React.FC = () => {
                   transition={{ delay: index * 0.1 }}
                 >
                   <Link to={item.secs} className="block group">
-                    <div className="bg-white p-6 rounded-[2rem] border border-gray-50 hover:border-green-500/30 shadow-xl hover:shadow-2xl transition-all h-full flex items-center gap-6 relative overflow-hidden">
-                      <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center text-green-600 shadow-inner group-hover:scale-110 group-hover:bg-green-600 group-hover:text-white transition-all duration-500">
+                    <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:border-emerald-200 transition-colors h-full flex items-center gap-6 relative overflow-hidden">
+                      <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
                         {item.icon}
                       </div>
                       <div>
-                        <h3 className="text-lg font-black  tracking-tighter uppercase text-gray-800 leading-none mb-1">
+                        <h3 className="text-base font-semibold text-gray-900 leading-none mb-1">
                           {item.label}
                         </h3>
-                        <p className="text-[10px] text-gray-400 font-bold uppercase  tracking-widest leading-tight">
+                        <p className="text-sm text-gray-500 leading-tight">
                           {item.description}
                         </p>
                       </div>
-                      <ChevronRight className="absolute right-6 w-5 h-5 text-gray-300 group-hover:text-green-500 group-hover:translate-x-2 transition-all" />
+                      <ChevronRight className="absolute right-6 w-5 h-5 text-gray-300 group-hover:text-emerald-600 group-hover:translate-x-1 transition-all" />
                     </div>
                   </Link>
                 </motion.div>
@@ -217,11 +210,10 @@ const Profile: React.FC = () => {
             >
               <button
                 onClick={handleLogout}
-                className="group relative px-12 py-5 bg-black text-white rounded-3xl font-black  uppercase tracking-tighter text-xl overflow-hidden active:scale-95 transition-all shadow-2xl"
+                className="group relative px-8 py-3.5 bg-white border border-gray-200 text-gray-700 rounded-xl font-medium text-sm overflow-hidden hover:border-red-200 hover:text-red-600 transition-colors"
               >
-                <div className="absolute inset-0 bg-red-600 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-                <span className="relative z-10 flex items-center gap-4">
-                  Log Out Profile <LogOut className="w-6 h-6" />
+                <span className="relative z-10 flex items-center gap-2">
+                  Log Out <LogOut className="w-4 h-4" />
                 </span>
               </button>
             </motion.div>

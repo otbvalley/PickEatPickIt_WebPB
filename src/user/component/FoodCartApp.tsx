@@ -109,17 +109,17 @@ const selectedCount = cartItems.filter((item) => item.selected).length;
           />
           <span className="ml-3 text-gray-700 font-medium">Select all</span>
         </label>
-        <span className="text-emerald-600 font-semibold">
+        <span className="text-sm text-emerald-600 font-semibold">
           ({selectedCount}/{cartItems.length})
         </span>
       </div>
 
       {/* Cart Items */}
-      <div className="flex-1 overflow-y-auto bg-gray-50">
+      <div className="flex-1 overflow-y-auto bg-gray-50 px-3 py-3 space-y-3">
         {cartItems.map((item) => (
           <div
             key={item.id}
-            className="bg-white mb-2 px-4 py-4 border-b border-gray-100"
+            className="bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-4"
           >
             <div className="flex items-start">
               <input
@@ -135,7 +135,7 @@ const selectedCount = cartItems.filter((item) => item.selected).length;
                     {item.restaurant}
                   </h3>
                   <div className="flex items-center gap-2">
-                    <span className="text-emerald-600 font-bold">
+                    <span className="text-emerald-600 font-semibold">
                       ₦{item.price.toFixed(2)}
                     </span>
                     <button

@@ -4,6 +4,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Navbar } from "../component/Navbar";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../services/authService";
+import {
+  getCountries,
+  getStates,
+  getCities,
+  type Country,
+  type LocationState,
+  type LocationCity,
+} from "../services/api";
 
 interface PersonalInfo {
   fullName: string;
@@ -61,6 +69,71 @@ const ProfileEditForm: React.FC = () => {
   const [tempValues, setTempValues] = useState<PersonalInfo>(personalInfo);
   const [serviceOption, setServiceOption] = useState<string>("direct");
   const [riderInstructions, setRiderInstructions] = useState<string>("");
+
+  // Location pickers (country drives state options, state drives city options)
+  const [selectedCountry, setSelectedCountry] = useState<string>("Nigeria");
+  const [countries, setCountries] = useState<Country[]>([]);
+  const [states, setStates] = useState<LocationState[]>([]);
+  const [cities, setCities] = useState<LocationCity[]>([]);
+  const [loadingCountries, setLoadingCountries] = useState(false);
+  const [loadingStates, setLoadingStates] = useState(false);
+  const [loadingCities, setLoadingCities] = useState(false);
+
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        setLoadingCountries(true);
+        const res = await getCountries();
+        setCountries((res.data as Country[]) ?? []);
+      } catch (error) {
+        console.error("Failed to load countries:", error);
+      } finally {
+        setLoadingCountries(false);
+      }
+    };
+    fetchCountries();
+  }, []);
+
+  useEffect(() => {
+    if (!selectedCountry) {
+      setStates([]);
+      return;
+    }
+    const fetchStates = async () => {
+      try {
+        setLoadingStates(true);
+        const res = await getStates(selectedCountry);
+        setStates((res.data as LocationState[]) ?? []);
+      } catch (error) {
+        console.error("Failed to load states:", error);
+        setStates([]);
+      } finally {
+        setLoadingStates(false);
+      }
+    };
+    fetchStates();
+  }, [selectedCountry]);
+
+  useEffect(() => {
+    if (!selectedCountry || !tempValues.state) {
+      setCities([]);
+      return;
+    }
+    const fetchCities = async () => {
+      try {
+        setLoadingCities(true);
+        const res = await getCities(selectedCountry, tempValues.state);
+        setCities((res.data as LocationCity[]) ?? []);
+      } catch (error) {
+        console.error("Failed to load cities:", error);
+        setCities([]);
+      } finally {
+        setLoadingCities(false);
+      }
+    };
+    fetchCities();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCountry, tempValues.state]);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -159,8 +232,10 @@ const ProfileEditForm: React.FC = () => {
             initial={{ opacity: 0, y: -50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className={`fixed top-10 left-1/2 -translate-x-1/2 px-10 py-5 rounded-3xl shadow-3xl text-white z-[100] font-black  uppercase tracking-tighter flex items-center gap-4 ${
-              toastMessage.type === "success" ? "bg-green-600" : "bg-red-600"
+            className={`fixed top-10 left-1/2 -translate-x-1/2 px-6 py-4 rounded-xl shadow-sm text-white z-[100] font-medium flex items-center gap-3 ${
+              toastMessage.type === "success"
+                ? "bg-emerald-600"
+                : "bg-red-600"
             }`}
           >
             {toastMessage.type === "success" ? (
@@ -177,14 +252,14 @@ const ProfileEditForm: React.FC = () => {
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <button
             onClick={() => navigate(-1)}
-            className="w-12 h-12 flex items-center justify-center bg-gray-50 rounded-2xl border border-gray-100 hover:scale-105 transition-all"
+            className="w-11 h-11 flex items-center justify-center bg-gray-50 rounded-xl border border-gray-100 hover:bg-gray-100 transition-colors"
           >
-            <ArrowLeft className="w-6 h-6" />
+            <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="text-xl font-black  tracking-tighter uppercase">
+          <h1 className="text-base font-semibold text-gray-900">
             Edit Profile
           </h1>
-          <div className="w-12" />
+          <div className="w-11" />
         </div>
       </div>
 
@@ -201,7 +276,7 @@ const ProfileEditForm: React.FC = () => {
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="h-32 w-full bg-gray-50 rounded-[2.5rem] animate-pulse"
+                  className="h-32 w-full bg-gray-50 rounded-2xl animate-pulse"
                 />
               ))}
             </motion.div>
@@ -214,9 +289,9 @@ const ProfileEditForm: React.FC = () => {
             >
               {/* Profile Overview Section */}
               <section>
-                <div className="flex items-center gap-4 mb-8">
-                  <div className="w-3 h-8 bg-green-500 rounded-full" />
-                  <h2 className="text-3xl font-black  tracking-tighter uppercase">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-1.5 h-6 bg-emerald-600 rounded-full" />
+                  <h2 className="text-base font-semibold text-gray-900">
                     Identity
                   </h2>
                 </div>
@@ -248,10 +323,10 @@ const ProfileEditForm: React.FC = () => {
                     <motion.div
                       key={field.key}
                       variants={itemVariants}
-                      className="bg-white p-8 rounded-[2.5rem] border border-gray-50 shadow-xl relative overflow-hidden group"
+                      className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden group"
                     >
-                      <div className="flex justify-between items-start mb-4">
-                        <label className="text-[10px] font-black uppercase  tracking-widest text-gray-400">
+                      <div className="flex justify-between items-start mb-3">
+                        <label className="text-xs text-gray-500">
                           {field.label}
                         </label>
                         {!editMode[field.key as keyof EditState] ? (
@@ -259,7 +334,7 @@ const ProfileEditForm: React.FC = () => {
                             onClick={() =>
                               setEditMode({ ...editMode, [field.key]: true })
                             }
-                            className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="w-9 h-9 bg-gray-50 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                           >
                             <Edit3 className="w-4 h-4" />
                           </button>
@@ -269,7 +344,7 @@ const ProfileEditForm: React.FC = () => {
                               handleUpdate(field.key as keyof EditState)
                             }
                             disabled={saving}
-                            className="bg-green-600 text-white px-6 py-2 rounded-xl text-[10px] font-black uppercase  tracking-widest flex items-center gap-2 hover:bg-green-700 transition-all shadow-lg active:scale-95"
+                            className="bg-emerald-600 text-white px-4 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2 hover:bg-emerald-700 transition-colors"
                           >
                             {saving ? (
                               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -291,11 +366,11 @@ const ProfileEditForm: React.FC = () => {
                               [field.key]: e.target.value,
                             })
                           }
-                          className="w-full text-2xl font-black  tracking-tighter uppercase bg-transparent text-green-600 outline-none border-b-4 border-green-600/20 focus:border-green-600 transition-all"
+                          className="w-full text-lg font-medium bg-transparent text-emerald-600 outline-none border-b-2 border-emerald-600/20 focus:border-emerald-600 transition-colors"
                           autoFocus
                         />
                       ) : (
-                        <p className="text-2xl font-black  tracking-tighter uppercase text-gray-800 leading-tight">
+                        <p className="text-lg font-medium text-gray-800 leading-tight">
                           {field.value}
                         </p>
                       )}
@@ -306,16 +381,16 @@ const ProfileEditForm: React.FC = () => {
 
               {/* Geographic Section */}
               <section>
-                <div className="flex items-center gap-4 mb-8">
-                  <div className="w-3 h-8 bg-orange-500 rounded-full" />
-                  <h2 className="text-3xl font-black  tracking-tighter uppercase">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-1.5 h-6 bg-emerald-600 rounded-full" />
+                  <h2 className="text-base font-semibold text-gray-900">
                     Geography
                   </h2>
                 </div>
 
-                <div className="bg-white p-8 rounded-[3rem] border border-gray-50 shadow-2xl space-y-8">
+                <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase  tracking-widest text-gray-400">
+                    <label className="text-xs text-gray-500">
                       Tactical Address
                     </label>
                     <input
@@ -327,35 +402,108 @@ const ProfileEditForm: React.FC = () => {
                           address: e.target.value,
                         })
                       }
-                      className="w-full bg-gray-50 p-6 rounded-[1.5rem] font-bold  text-lg outline-none border-2 border-transparent focus:border-green-600 transition-all"
+                      className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
                     />
                   </div>
 
-                  <div className="grid grid-cols-3 gap-6">
-                    {["city", "state", "zip"].map((cityField) => (
-                      <div key={cityField} className="space-y-2">
-                        <label className="text-[10px] font-black uppercase  tracking-widest text-gray-400">
-                          {cityField}
-                        </label>
-                        <input
-                          type="text"
-                          value={tempValues[cityField as keyof PersonalInfo]}
-                          onChange={(e) =>
-                            setTempValues({
-                              ...tempValues,
-                              [cityField]: e.target.value,
-                            })
-                          }
-                          className="w-full bg-gray-50 p-6 rounded-[1.5rem] font-bold  outline-none border-2 border-transparent focus:border-green-600 transition-all"
-                        />
-                      </div>
-                    ))}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-xs text-gray-500">Country</label>
+                      <select
+                        value={selectedCountry}
+                        onChange={(e) => {
+                          setSelectedCountry(e.target.value);
+                          setTempValues({
+                            ...tempValues,
+                            state: "",
+                            city: "",
+                          });
+                        }}
+                        disabled={loadingCountries}
+                        className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors bg-white"
+                      >
+                        {countries.length === 0 && (
+                          <option value={selectedCountry}>
+                            {selectedCountry}
+                          </option>
+                        )}
+                        {countries.map((country) => (
+                          <option key={country.id} value={country.name}>
+                            {country.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-xs text-gray-500">State</label>
+                      <select
+                        value={tempValues.state}
+                        onChange={(e) =>
+                          setTempValues({
+                            ...tempValues,
+                            state: e.target.value,
+                            city: "",
+                          })
+                        }
+                        disabled={loadingStates || states.length === 0}
+                        className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors bg-white"
+                      >
+                        <option value="">
+                          {loadingStates ? "Loading states…" : "Select state"}
+                        </option>
+                        {states.map((state) => (
+                          <option key={state.id} value={state.name}>
+                            {state.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-xs text-gray-500">City</label>
+                      <select
+                        value={tempValues.city}
+                        onChange={(e) =>
+                          setTempValues({
+                            ...tempValues,
+                            city: e.target.value,
+                          })
+                        }
+                        disabled={loadingCities || cities.length === 0}
+                        className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors bg-white"
+                      >
+                        <option value="">
+                          {loadingCities ? "Loading cities…" : "Select city"}
+                        </option>
+                        {cities.map((city) => (
+                          <option key={city.id} value={city.name}>
+                            {city.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-xs text-gray-500">Zip</label>
+                      <input
+                        type="text"
+                        value={tempValues.zip}
+                        onChange={(e) =>
+                          setTempValues({
+                            ...tempValues,
+                            zip: e.target.value,
+                          })
+                        }
+                        className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+                      />
+                    </div>
                   </div>
 
-                  <div className="relative h-72 rounded-[2.5rem] overflow-hidden border-4 border-gray-50 shadow-inner group">
+                  <div className="relative h-72 rounded-2xl overflow-hidden border border-gray-100 group">
                     <div ref={mapRef} className="w-full h-full" />
-                    <button className="absolute top-6 right-6 bg-white p-4 rounded-2xl shadow-2xl border border-gray-100 active:scale-95 transition-all text-green-600">
-                      <Compass className="w-6 h-6 animate-pulse" />
+                    <button className="absolute top-4 right-4 bg-white p-3 rounded-xl shadow-sm border border-gray-100 hover:bg-gray-50 transition-colors text-emerald-600">
+                      <Compass className="w-5 h-5" />
                     </button>
                   </div>
                 </div>
@@ -363,14 +511,14 @@ const ProfileEditForm: React.FC = () => {
 
               {/* Operational Section */}
               <section>
-                <div className="flex items-center gap-4 mb-8">
-                  <div className="w-3 h-8 bg-blue-500 rounded-full" />
-                  <h2 className="text-3xl font-black  tracking-tighter uppercase">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-1.5 h-6 bg-emerald-600 rounded-full" />
+                  <h2 className="text-base font-semibold text-gray-900">
                     Operations
                   </h2>
                 </div>
 
-                <div className="space-y-4 mb-8">
+                <div className="space-y-3 mb-6">
                   {[
                     { id: "direct", label: "Hand it to me Directly" },
                     { id: "available", label: "Hand to who is available" },
@@ -379,20 +527,20 @@ const ProfileEditForm: React.FC = () => {
                     <div
                       key={opt.id}
                       onClick={() => setServiceOption(opt.id)}
-                      className={`p-6 rounded-[1.5rem] border-4 cursor-pointer transition-all flex items-center justify-between ${
+                      className={`p-4 rounded-xl border cursor-pointer transition-colors flex items-center justify-between ${
                         serviceOption === opt.id
-                          ? "border-green-600 bg-green-500/5"
-                          : "border-gray-50 bg-white"
+                          ? "border-emerald-600 bg-emerald-50"
+                          : "border-gray-200 bg-white"
                       }`}
                     >
                       <span
-                        className={`font-black  uppercase tracking-tighter text-lg ${serviceOption === opt.id ? "text-green-600" : "text-gray-400"}`}
+                        className={`font-medium text-sm ${serviceOption === opt.id ? "text-emerald-700" : "text-gray-600"}`}
                       >
                         {opt.label}
                       </span>
                       {serviceOption === opt.id && (
-                        <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center text-white">
-                          <Check size={14} strokeWidth={4} />
+                        <div className="w-5 h-5 bg-emerald-600 rounded-full flex items-center justify-center text-white">
+                          <Check size={12} strokeWidth={3} />
                         </div>
                       )}
                     </div>
@@ -400,14 +548,14 @@ const ProfileEditForm: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase  tracking-widest text-gray-400">
+                  <label className="text-xs text-gray-500">
                     Directives for Operatives
                   </label>
                   <textarea
                     value={riderInstructions}
                     onChange={(e) => setRiderInstructions(e.target.value)}
                     placeholder="Enter deployment notes..."
-                    className="w-full h-40 bg-white p-8 rounded-[2.5rem] border-4 border-gray-50 outline-none focus:border-green-600 transition-all font-bold  resize-none shadow-xl"
+                    className="w-full h-32 bg-white p-4 rounded-lg border border-gray-200 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors text-sm resize-none"
                   />
                 </div>
               </section>

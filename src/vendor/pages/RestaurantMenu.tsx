@@ -298,8 +298,8 @@ const RestaurantMenu: React.FC = () => {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-green-600 animate-spin mx-auto mb-4" />
-          <p className="text-gray-500 font-bold uppercase tracking-widest text-sm">
+          <Loader2 className="w-12 h-12 text-emerald-600 animate-spin mx-auto mb-4" />
+          <p className="text-gray-500 text-sm">
             Loading menu...
           </p>
         </div>
@@ -310,7 +310,7 @@ const RestaurantMenu: React.FC = () => {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600 font-bold text-lg mb-2">
+          <p className="text-red-600 font-semibold text-lg mb-2">
             Vendor not found
           </p>
           <p className="text-gray-500 text-sm">Please log in again</p>
@@ -323,7 +323,7 @@ const RestaurantMenu: React.FC = () => {
       <VendorNav />
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-600 to-emerald-600 shadow-lg sticky top-0 z-20">
+      <div className="bg-white border-b border-gray-100 sticky top-0 z-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16">
             <button
@@ -333,11 +333,11 @@ const RestaurantMenu: React.FC = () => {
                   setCurrentView(menuItems.length > 0 ? "menu" : "empty");
                 }
               }}
-              className="text-white hover:bg-white/10 rounded-full p-2 transition-all active:scale-95"
+              className="text-gray-500 hover:bg-gray-100 rounded-full p-2 transition-colors"
             >
               <ArrowLeft className="w-6 h-6" />
             </button>
-            <h1 className="text-white text-lg font-bold tracking-tighter uppercase">
+            <h1 className="text-gray-900 text-lg font-semibold">
               {currentView === "add-meal"
                 ? editingItem
                   ? "Edit Meal"
@@ -349,7 +349,7 @@ const RestaurantMenu: React.FC = () => {
                 resetForm();
                 setCurrentView("add-meal");
               }}
-              className="text-white hover:bg-white/10 rounded-full p-2 transition-all active:scale-95"
+              className="text-gray-500 hover:bg-gray-100 rounded-full p-2 transition-colors"
             >
               <Plus className="w-6 h-6" />
             </button>
@@ -361,15 +361,15 @@ const RestaurantMenu: React.FC = () => {
       {currentView === "empty" && (
         <div className="max-w-4xl mx-auto px-4 py-20 flex flex-col items-center text-center">
           <div className="text-8xl mb-6 animate-bounce">📋</div>
-          <h2 className="text-3xl font-bold text-gray-800 mb-3 uppercase tracking-tighter">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-3">
             No Menu Items Yet
           </h2>
-          <p className="text-gray-400 mb-8 max-w-sm">
+          <p className="text-gray-500 mb-8 max-w-sm">
             Start building your menu by adding your first delicious meal.
           </p>
           <button
             onClick={() => setCurrentView("add-meal")}
-            className="bg-green-600 text-white px-8 py-4 rounded-2xl font-bold shadow-xl hover:bg-green-700 transition-all active:scale-95 flex items-center gap-2"
+            className="bg-emerald-600 text-white px-8 py-4 rounded-xl font-semibold hover:bg-emerald-700 transition-colors flex items-center gap-2"
           >
             <Plus className="w-5 h-5" /> Add Your First Meal
           </button>
@@ -389,7 +389,7 @@ const RestaurantMenu: React.FC = () => {
               placeholder="Search menu..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:border-green-500 focus:ring-4 focus:ring-green-500/10 transition-all text-sm font-medium"
+              className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-sm"
             />
           </div>
 
@@ -399,9 +399,9 @@ const RestaurantMenu: React.FC = () => {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-5 py-2 rounded-full font-bold text-xs uppercase tracking-widest whitespace-nowrap transition-all ${
+                className={`px-5 py-2 rounded-full font-medium text-xs whitespace-nowrap transition-colors ${
                   selectedCategory === cat
-                    ? "bg-green-600 text-white shadow-lg"
+                    ? "bg-emerald-600 text-white"
                     : "bg-gray-100 text-gray-500 hover:bg-gray-200"
                 }`}
               >
@@ -415,8 +415,8 @@ const RestaurantMenu: React.FC = () => {
 
           {/* Items */}
           {filteredItems.length === 0 ? (
-            <div className="text-center py-20 text-gray-300">
-              <p className="font-bold uppercase tracking-widest">
+            <div className="text-center py-20 text-gray-400">
+              <p className="font-medium text-sm">
                 No items in this category
               </p>
             </div>
@@ -425,12 +425,12 @@ const RestaurantMenu: React.FC = () => {
               {filteredItems.map((item, idx) => (
                 <div
                   key={item.id}
-                  className={`bg-white rounded-[2rem] shadow-xl border border-gray-50 hover:border-green-200 hover:shadow-2xl transition-all overflow-hidden ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+                  className={`bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all overflow-hidden ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
                   style={{ transitionDelay: `${idx * 60}ms` }}
                 >
                   <div className="flex gap-4 p-5">
                     {/* Image */}
-                    <div className="w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0 bg-green-50 shadow-inner">
+                    <div className="w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0 bg-emerald-50">
                       {item.image_url ? (
                         <img
                           src={item.image_url}
@@ -447,27 +447,27 @@ const RestaurantMenu: React.FC = () => {
                     {/* Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
-                        <h3 className="font-black text-gray-800 uppercase tracking-tighter truncate">
+                        <h3 className="font-semibold text-gray-900 truncate">
                           {item.name}
                         </h3>
-                        <span className="text-xs font-bold bg-green-50 text-green-600 px-2 py-1 rounded-lg flex-shrink-0">
+                        <span className="text-xs font-medium bg-emerald-50 text-emerald-700 px-2 py-1 rounded-full flex-shrink-0">
                           {item.category}
                         </span>
                       </div>
-                      <p className="text-gray-400 text-xs font-medium mt-1 line-clamp-2">
+                      <p className="text-gray-500 text-xs mt-1 line-clamp-2">
                         {item.description}
                       </p>
                       <div className="flex items-center gap-3 mt-2">
-                        <span className="font-black text-green-600 text-lg">
+                        <span className="font-semibold text-emerald-600 text-lg">
                           ₦{item.price.toLocaleString()}
                         </span>
                         {item.discount > 0 && (
-                          <span className="text-xs font-bold bg-orange-50 text-orange-500 px-2 py-0.5 rounded-full">
+                          <span className="text-xs font-medium bg-orange-50 text-orange-500 px-2 py-0.5 rounded-full">
                             {item.discount}% off
                           </span>
                         )}
                         {!item.in_stock && (
-                          <span className="text-xs font-bold bg-red-50 text-red-500 px-2 py-0.5 rounded-full">
+                          <span className="text-xs font-medium bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
                             Out of stock
                           </span>
                         )}
@@ -479,14 +479,14 @@ const RestaurantMenu: React.FC = () => {
                   <div className="flex gap-3 px-5 pb-5">
                     <button
                       onClick={() => handleEdit(item)}
-                      className="flex-1 py-2.5 bg-green-600 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-green-700 transition-all active:scale-95 shadow-lg"
+                      className="flex-1 py-2.5 bg-emerald-600 text-white rounded-xl font-medium text-sm hover:bg-emerald-700 transition-colors"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => handleRemove(item.id)}
                       disabled={deleteId === item.id}
-                      className="w-11 h-11 flex items-center justify-center bg-red-50 text-red-500 rounded-xl hover:bg-red-100 transition-all active:scale-95 disabled:opacity-50 flex-shrink-0"
+                      className="w-11 h-11 flex items-center justify-center text-red-600 rounded-xl hover:bg-red-50 transition-colors disabled:opacity-50 flex-shrink-0"
                     >
                       {deleteId === item.id ? (
                         <Loader2 size={16} className="animate-spin" />
@@ -509,7 +509,7 @@ const RestaurantMenu: React.FC = () => {
             className={`space-y-5 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
           >
             {/* Stock + availability toggles */}
-            <div className="bg-white rounded-[2rem] shadow-xl p-6 flex flex-col gap-4">
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex flex-col gap-4">
               {[
                 { label: "In Stock", val: inStock, set: setInStock },
                 { label: "Available", val: isAvailable, set: setIsAvailable },
@@ -523,12 +523,12 @@ const RestaurantMenu: React.FC = () => {
                   key={tog.label}
                   className="flex items-center justify-between"
                 >
-                  <span className="font-bold text-gray-700 uppercase tracking-wider text-sm">
+                  <span className="font-medium text-gray-700 text-sm">
                     {tog.label}
                   </span>
                   <button
                     onClick={() => tog.set(!tog.val)}
-                    className={`relative w-14 h-7 rounded-full transition-all duration-300 ${tog.val ? "bg-green-600" : "bg-gray-200"}`}
+                    className={`relative w-14 h-7 rounded-full transition-all duration-300 ${tog.val ? "bg-emerald-600" : "bg-gray-200"}`}
                   >
                     <div
                       className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300 ${tog.val ? "translate-x-7" : "translate-x-0"}`}
@@ -539,7 +539,7 @@ const RestaurantMenu: React.FC = () => {
             </div>
 
             {/* Image upload */}
-            <div className="bg-blue-50 rounded-[2rem] border-2 border-dashed border-blue-200 p-8 text-center">
+            <div className="bg-gray-50 rounded-2xl border border-dashed border-gray-300 p-8 text-center">
               <input
                 type="file"
                 id="imageUpload"
@@ -548,7 +548,7 @@ const RestaurantMenu: React.FC = () => {
                 className="hidden"
               />
               {imagePreview ? (
-                <div className="relative rounded-2xl overflow-hidden shadow-xl">
+                <div className="relative rounded-xl overflow-hidden border border-gray-100 shadow-sm">
                   <img
                     src={imagePreview}
                     alt="Preview"
@@ -564,12 +564,12 @@ const RestaurantMenu: React.FC = () => {
                       setImagePreview("");
                       setImageFile(null);
                     }}
-                    className="absolute top-3 right-3 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold hover:bg-red-600 transition-all"
+                    className="absolute top-3 right-3 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-medium hover:bg-red-600 transition-colors"
                   >
                     ✕
                   </button>
                   {imageFile && (
-                    <div className="absolute bottom-3 left-3 bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                    <div className="absolute bottom-3 left-3 bg-emerald-600 text-white text-xs font-medium px-3 py-1 rounded-full">
                       New image ready to upload
                     </div>
                   )}
@@ -579,10 +579,10 @@ const RestaurantMenu: React.FC = () => {
                   htmlFor="imageUpload"
                   className="cursor-pointer flex flex-col items-center group"
                 >
-                  <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-md group-hover:scale-110 transition-transform">
-                    <Upload className="w-10 h-10 text-green-600" />
+                  <div className="w-20 h-20 bg-white rounded-xl border border-gray-100 flex items-center justify-center mb-4 shadow-sm">
+                    <Upload className="w-10 h-10 text-emerald-600" />
                   </div>
-                  <p className="font-bold text-green-600 uppercase tracking-tighter">
+                  <p className="font-medium text-emerald-600">
                     Upload Meal Image
                   </p>
                   <p className="text-xs text-gray-400 mt-2">
@@ -606,7 +606,7 @@ const RestaurantMenu: React.FC = () => {
               placeholder="Meal Name *"
               value={mealName}
               onChange={(e) => setMealName(e.target.value)}
-              className="w-full px-5 py-4 bg-white rounded-2xl border-2 border-gray-200 outline-none focus:border-green-500 focus:ring-4 focus:ring-green-500/10 transition-all text-gray-800 font-medium"
+              className="w-full px-5 py-4 bg-white rounded-lg border border-gray-200 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-gray-900"
             />
 
             <input
@@ -615,11 +615,11 @@ const RestaurantMenu: React.FC = () => {
               value={mealPrice}
               onChange={(e) => setMealPrice(e.target.value)}
               min="0"
-              className="w-full px-5 py-4 bg-white rounded-2xl border-2 border-gray-200 outline-none focus:border-green-500 focus:ring-4 focus:ring-green-500/10 transition-all text-gray-800 font-medium"
+              className="w-full px-5 py-4 bg-white rounded-lg border border-gray-200 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-gray-900"
             />
 
             <div>
-              <label className="block text-green-600 font-bold mb-2 text-xs uppercase tracking-widest">
+              <label className="block text-gray-500 font-medium mb-2 text-xs">
                 Discount (%)
               </label>
               <input
@@ -629,7 +629,7 @@ const RestaurantMenu: React.FC = () => {
                 onChange={(e) => setMealDiscount(e.target.value)}
                 min="0"
                 max="100"
-                className="w-full px-5 py-4 bg-white rounded-2xl border-2 border-gray-200 outline-none focus:border-green-500 focus:ring-4 focus:ring-green-500/10 transition-all text-gray-800 font-medium"
+                className="w-full px-5 py-4 bg-white rounded-lg border border-gray-200 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-gray-900"
               />
             </div>
 
@@ -638,7 +638,7 @@ const RestaurantMenu: React.FC = () => {
               <select
                 value={mealCategory}
                 onChange={(e) => setMealCategory(e.target.value)}
-                className="w-full px-5 py-4 bg-white rounded-2xl border-2 border-gray-200 outline-none focus:border-green-500 focus:ring-4 focus:ring-green-500/10 transition-all appearance-none text-gray-800 font-bold"
+                className="w-full px-5 py-4 bg-white rounded-lg border border-gray-200 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all appearance-none text-gray-900 font-medium"
               >
                 {CATEGORIES.filter((c) => c !== "All").map((c) => (
                   <option key={c} value={c}>
@@ -647,14 +647,14 @@ const RestaurantMenu: React.FC = () => {
                 ))}
               </select>
               <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-              <span className="absolute left-5 -top-2.5 bg-white px-2 text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+              <span className="absolute left-5 -top-2.5 bg-white px-2 text-[10px] text-gray-400 font-medium">
                 Category
               </span>
             </div>
 
             {/* Description */}
             <div>
-              <label className="block text-green-600 font-bold mb-2 text-xs uppercase tracking-widest">
+              <label className="block text-gray-500 font-medium mb-2 text-xs">
                 Description
               </label>
               <textarea
@@ -662,7 +662,7 @@ const RestaurantMenu: React.FC = () => {
                 value={mealDescription}
                 onChange={(e) => setMealDescription(e.target.value)}
                 rows={4}
-                className="w-full px-5 py-4 bg-white rounded-2xl border-2 border-gray-200 outline-none focus:border-green-500 focus:ring-4 focus:ring-green-500/10 transition-all resize-none text-gray-800 font-medium"
+                className="w-full px-5 py-4 bg-white rounded-lg border border-gray-200 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all resize-none text-gray-900"
               />
             </div>
           </div>
@@ -676,7 +676,7 @@ const RestaurantMenu: React.FC = () => {
             <button
               onClick={handleAddMeal}
               disabled={uploading || imageUploading}
-              className="w-full py-5 bg-green-600 text-white rounded-2xl font-black uppercase tracking-widest text-base shadow-2xl hover:bg-green-700 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3"
+              className="w-full py-5 bg-emerald-600 text-white rounded-xl font-semibold text-base hover:bg-emerald-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-3"
             >
               {(uploading || imageUploading) && (
                 <Loader2 className="w-5 h-5 animate-spin" />

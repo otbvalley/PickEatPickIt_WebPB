@@ -8,6 +8,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { User, Store, Bike, ArrowRight, ChevronDown } from "lucide-react";
 import logo from "../assets/Logo SVG 1.png";
+import RoleSelectModal from "../component/RoleSelectModal";
 
 // ── Fonts injected globally ───────────────────────────────────────────────────
 const FONT_STYLE = `
@@ -144,6 +145,7 @@ const LandingPage: React.FC = () => {
   const [activeRole, setActiveRole] = useState(0);
   const [statsVisible, setStatsVisible] = useState(false);
   const statsRef = useRef<HTMLDivElement>(null);
+  const [roleModalOpen, setRoleModalOpen] = useState(false);
 
   const { scrollYProgress } = useScroll({
     target: heroRef,
@@ -285,7 +287,7 @@ const LandingPage: React.FC = () => {
               </p>
               <div className="flex gap-3 flex-shrink-0">
                 <button
-                  onClick={() => navigate("/user-home")}
+                  onClick={() => setRoleModalOpen(true)}
                   className="group flex items-center gap-2 bg-[#2ECC71] text-black font-display font-800 uppercase tracking-wider text-sm px-7 py-4 rounded-full hover:gap-4 transition-all"
                 >
                   Get Started <ArrowRight className="w-4 h-4" />
@@ -612,6 +614,11 @@ const LandingPage: React.FC = () => {
           </div>
         </footer>
       </div>
+
+      <RoleSelectModal
+        isOpen={roleModalOpen}
+        onClose={() => setRoleModalOpen(false)}
+      />
     </>
   );
 };

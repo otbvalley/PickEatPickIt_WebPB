@@ -52,22 +52,10 @@ const Shell = ({
   children: React.ReactNode;
   step: number;
 }) => (
-  <div className="min-h-screen relative bg-black text-white font-inter overflow-hidden">
-    <div className="absolute inset-0 z-0">
-      <motion.img
-        initial={{ scale: 1.1, opacity: 0 }}
-        animate={{ scale: 1, opacity: 0.3 }}
-        transition={{ duration: 1.5 }}
-        src="https://images.unsplash.com/photo-1526367790999-0150786686a2?q=80&w=2000&auto=format&fit=crop"
-        className="w-full h-full object-cover"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent" />
-    </div>
-    <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-orange-500/10 blur-[150px] rounded-full" />
-    <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-amber-500/10 blur-[150px] rounded-full" />
-    <div className="fixed top-0 left-0 right-0 h-1 bg-white/5 z-[100]">
+  <div className="min-h-screen relative bg-gray-50 font-inter">
+    <div className="fixed top-0 left-0 right-0 h-1 bg-gray-100 z-[100]">
       <motion.div
-        className="h-full bg-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.5)]"
+        className="h-full bg-orange-500"
         initial={{ width: "0%" }}
         animate={{ width: `${(step / TOTAL_STEPS) * 100}%` }}
         transition={{ duration: 0.5 }}
@@ -82,15 +70,15 @@ const Shell = ({
 const BackBtn = ({ onClick }: { onClick: () => void }) => (
   <button
     onClick={onClick}
-    className="flex items-center gap-2 text-[10px] font-black uppercase text-gray-500 hover:text-white mb-8 transition-colors"
+    className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 mb-8 transition-colors"
   >
-    <ArrowLeft size={12} /> Go Back
+    <ArrowLeft size={14} /> Go Back
   </button>
 );
 
 const ErrBox = ({ msg, green }: { msg: string; green?: boolean }) => (
   <div
-    className={`p-4 rounded-xl text-xs font-bold text-center border ${green ? "bg-green-500/10 border-green-500/20 text-green-400" : "bg-red-500/10 border-red-500/20 text-red-500"}`}
+    className={`p-4 rounded-lg text-sm font-medium text-center border ${green ? "bg-green-50 border-green-200 text-green-700" : "bg-red-50 border-red-200 text-red-600"}`}
   >
     {msg}
   </div>
@@ -100,15 +88,15 @@ const Inp = ({
   label,
   ...p
 }: { label?: string } & React.InputHTMLAttributes<HTMLInputElement>) => (
-  <div className="space-y-1.5">
+  <div className="space-y-2">
     {label && (
-      <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-4">
+      <label className="text-sm font-medium text-gray-700 ml-1">
         {label}
       </label>
     )}
     <input
       {...p}
-      className="w-full px-6 py-5 bg-white/5 border border-white/10 rounded-2xl text-white font-bold outline-none focus:border-orange-500/50 placeholder:text-gray-600"
+      className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all text-sm"
     />
   </div>
 );
@@ -120,13 +108,13 @@ const Sel = ({
 }: { label: string } & React.SelectHTMLAttributes<HTMLSelectElement> & {
     children: React.ReactNode;
   }) => (
-  <div className="space-y-1.5">
-    <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-4">
+  <div className="space-y-2">
+    <label className="text-sm font-medium text-gray-700 ml-1">
       {label}
     </label>
     <select
       {...p}
-      className="w-full px-6 py-5 bg-zinc-900 border border-white/10 rounded-2xl text-white font-bold appearance-none cursor-pointer focus:border-orange-500/50 outline-none"
+      className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 appearance-none cursor-pointer focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-sm"
     >
       {children}
     </select>
@@ -265,17 +253,17 @@ function StepEmail({
       className="w-full max-w-xl"
     >
       <div className="text-center mb-10">
-        <div className="w-16 h-16 bg-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-orange-500/20">
-          <Mail className="w-8 h-8 text-black" />
+        <div className="w-16 h-16 bg-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+          <Mail className="w-8 h-8 text-white" />
         </div>
-        <h1 className="text-3xl font-black tracking-tighter uppercase mb-2">
+        <h1 className="text-2xl font-semibold text-gray-900 mb-2">
           Rider <span className="text-orange-500">Sign Up</span>
         </h1>
-        <p className="text-[10px] tracking-[0.3em] uppercase text-gray-500 font-black">
+        <p className="text-sm text-gray-500">
           Step 1 of 7 — Account
         </p>
       </div>
-      <div className="bg-zinc-900/40 backdrop-blur-2xl rounded-[2.5rem] p-8 md:p-12 border border-white/5 shadow-2xl space-y-6">
+      <div className="bg-white rounded-2xl p-8 md:p-12 border border-gray-100 shadow-sm space-y-6">
         {error && <ErrBox msg={error} />}
         <Inp
           label="Email Address"
@@ -294,16 +282,17 @@ function StepEmail({
           />
           <button
             onClick={() => setShow(!show)}
-            className="absolute right-5 bottom-[1.35rem] text-gray-500"
+            className="absolute right-4 bottom-3.5 text-gray-400"
           >
             {show ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
         </div>
         <motion.button
-          whileHover={{ scale: 1.02 }}
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.98 }}
           onClick={handleNext}
           disabled={isLoading}
-          className="w-full bg-white text-black font-black uppercase tracking-widest py-5 rounded-2xl shadow-xl disabled:opacity-60"
+          className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl transition-all disabled:opacity-60"
         >
           {isLoading ? "Creating account..." : "Create Account & Get OTP"}
         </motion.button>
@@ -356,33 +345,33 @@ function StepOTP({
     >
       <BackBtn onClick={onBack} />
       <div className="text-center mb-10">
-        <h1 className="text-3xl font-black tracking-tighter uppercase mb-2">
+        <h1 className="text-2xl font-semibold text-gray-900 mb-2">
           Verify <span className="text-orange-500">Email</span>
         </h1>
-        <p className="text-xs text-gray-500">
-          6-digit code sent to <span className="text-white">{form.email}</span>
+        <p className="text-sm text-gray-500">
+          6-digit code sent to <span className="text-gray-900 font-medium">{form.email}</span>
         </p>
       </div>
-      <div className="bg-zinc-900/40 backdrop-blur-2xl rounded-[2.5rem] p-8 md:p-12 border border-white/5 shadow-2xl space-y-8">
+      <div className="bg-white rounded-2xl p-8 md:p-12 border border-gray-100 shadow-sm space-y-8">
         {error && <ErrBox msg={error} green={error.startsWith("✓")} />}
         <input
           maxLength={6}
           type="text"
           value={form.emailOTP}
           onChange={(e) => change("emailOTP", e.target.value)}
-          className="w-full bg-white/5 border border-white/10 rounded-2xl py-6 text-4xl font-black text-center text-orange-500 tracking-[0.5em] focus:border-orange-500/50 outline-none"
+          className="w-full bg-white border border-gray-200 rounded-xl py-6 text-4xl font-semibold text-center text-orange-500 tracking-[0.5em] focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
           placeholder="······"
         />
         <button
           onClick={handleVerify}
           disabled={isLoading}
-          className="w-full bg-white text-black font-black uppercase tracking-widest py-5 rounded-2xl disabled:opacity-60"
+          className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl transition-all disabled:opacity-60"
         >
           {isLoading ? "Verifying..." : "Verify Code"}
         </button>
         <button
           onClick={handleResend}
-          className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 hover:text-orange-500 transition-colors w-full"
+          className="text-sm font-medium text-gray-500 hover:text-orange-500 transition-colors w-full"
         >
           Didn't receive code? <span className="underline">Resend</span>
         </button>
@@ -402,14 +391,14 @@ function StepPersonal({ form, change, onNext, onBack }: any) {
     >
       <BackBtn onClick={onBack} />
       <div className="text-center mb-10">
-        <h1 className="text-3xl font-black tracking-tighter uppercase mb-2">
+        <h1 className="text-2xl font-semibold text-gray-900 mb-2">
           Personal <span className="text-orange-500">Info</span>
         </h1>
-        <p className="text-[10px] tracking-[0.3em] text-gray-500 font-bold uppercase">
+        <p className="text-sm text-gray-500">
           Step 3 of 7
         </p>
       </div>
-      <div className="bg-zinc-900/40 backdrop-blur-2xl rounded-[3rem] p-8 md:p-12 border border-white/5 shadow-2xl grid grid-cols-2 gap-6">
+      <div className="bg-white rounded-2xl p-8 md:p-12 border border-gray-100 shadow-sm grid grid-cols-2 gap-6">
         <Inp
           label="First Name *"
           value={form.firstName}
@@ -444,7 +433,7 @@ function StepPersonal({ form, change, onNext, onBack }: any) {
                 return alert("Please fill all required fields");
               onNext();
             }}
-            className="w-full bg-orange-500 text-white font-black uppercase tracking-widest py-5 rounded-2xl flex items-center justify-center gap-2"
+            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl transition-all flex items-center justify-center gap-2"
           >
             Save and Continue <ChevronRight size={18} />
           </button>
@@ -465,17 +454,17 @@ function StepVehicle({ form, change, onNext, onBack }: any) {
     >
       <BackBtn onClick={onBack} />
       <div className="text-center mb-10">
-        <h1 className="text-3xl font-black tracking-tighter uppercase mb-2">
+        <h1 className="text-2xl font-semibold text-gray-900 mb-2">
           Vehicle <span className="text-orange-500">Details</span>
         </h1>
-        <p className="text-[10px] tracking-[0.3em] text-gray-500 font-bold uppercase">
+        <p className="text-sm text-gray-500">
           Step 4 of 7
         </p>
       </div>
-      <div className="bg-zinc-900/40 backdrop-blur-2xl rounded-[2.5rem] p-8 md:p-12 border border-white/5 shadow-2xl space-y-6">
-        <div className="space-y-1.5">
-          <label className="text-[10px] font-black uppercase text-gray-500 ml-4 tracking-widest flex items-center gap-2">
-            <Bike size={12} className="text-orange-500" /> Vehicle Type *
+      <div className="bg-white rounded-2xl p-8 md:p-12 border border-gray-100 shadow-sm space-y-6">
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-700 ml-1 flex items-center gap-2">
+            <Bike size={14} className="text-orange-500" /> Vehicle Type *
           </label>
           <Sel
             label=""
@@ -488,9 +477,9 @@ function StepVehicle({ form, change, onNext, onBack }: any) {
             <option value="car">Car</option>
           </Sel>
         </div>
-        <div className="space-y-1.5">
-          <label className="text-[10px] font-black uppercase text-gray-500 ml-4 tracking-widest flex items-center gap-2">
-            <Zap size={12} className="text-orange-500" /> Manufacturer
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-700 ml-1 flex items-center gap-2">
+            <Zap size={14} className="text-orange-500" /> Manufacturer
           </label>
           <Inp
             value={form.vehicleBrand}
@@ -498,9 +487,9 @@ function StepVehicle({ form, change, onNext, onBack }: any) {
             placeholder="e.g. Honda"
           />
         </div>
-        <div className="space-y-1.5">
-          <label className="text-[10px] font-black uppercase text-gray-500 ml-4 tracking-widest flex items-center gap-2">
-            <ShieldCheck size={12} className="text-orange-500" /> Plate Number
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-700 ml-1 flex items-center gap-2">
+            <ShieldCheck size={14} className="text-orange-500" /> Plate Number
           </label>
           <Inp
             value={form.plateNumber}
@@ -510,7 +499,7 @@ function StepVehicle({ form, change, onNext, onBack }: any) {
         </div>
         <button
           onClick={onNext}
-          className="w-full bg-white text-black font-black uppercase tracking-widest py-5 rounded-2xl flex items-center justify-center gap-2"
+          className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl transition-all flex items-center justify-center gap-2"
         >
           Save and Continue <ChevronRight size={18} />
         </button>
@@ -573,27 +562,27 @@ function StepGuarantors({
     >
       <BackBtn onClick={onBack} />
       <div className="text-center mb-10">
-        <div className="w-14 h-14 bg-orange-500/10 border border-orange-500/30 rounded-2xl flex items-center justify-center mx-auto mb-5">
+        <div className="w-14 h-14 bg-orange-50 border border-orange-200 rounded-2xl flex items-center justify-center mx-auto mb-5">
           <Users className="w-7 h-7 text-orange-500" />
         </div>
-        <h1 className="text-3xl font-black tracking-tighter uppercase mb-2">
+        <h1 className="text-2xl font-semibold text-gray-900 mb-2">
           Guarantors <span className="text-orange-500">Info</span>
         </h1>
-        <p className="text-[10px] tracking-[0.3em] text-gray-500 font-bold uppercase">
+        <p className="text-sm text-gray-500">
           Step 5 of 7 — Two references
         </p>
       </div>
 
-      <div className="bg-zinc-900/40 backdrop-blur-2xl rounded-[3rem] p-8 md:p-12 border border-white/5 shadow-2xl space-y-8">
+      <div className="bg-white rounded-2xl p-8 md:p-12 border border-gray-100 shadow-sm space-y-8">
         {error && <ErrBox msg={error} />}
 
         {/* Guarantor 1 */}
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-orange-500 mb-4 flex items-center gap-2">
-            <span className="w-5 h-5 bg-orange-500 text-black rounded-full flex items-center justify-center text-[9px] font-black">
+          <p className="text-sm font-medium text-orange-600 mb-4 flex items-center gap-2">
+            <span className="w-5 h-5 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs font-semibold">
               1
             </span>
-            Guarantor 1 <span className="text-red-400 ml-1">(Required)</span>
+            Guarantor 1 <span className="text-red-500 ml-1">(Required)</span>
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Inp
@@ -624,17 +613,17 @@ function StepGuarantors({
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="flex-1 h-px bg-white/5" />
-          <span className="text-[10px] font-black uppercase tracking-widest text-gray-600">
+          <div className="flex-1 h-px bg-gray-100" />
+          <span className="text-sm font-medium text-gray-400">
             Guarantor 2 — Optional
           </span>
-          <div className="flex-1 h-px bg-white/5" />
+          <div className="flex-1 h-px bg-gray-100" />
         </div>
 
         {/* Guarantor 2 */}
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 mb-4 flex items-center gap-2">
-            <span className="w-5 h-5 bg-white/10 text-gray-400 rounded-full flex items-center justify-center text-[9px] font-black">
+          <p className="text-sm font-medium text-gray-500 mb-4 flex items-center gap-2">
+            <span className="w-5 h-5 bg-gray-100 text-gray-500 rounded-full flex items-center justify-center text-xs font-semibold">
               2
             </span>
             Guarantor 2
@@ -670,7 +659,7 @@ function StepGuarantors({
         <button
           onClick={handleNext}
           disabled={isLoading}
-          className="w-full bg-orange-500 text-white font-black uppercase tracking-widest py-5 rounded-2xl flex items-center justify-center gap-2 disabled:opacity-60"
+          className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-60"
         >
           {isLoading ? (
             "Saving..."
@@ -736,25 +725,25 @@ function StepDocuments({
     >
       <BackBtn onClick={onBack} />
       <div className="text-center mb-10">
-        <h1 className="text-3xl font-black tracking-tighter uppercase mb-2">
+        <h1 className="text-2xl font-semibold text-gray-900 mb-2">
           Verify <span className="text-orange-500">Identity</span>
         </h1>
-        <p className="text-[10px] tracking-[0.3em] text-gray-500 font-bold uppercase">
+        <p className="text-sm text-gray-500">
           Step 6 of 7 — Upload Documents
         </p>
       </div>
-      <div className="bg-zinc-900/40 backdrop-blur-2xl rounded-[3rem] p-8 md:p-12 border border-white/5 shadow-2xl">
+      <div className="bg-white rounded-2xl p-8 md:p-12 border border-gray-100 shadow-sm">
         {uploadError && (
           <div className="mb-6">
             <ErrBox msg={uploadError} />
           </div>
         )}
         <div className="grid grid-cols-2 gap-8">
-          <label className="relative aspect-square bg-white/5 border-2 border-dashed border-white/10 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:border-orange-500/50 transition-colors overflow-hidden">
+          <label className="relative aspect-square bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-orange-400 transition-colors overflow-hidden">
             <Upload
-              className={`w-10 h-10 mb-3 ${up.license ? "text-orange-500" : "text-gray-500"}`}
+              className={`w-10 h-10 mb-3 ${up.license ? "text-orange-500" : "text-gray-400"}`}
             />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 text-center px-4 leading-relaxed">
+            <span className="text-sm font-medium text-gray-500 text-center px-4 leading-relaxed">
               {up.license ? "License Uploaded ✓" : "Driver's License"}
             </span>
             <input
@@ -771,18 +760,18 @@ function StepDocuments({
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="absolute inset-0 bg-orange-500/10 flex items-center justify-center"
+                className="absolute inset-0 bg-orange-50/90 flex items-center justify-center"
               >
                 <CheckCircle className="text-orange-500 w-12 h-12" />
               </motion.div>
             )}
           </label>
 
-          <label className="relative aspect-square bg-white/5 border-2 border-dashed border-white/10 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:border-amber-500/50 transition-colors overflow-hidden">
+          <label className="relative aspect-square bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-orange-400 transition-colors overflow-hidden">
             <Upload
-              className={`w-10 h-10 mb-3 ${up.photo ? "text-orange-500" : "text-gray-500"}`}
+              className={`w-10 h-10 mb-3 ${up.photo ? "text-orange-500" : "text-gray-400"}`}
             />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 text-center px-4 leading-relaxed">
+            <span className="text-sm font-medium text-gray-500 text-center px-4 leading-relaxed">
               {up.photo ? "Photo Uploaded ✓" : "Your Photo / Selfie"}
             </span>
             <input
@@ -799,7 +788,7 @@ function StepDocuments({
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="absolute inset-0 bg-orange-500/10 flex items-center justify-center"
+                className="absolute inset-0 bg-orange-50/90 flex items-center justify-center"
               >
                 <CheckCircle className="text-orange-500 w-12 h-12" />
               </motion.div>
@@ -808,14 +797,14 @@ function StepDocuments({
         </div>
         <div className="mt-8">
           {isUploading && (
-            <p className="text-center text-xs text-orange-400 font-bold uppercase tracking-widest mb-4 animate-pulse">
+            <p className="text-center text-sm text-orange-500 font-medium mb-4 animate-pulse">
               Uploading...
             </p>
           )}
           <button
             onClick={onNext}
             disabled={!up.license || !up.photo || isUploading}
-            className="w-full bg-orange-500 text-white font-black uppercase tracking-widest py-5 rounded-2xl flex items-center justify-center gap-2 disabled:opacity-40"
+            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-40"
           >
             Save and Continue <ChevronRight size={18} />
           </button>
@@ -887,18 +876,18 @@ function StepBank({
     >
       <BackBtn onClick={onBack} />
       <div className="text-center mb-10">
-        <h1 className="text-3xl font-black tracking-tighter uppercase mb-2">
+        <h1 className="text-2xl font-semibold text-gray-900 mb-2">
           Bank <span className="text-orange-500">Details</span>
         </h1>
-        <p className="text-[10px] tracking-[0.3em] text-gray-500 font-bold uppercase">
+        <p className="text-sm text-gray-500">
           Step 7 of 7 — Final Step
         </p>
       </div>
-      <div className="bg-zinc-900/40 backdrop-blur-2xl rounded-[2.5rem] p-8 md:p-12 border border-white/5 shadow-2xl space-y-5">
+      <div className="bg-white rounded-2xl p-8 md:p-12 border border-gray-100 shadow-sm space-y-5">
         {error && <ErrBox msg={error} />}
-        <div className="space-y-1.5">
-          <label className="text-[10px] font-black uppercase text-gray-500 ml-4 flex items-center gap-2">
-            <DollarSign size={12} className="text-orange-500" /> Bank Name *
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-700 ml-1 flex items-center gap-2">
+            <DollarSign size={14} className="text-orange-500" /> Bank Name *
           </label>
           <Inp
             value={form.bankName}
@@ -920,8 +909,8 @@ function StepBank({
         />
 
         {/* Quick summary */}
-        <div className="bg-white/3 border border-white/5 rounded-2xl p-5 space-y-2">
-          <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-3">
+        <div className="bg-gray-50 border border-gray-100 rounded-xl p-5 space-y-2">
+          <p className="text-sm font-medium text-gray-500 mb-3">
             Summary
           </p>
           {[
@@ -932,11 +921,11 @@ function StepBank({
             { k: "Vehicle", v: form.vehicleType || "—" },
             { k: "Plate", v: form.plateNumber || "—" },
           ].map((r) => (
-            <div key={r.k} className="flex justify-between text-xs">
-              <span className="text-gray-500 font-bold uppercase tracking-wider">
+            <div key={r.k} className="flex justify-between text-sm">
+              <span className="text-gray-500 font-medium">
                 {r.k}
               </span>
-              <span className="text-white font-bold">{r.v}</span>
+              <span className="text-gray-900 font-medium">{r.v}</span>
             </div>
           ))}
         </div>
@@ -944,7 +933,7 @@ function StepBank({
         <button
           onClick={handleSave}
           disabled={isLoading}
-          className="w-full bg-orange-500 text-white font-black uppercase tracking-widest py-6 rounded-2xl shadow-xl flex items-center justify-center gap-2 disabled:opacity-60"
+          className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-60"
         >
           {isLoading ? "Completing Registration..." : "Complete Registration"}
         </button>
@@ -962,24 +951,24 @@ function StepDone() {
       animate={{ opacity: 1, scale: 1 }}
       className="text-center w-full max-w-lg"
     >
-      <div className="w-24 h-24 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_50px_rgba(249,115,22,0.4)]">
-        <CheckCircle className="w-12 h-12 text-black" />
+      <div className="w-24 h-24 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-8">
+        <CheckCircle className="w-12 h-12 text-white" />
       </div>
-      <h1 className="text-4xl font-black uppercase tracking-tighter mb-4">
+      <h1 className="text-3xl font-semibold text-gray-900 mb-4">
         Registration <span className="text-orange-500">Complete</span>
       </h1>
-      <p className="text-gray-400 font-medium mb-3">
+      <p className="text-gray-600 font-medium mb-3">
         Your application has been submitted successfully.
       </p>
-      <p className="text-gray-600 text-sm mb-12">
+      <p className="text-gray-500 text-sm mb-12">
         Status:{" "}
-        <span className="text-orange-400 font-bold uppercase tracking-wider">
+        <span className="text-orange-500 font-semibold">
           Pending Approval
         </span>
       </p>
       <button
         onClick={() => navigate("/rider-login")}
-        className="bg-white text-black font-black uppercase tracking-widest py-6 px-12 rounded-2xl shadow-2xl flex items-center justify-center gap-2 mx-auto"
+        className="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3.5 px-12 rounded-xl transition-all flex items-center justify-center gap-2 mx-auto"
       >
         Go to Login <ChevronRight size={20} />
       </button>

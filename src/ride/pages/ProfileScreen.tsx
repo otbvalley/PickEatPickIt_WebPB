@@ -10,16 +10,30 @@ import {
   HelpCircle,
   LogOut,
   Loader2,
+  Star,
 } from "lucide-react";
 import { RiderNav } from "../component/RiderNav";
 import { Link, useNavigate } from "react-router-dom";
 import { backendAuthService } from "../../services/backendAuthService";
-import { getRiderProfile } from "../../services/api";
+import { getRiderProfile, getRiderReviews } from "../../services/api";
+
+interface RiderReview {
+  id?: string | number;
+  rating?: number;
+  comment?: string;
+  reviewer_name?: string;
+  customer_name?: string;
+  order_id?: string | number;
+  created_at?: string;
+  [key: string]: unknown;
+}
 
 const ProfileScreen: React.FC = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [riderData, setRiderData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [reviews, setReviews] = useState<RiderReview[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -42,6 +56,27 @@ const ProfileScreen: React.FC = () => {
 
     fetchRiderProfile();
   }, [navigate]);
+
+  useEffect(() => {
+    async function fetchReviews() {
+      try {
+        const response = await getRiderReviews();
+        const data = response.data;
+        const list = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.reviews)
+            ? data.reviews
+            : [];
+        setReviews(list);
+      } catch (err) {
+        console.error("Error fetching rider reviews:", err);
+      } finally {
+        setReviewsLoading(false);
+      }
+    }
+
+    fetchReviews();
+  }, []);
 
   const handleLogout = async () => {
     backendAuthService.logout();
@@ -163,6 +198,75 @@ const ProfileScreen: React.FC = () => {
               </button>
             </Link>
           ))}
+        </div>
+
+        {/* Reviews & Ratings */}
+        <div
+          className="px-6 mt-6 animate-slide-up"
+          style={{ animationDelay: "0.55s" }}
+        >
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <Star className="w-4 h-4 text-emerald-600 fill-emerald-600" />
+              <h3 className="text-sm font-semibold text-gray-800">
+                Reviews & Ratings
+              </h3>
+            </div>
+
+            {reviewsLoading ? (
+              <div className="flex items-center justify-center py-6">
+                <Loader2 className="w-6 h-6 text-emerald-600 animate-spin" />
+              </div>
+            ) : reviews.length === 0 ? (
+              <p className="text-sm text-gray-400 text-center py-4">
+                No reviews yet
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {reviews.slice(0, 5).map((review, index) => {
+                  const rating = Number(review.rating) || 0;
+                  const reviewer =
+                    review.reviewer_name ||
+                    review.customer_name ||
+                    "Customer";
+                  return (
+                    <div
+                      key={review.id ?? index}
+                      className="bg-emerald-50 rounded-xl p-3 border border-emerald-100"
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-medium text-gray-700">
+                          {String(reviewer)}
+                        </span>
+                        <div className="flex items-center gap-0.5">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`w-3.5 h-3.5 ${
+                                i < rating
+                                  ? "text-emerald-600 fill-emerald-600"
+                                  : "text-gray-200 fill-gray-200"
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      {review.comment ? (
+                        <p className="text-sm text-gray-600">
+                          {String(review.comment)}
+                        </p>
+                      ) : null}
+                      {review.order_id ? (
+                        <p className="text-[11px] text-gray-400 mt-1">
+                          Order #{String(review.order_id).slice(0, 8)}
+                        </p>
+                      ) : null}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Notifications Toggle */}

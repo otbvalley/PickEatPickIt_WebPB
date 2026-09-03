@@ -51,11 +51,11 @@ const STATUS_CONFIG: Record<
   string,
   { label: string; bg: string; text: string }
 > = {
-  pending: { label: "Pending", bg: "bg-yellow-100", text: "text-yellow-700" },
-  accepted: { label: "Accepted", bg: "bg-indigo-100", text: "text-indigo-700" },
-  preparing: { label: "Preparing", bg: "bg-blue-100", text: "text-blue-700" },
-  canceled: { label: "Cancelled", bg: "bg-red-100", text: "text-red-700" },
-  completed: { label: "Completed", bg: "bg-green-100", text: "text-green-700" },
+  pending: { label: "Pending", bg: "bg-amber-50", text: "text-amber-700" },
+  accepted: { label: "Accepted", bg: "bg-indigo-50", text: "text-indigo-700" },
+  preparing: { label: "Preparing", bg: "bg-blue-50", text: "text-blue-700" },
+  canceled: { label: "Cancelled", bg: "bg-red-50", text: "text-red-700" },
+  completed: { label: "Completed", bg: "bg-emerald-50", text: "text-emerald-700" },
 };
 
 const StatusBadge = ({ status }: { status: string }) => {
@@ -66,7 +66,7 @@ const StatusBadge = ({ status }: { status: string }) => {
   };
   return (
     <span
-      className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${cfg.bg} ${cfg.text}`}
+      className={`px-3 py-1 rounded-full text-xs font-medium ${cfg.bg} ${cfg.text}`}
     >
       {cfg.label}
     </span>
@@ -198,8 +198,8 @@ const OrdersManagement = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-green-600 animate-spin mx-auto mb-4" />
-          <p className="text-gray-500 font-bold uppercase tracking-widest text-sm">
+          <Loader2 className="w-12 h-12 text-emerald-600 animate-spin mx-auto mb-4" />
+          <p className="text-gray-500 font-medium text-sm">
             Loading orders...
           </p>
         </div>
@@ -210,7 +210,7 @@ const OrdersManagement = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600 font-bold text-lg mb-2">
+          <p className="text-red-600 font-semibold text-lg mb-2">
             Vendor not found
           </p>
           <p className="text-gray-500 text-sm">Please log in again</p>
@@ -223,12 +223,10 @@ const OrdersManagement = () => {
       <VendorNav />
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-4 shadow-lg sticky top-0 z-20">
+      <div className="bg-white text-gray-900 px-6 py-4 border-b border-gray-100 sticky top-0 z-20">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <h1 className="text-xl font-bold tracking-tighter uppercase">
-            Orders
-          </h1>
-          <span className="text-white/70 text-sm font-bold">
+          <h1 className="text-2xl font-semibold text-gray-900">Orders</h1>
+          <span className="text-gray-500 text-sm font-medium">
             {orders.length} total
           </span>
         </div>
@@ -236,26 +234,26 @@ const OrdersManagement = () => {
 
       <div className="max-w-4xl mx-auto px-4 py-6">
         {/* Tabs */}
-        <div className="grid grid-cols-4 gap-2 mb-6">
+        <div className="bg-gray-50 p-1 rounded-xl border border-gray-100 grid grid-cols-4 gap-1 mb-6">
           {TABS.map((tab) => {
             const count = getCount(tab.id);
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`relative px-3 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${
+                className={`relative px-3 py-2.5 rounded-lg font-medium text-xs transition-colors ${
                   activeTab === tab.id
-                    ? "bg-green-600 text-white shadow-lg shadow-green-600/20 scale-105"
-                    : "bg-white text-gray-500 border border-gray-100 shadow-sm hover:border-green-200"
+                    ? "bg-emerald-600 text-white"
+                    : "text-gray-600 hover:bg-gray-100"
                 }`}
               >
                 {tab.label}
                 {count > 0 && (
                   <span
-                    className={`ml-1.5 px-1.5 py-0.5 rounded-full text-[9px] font-black ${
+                    className={`ml-1.5 px-1.5 py-0.5 rounded-full text-[10px] font-semibold ${
                       activeTab === tab.id
-                        ? "bg-white text-green-600"
-                        : "bg-green-100 text-green-600"
+                        ? "bg-white/20 text-white"
+                        : "bg-emerald-50 text-emerald-700"
                     }`}
                   >
                     {count}
@@ -268,9 +266,9 @@ const OrdersManagement = () => {
 
         {/* Empty state */}
         {filteredOrders.length === 0 ? (
-          <div className="bg-white rounded-[2rem] shadow-xl p-16 text-center">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-16 text-center">
             <Package className="w-16 h-16 text-gray-200 mx-auto mb-4" />
-            <p className="text-gray-400 font-bold uppercase tracking-widest text-sm">
+            <p className="text-gray-400 font-medium text-sm">
               No {activeTab} orders
             </p>
             <p className="text-gray-300 text-xs mt-2">
@@ -282,12 +280,12 @@ const OrdersManagement = () => {
             {filteredOrders.map((order) => (
               <div
                 key={order.id}
-                className="bg-white rounded-[2rem] shadow-xl border border-gray-50 hover:border-green-200 hover:shadow-2xl transition-all p-6"
+                className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:border-emerald-200 transition-colors p-6"
               >
                 {/* Top row */}
                 <div className="flex items-start gap-4 mb-4">
                   {/* Image */}
-                  <div className="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 bg-green-50 shadow-inner">
+                  <div className="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 bg-emerald-50">
                     {order.image ? (
                       <img
                         src={order.image}
@@ -308,10 +306,10 @@ const OrdersManagement = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <div>
-                        <h3 className="font-black text-gray-800 tracking-tighter uppercase text-lg leading-tight">
+                        <h3 className="font-semibold text-gray-900 text-lg leading-tight">
                           {order.restaurantName}
                         </h3>
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                        <p className="text-xs text-gray-400">
                           ID: {order.id.slice(0, 8).toUpperCase()} •{" "}
                           {order.itemsCount} items
                         </p>
@@ -320,15 +318,15 @@ const OrdersManagement = () => {
                     </div>
 
                     {/* Customer */}
-                    <p className="font-bold text-gray-700 text-sm mb-1">
+                    <p className="font-medium text-gray-700 text-sm mb-1">
                       {order.customerName}
                     </p>
 
-                    <div className="flex flex-wrap gap-4 text-xs font-bold text-gray-400 uppercase tracking-widest">
+                    <div className="flex flex-wrap gap-4 text-xs font-medium text-gray-400">
                       {/* Phone */}
                       <a
                         href={`tel:${order.customerPhone}`}
-                        className="flex items-center gap-1 text-green-600 hover:text-green-700 transition-colors"
+                        className="flex items-center gap-1 text-emerald-600 hover:text-emerald-700 transition-colors"
                       >
                         <Phone size={11} /> {order.customerPhone}
                       </a>
@@ -336,7 +334,7 @@ const OrdersManagement = () => {
                       <span className="flex items-center gap-1">
                         <MapPin
                           size={11}
-                          className="text-green-500 flex-shrink-0"
+                          className="text-emerald-500 flex-shrink-0"
                         />
                         <span className="truncate max-w-[200px]">
                           {order.address}
@@ -347,11 +345,11 @@ const OrdersManagement = () => {
                 </div>
 
                 {/* Amount + time */}
-                <div className="flex items-center justify-between mb-4 py-3 border-t border-b border-gray-50">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                <div className="flex items-center justify-between mb-4 py-3 border-t border-b border-gray-100">
+                  <span className="text-xs font-medium text-gray-400">
                     {order.time}
                   </span>
-                  <span className="text-xl font-black text-green-600 tracking-tighter">
+                  <span className="text-xl font-semibold text-emerald-600">
                     ₦{order.total.toLocaleString()}
                   </span>
                 </div>
@@ -363,14 +361,14 @@ const OrdersManagement = () => {
                       <button
                         onClick={() => handleCancel(order.id)}
                         disabled={actionId === order.id}
-                        className="flex-1 py-3 rounded-2xl font-black text-xs uppercase tracking-widest text-red-500 bg-red-50 hover:bg-red-100 transition-all active:scale-95 disabled:opacity-50"
+                        className="flex-1 py-3 rounded-xl font-medium text-xs text-red-600 bg-red-50 hover:bg-red-100 transition-colors disabled:opacity-50"
                       >
                         Decline
                       </button>
                       <button
                         onClick={() => handleAccept(order.id)}
                         disabled={actionId === order.id}
-                        className="flex-[2] py-3 rounded-2xl font-black text-xs uppercase tracking-widest text-white bg-green-600 hover:bg-green-700 transition-all active:scale-95 shadow-lg shadow-green-600/20 disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="flex-[2] py-3 rounded-xl font-medium text-xs text-white bg-emerald-600 hover:bg-emerald-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                       >
                         {actionId === order.id ? (
                           <Loader2 size={14} className="animate-spin" />
@@ -387,14 +385,14 @@ const OrdersManagement = () => {
                     <>
                       <button
                         onClick={() => handleMessage("")}
-                        className="w-12 h-12 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center hover:bg-green-100 transition-all active:scale-95 flex-shrink-0"
+                        className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center hover:bg-emerald-100 transition-colors flex-shrink-0"
                       >
                         <MessageSquare size={18} />
                       </button>
                       <button
                         onClick={() => handleComplete(order.id)}
                         disabled={actionId === order.id}
-                        className="flex-1 py-3 rounded-2xl font-black text-xs uppercase tracking-widest text-white bg-green-600 hover:bg-green-700 transition-all active:scale-95 shadow-lg disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="flex-1 py-3 rounded-xl font-medium text-xs text-white bg-emerald-600 hover:bg-emerald-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                       >
                         {actionId === order.id ? (
                           <Loader2 size={14} className="animate-spin" />
@@ -407,13 +405,13 @@ const OrdersManagement = () => {
                   )}
 
                   {order.status === "canceled" && (
-                    <div className="w-full text-center py-3 text-gray-400 text-xs font-bold uppercase tracking-widest">
+                    <div className="w-full text-center py-3 text-gray-400 text-xs font-medium">
                       Order was declined
                     </div>
                   )}
 
                   {order.status === "completed" && (
-                    <div className="w-full text-center py-3 rounded-2xl bg-green-50 text-green-600 text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2">
+                    <div className="w-full text-center py-3 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-medium flex items-center justify-center gap-2">
                       <Check size={14} /> Order Completed
                     </div>
                   )}

@@ -107,22 +107,22 @@ const NotificationsPage = () => {
   }, {} as Record<string, Notification[]>);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <VendorNav />
-      <div className="bg-gradient-to-r from-green-600 to-green-500 text-white px-4 py-4 sticky top-0 z-50 shadow-lg">
+      <div className="bg-white border-b border-gray-100 px-4 py-4 sticky top-0 z-50">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
-              <button className="p-2 hover:bg-white/10 rounded-full transition-all duration-300 active:scale-95">
-                <ChevronLeft size={24} />
+              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                <ChevronLeft size={24} className="text-gray-700" />
               </button>
-              <h1 className="text-xl font-semibold">Notification</h1>
+              <h1 className="text-2xl font-semibold text-gray-900">Notification</h1>
             </div>
             <div className="relative">
-              <Bell size={24} className="animate-pulse" />
+              <Bell size={24} className="text-gray-700" />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold animate-bounce">
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-semibold">
                   {unreadCount}
                 </span>
               )}
@@ -130,31 +130,33 @@ const NotificationsPage = () => {
           </div>
 
           {/* Filter Tabs */}
-          <div className="flex gap-2">
-            <button
-              onClick={() => setFilter("all")}
-              className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
-                filter === "all"
-                  ? "bg-white text-green-600 shadow-md"
-                  : "bg-white/20 text-white hover:bg-white/30"
-              }`}
-            >
-              All ({notifications.length})
-            </button>
-            <button
-              onClick={() => setFilter("unread")}
-              className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
-                filter === "unread"
-                  ? "bg-white text-green-600 shadow-md"
-                  : "bg-white/20 text-white hover:bg-white/30"
-              }`}
-            >
-              Unread ({unreadCount})
-            </button>
+          <div className="flex items-center gap-2">
+            <div className="flex bg-gray-50 p-1 rounded-xl border border-gray-100">
+              <button
+                onClick={() => setFilter("all")}
+                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  filter === "all"
+                    ? "bg-emerald-600 text-white"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                All ({notifications.length})
+              </button>
+              <button
+                onClick={() => setFilter("unread")}
+                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  filter === "unread"
+                    ? "bg-emerald-600 text-white"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                Unread ({unreadCount})
+              </button>
+            </div>
             {unreadCount > 0 && (
               <button
                 onClick={markAllAsRead}
-                className="ml-auto px-4 py-2 rounded-lg font-medium bg-white/20 text-white hover:bg-white/30 transition-all duration-300 active:scale-95 flex items-center gap-2"
+                className="ml-auto px-4 py-2 rounded-xl text-sm font-medium bg-gray-50 text-gray-600 hover:bg-gray-100 transition-colors flex items-center gap-2"
               >
                 <Check size={16} />
                 Mark all read
@@ -167,8 +169,8 @@ const NotificationsPage = () => {
       {/* Notifications List */}
       <div className="max-w-4xl mx-auto px-4 py-6">
         {filteredNotifications.length === 0 ? (
-          <div className="text-center py-16 animate-fade-in">
-            <div className="bg-white rounded-2xl shadow-lg p-12 transform hover:scale-105 transition-all duration-300">
+          <div className="text-center py-16">
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12">
               <BellOff size={64} className="mx-auto text-gray-300 mb-4" />
               <h3 className="text-xl font-semibold text-gray-700 mb-2">
                 No notifications
@@ -178,30 +180,25 @@ const NotificationsPage = () => {
           </div>
         ) : (
           Object.entries(groupedNotifications).map(
-            ([date, notifs], groupIndex) => (
+            ([date, notifs]) => (
               <div key={date} className="mb-6">
                 <div className="flex items-center gap-3 mb-4">
                   <Clock size={16} className="text-gray-400" />
-                  <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  <h2 className="text-xs text-gray-400">
                     {date}
                   </h2>
                   <div className="flex-1 h-px bg-gray-200"></div>
                 </div>
 
                 <div className="space-y-3">
-                  {notifs.map((notification, index) => (
+                  {notifs.map((notification) => (
                     <div
                       key={notification.id}
-                      className={`bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden ${
+                      className={`bg-white rounded-2xl border shadow-sm overflow-hidden ${
                         !notification.isRead
-                          ? "ring-2 ring-green-500 ring-opacity-50"
-                          : ""
+                          ? "border-emerald-200"
+                          : "border-gray-100"
                       }`}
-                      style={{
-                        animation: `slideIn 0.5s ease-out ${
-                          (groupIndex * notifs.length + index) * 0.1
-                        }s backwards`,
-                      }}
                     >
                       <div className="flex items-start gap-4 p-4">
                         {/* Image */}
@@ -209,10 +206,10 @@ const NotificationsPage = () => {
                           <img
                             src={notification.image}
                             alt="Order"
-                            className="w-16 h-16 rounded-xl object-cover shadow-md"
+                            className="w-16 h-16 rounded-xl object-cover"
                           />
                           {!notification.isRead && (
-                            <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
+                            <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-600 rounded-full border-2 border-white"></div>
                           )}
                         </div>
 
@@ -235,11 +232,11 @@ const NotificationsPage = () => {
                           <div className="flex items-center justify-between">
                             <span className="text-sm text-gray-600">
                               Order ID:{" "}
-                              <span className="font-semibold text-green-600">
+                              <span className="font-semibold text-emerald-600">
                                 {notification.orderId}
                               </span>
                             </span>
-                            <span className="text-lg font-bold text-green-600">
+                            <span className="text-lg font-semibold text-emerald-600">
                               {notification.amount}
                             </span>
                           </div>
@@ -251,7 +248,7 @@ const NotificationsPage = () => {
                         {!notification.isRead && (
                           <button
                             onClick={() => markAsRead(notification.id)}
-                            className="flex-1 py-3 text-sm font-medium text-green-600 hover:bg-green-50 transition-all duration-300 flex items-center justify-center gap-2 active:scale-95"
+                            className="flex-1 py-3 text-sm font-medium text-emerald-600 hover:bg-emerald-50 transition-colors flex items-center justify-center gap-2"
                           >
                             <Check size={16} />
                             Mark as read
@@ -259,7 +256,7 @@ const NotificationsPage = () => {
                         )}
                         <button
                           onClick={() => deleteNotification(notification.id)}
-                          className="flex-1 py-3 text-sm font-medium text-red-600 hover:bg-red-50 transition-all duration-300 flex items-center justify-center gap-2 active:scale-95"
+                          className="flex-1 py-3 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
                         >
                           <Trash2 size={16} />
                           Delete
@@ -273,28 +270,6 @@ const NotificationsPage = () => {
           )
         )}
       </div>
-
-      <style>{`
-        @keyframes slideIn {
-          from {
-            opacity: 0;
-            transform: translateX(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-        
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-      `}</style>
     </div>
   );
 };

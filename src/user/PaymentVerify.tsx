@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Loader2, CheckCircle, XCircle } from "lucide-react";
-import { verifyPayment, createOrder } from "../services/api.ts";
+import { createOrder } from "../services/api.ts";
+import { backendAuthService } from "../services/backendAuthService";
 import { useToast } from "../context/ToastContext";
 
 const PaymentVerify = () => {
@@ -20,8 +21,8 @@ const PaymentVerify = () => {
       }
 
       try {
-        const response = await verifyPayment(reference);
-        if (response.data?.status === "success") {
+        const response = await backendAuthService.verifyPayment(reference);
+        if (response?.status === "success") {
           // Payment verified, now create the order
           const pendingDetailsStr = sessionStorage.getItem('pendingOrderDetails');
           if (pendingDetailsStr) {
@@ -109,36 +110,36 @@ const PaymentVerify = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6">
-      <div className="bg-white rounded-3xl p-10 shadow-xl max-w-md w-full text-center">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-10 max-w-md w-full text-center">
         {status === "verifying" && (
           <>
-            <Loader2 className="w-16 h-16 text-green-600 animate-spin mx-auto mb-6" />
-            <h1 className="text-2xl font-black uppercase tracking-tighter text-gray-800 mb-2">Verifying Payment</h1>
-            <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest">Securing transaction with central network...</p>
+            <Loader2 className="w-12 h-12 text-emerald-600 animate-spin mx-auto mb-6" />
+            <h1 className="text-lg font-semibold text-gray-900 mb-2">Verifying Payment</h1>
+            <p className="text-sm text-gray-500">Securing transaction with central network...</p>
           </>
         )}
 
         {status === "success" && (
           <>
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
-              <CheckCircle className="w-10 h-10 text-green-600" />
+            <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle className="w-8 h-8 text-emerald-600" />
             </div>
-            <h1 className="text-2xl font-black uppercase tracking-tighter text-gray-800 mb-2">Payment Secured</h1>
-            <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest mb-8">Mission confirmed. Order is being transmitted.</p>
+            <h1 className="text-lg font-semibold text-gray-900 mb-2">Payment Secured</h1>
+            <p className="text-sm text-gray-500 mb-8">Mission confirmed. Order is being transmitted.</p>
             <p className="text-xs text-gray-400">Redirecting to dashboard...</p>
           </>
         )}
 
         {status === "failed" && (
           <>
-            <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <XCircle className="w-10 h-10 text-red-600" />
+            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <XCircle className="w-8 h-8 text-red-600" />
             </div>
-            <h1 className="text-2xl font-black uppercase tracking-tighter text-gray-800 mb-2">Transaction Aborted</h1>
-            <p className="text-gray-500 font-bold uppercase text-[10px] tracking-widest mb-8">We couldn't verify your payment. Please contact support if debited.</p>
-            <button 
+            <h1 className="text-lg font-semibold text-gray-900 mb-2">Transaction Aborted</h1>
+            <p className="text-sm text-gray-500 mb-8">We couldn't verify your payment. Please contact support if debited.</p>
+            <button
               onClick={() => navigate("/payment")}
-              className="w-full py-4 bg-gray-900 text-white font-black uppercase tracking-widest rounded-xl active:scale-95 transition-all"
+              className="w-full py-3 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 transition-colors"
             >
               Return to Payment
             </button>

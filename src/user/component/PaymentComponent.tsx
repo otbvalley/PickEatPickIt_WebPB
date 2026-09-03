@@ -1,9 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, CreditCard, MapPin, Package } from "lucide-react";
-import { createOrder, initializePayment } from "../../services/api";
-import { backendAuthService } from "../../services/backendAuthService";
+import { ChevronLeft, CreditCard, MapPin, Package, Plus } from "lucide-react";
+import { createOrder } from "../../services/api";
+import {
+  backendAuthService,
+  type Address,
+} from "../../services/backendAuthService";
 import { Navbar } from "../../component/Navbar";
 import { useToast } from "../../context/ToastContext";
 
@@ -43,6 +46,102 @@ const PaymentComponent: React.FC = () => {
     value: number;
   } | null>(null);
   const [isValidatingPromo, setIsValidatingPromo] = useState(false);
+
+  // Saved delivery addresses
+  const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
+  const [addressesLoading, setAddressesLoading] = useState(false);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
+    null,
+  );
+  const [selectedAddress, setSelectedAddress] = useState<Address | null>(
+    null,
+  );
+  const [showAddAddressForm, setShowAddAddressForm] = useState(false);
+  const [savingAddress, setSavingAddress] = useState(false);
+  const [newAddress, setNewAddress] = useState({
+    address: "",
+    address_name: "",
+    address_type: "Home",
+    delivery_instructions: "",
+  });
+
+  const fetchAddresses = async () => {
+    setAddressesLoading(true);
+    try {
+      const addresses = await backendAuthService.getAddresses();
+      setSavedAddresses(addresses || []);
+      if (addresses && addresses.length > 0) {
+        const defaultAddr =
+          addresses.find((a) => a.is_default) || addresses[0];
+        if (defaultAddr.id) {
+          setSelectedAddressId(defaultAddr.id);
+        }
+        setSelectedAddress(defaultAddr);
+        setDeliveryAddress(defaultAddr.address);
+      } else {
+        setShowAddAddressForm(true);
+      }
+    } catch (err) {
+      // Non-blocking: fall back to free-text address entry
+      console.error("Failed to fetch saved addresses:", err);
+    } finally {
+      setAddressesLoading(false);
+    }
+  };
+
+  const handleSelectAddress = (addr: Address) => {
+    setSelectedAddressId(addr.id || null);
+    setSelectedAddress(addr);
+    setDeliveryAddress(addr.address);
+    setShowAddAddressForm(false);
+  };
+
+  const handleSaveNewAddress = async () => {
+    if (!newAddress.address.trim()) {
+      toast.warning("Please enter an address", "Address Required");
+      return;
+    }
+    setSavingAddress(true);
+    try {
+      const created = await backendAuthService.addAddress({
+        address: newAddress.address.trim(),
+        address_name: newAddress.address_name.trim() || undefined,
+        address_type: newAddress.address_type,
+        delivery_instructions:
+          newAddress.delivery_instructions.trim() || undefined,
+        is_default: savedAddresses.length === 0,
+      });
+      toast.success("Address saved successfully", "Address Saved");
+      await fetchAddresses();
+      if (created?.id) {
+        handleSelectAddress(created);
+      } else {
+        setDeliveryAddress(newAddress.address.trim());
+      }
+      setNewAddress({
+        address: "",
+        address_name: "",
+        address_type: "Home",
+        delivery_instructions: "",
+      });
+      setShowAddAddressForm(false);
+    } catch (err) {
+      console.error("Failed to save address:", err);
+      toast.error(
+        "Could not save this address, but you can still continue with it below.",
+        "Save Failed",
+      );
+      // Non-blocking fallback: still use the typed address for checkout
+      setDeliveryAddress(newAddress.address.trim());
+    } finally {
+      setSavingAddress(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAddresses();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const pendingOrder = sessionStorage.getItem("pendingOrder");
@@ -136,8 +235,10 @@ const PaymentComponent: React.FC = () => {
 
     setIsValidatingPromo(true);
     try {
+      const { subtotal } = calculateTotal();
       const data = await backendAuthService.validatePromoCode(
         promoCode.toUpperCase(),
+        subtotal,
       );
 
       if (!data.valid) {
@@ -197,20 +298,26 @@ const PaymentComponent: React.FC = () => {
           amount: total,
           vendor_id: vendorInfo.id, // Remove optional chaining to ensure it's required
           payment_method: "paystack",
+          promo_code: discountInfo?.code,
           customer_email: userEmail,
           customer_phone: userData?.phone,
           customer_name: fullName,
           delivery_address: deliveryAddress,
+          delivery_type: "delivery",
           callback_url: `${window.location.origin}/payment-verify`,
           metadata: {
             order_items: orderData.items,
             spice_level: orderData.spiceLevel,
             special_instructions: orderData.specialInstructions,
+            latitude: selectedAddress?.latitude,
+            longitude: selectedAddress?.longitude,
           },
         };
 
-        const response = await initializePayment(paymentPayload);
-        if (response.data?.authorization_url) {
+        const response = await backendAuthService.initializePayment(
+          paymentPayload,
+        );
+        if (response?.authorization_url) {
           // Store order details temporarily to create order after verification
           sessionStorage.setItem(
             "pendingOrderDetails",
@@ -238,7 +345,7 @@ const PaymentComponent: React.FC = () => {
           );
 
           // Redirect to Paystack
-          window.location.href = response.data.authorization_url;
+          window.location.href = response.authorization_url;
         } else {
           toast.error("Failed to initialize payment", "Payment Error");
           setLoading(false);
@@ -390,8 +497,8 @@ const PaymentComponent: React.FC = () => {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center transition-colors duration-300">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-green-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 font-semibold font-inter">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-emerald-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium font-inter">
             Loading order details...
           </p>
         </div>
@@ -406,9 +513,9 @@ const PaymentComponent: React.FC = () => {
         <div className="max-w-md w-full">
           {/* Success Animation */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-6 animate-bounce">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-emerald-50 rounded-full mb-6">
               <svg
-                className="w-10 h-10 text-green-600"
+                className="w-10 h-10 text-emerald-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -421,22 +528,22 @@ const PaymentComponent: React.FC = () => {
                 />
               </svg>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2 font-inter">
+            <h1 className="text-2xl font-semibold text-gray-900 mb-2 font-inter">
               Order Placed!
             </h1>
-            <p className="text-gray-600 mb-6 font-medium">
+            <p className="text-sm text-gray-500 mb-6">
               Your order has been confirmed successfully
             </p>
           </div>
 
           {/* Tracking Code Card */}
-          <div className="bg-white rounded-2xl p-8 shadow-xl mb-6 border-2 border-green-100">
+          <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm mb-6">
             <div className="text-center mb-6">
-              <p className="text-sm text-gray-600 font-medium mb-3 uppercase tracking-wider">
+              <p className="text-xs text-gray-500 mb-3">
                 Your Tracking Code
               </p>
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-300">
-                <p className="text-4xl font-bold text-green-600 font-mono tracking-widest uppercase">
+              <div className="bg-emerald-50 rounded-xl p-6 border border-emerald-100">
+                <p className="text-3xl font-semibold text-emerald-600 font-mono">
                   {trackingCode.slice(0, 8).toUpperCase()}
                 </p>
               </div>
@@ -447,36 +554,36 @@ const PaymentComponent: React.FC = () => {
                   );
                   toast.success("Tracking code copied to clipboard!", "Copied");
                 }}
-                className="mt-4 text-sm text-green-600 hover:text-green-700 font-semibold transition-colors font-inter"
+                className="mt-4 text-sm text-emerald-600 hover:text-emerald-700 font-medium transition-colors font-inter"
               >
                 Copy Code
               </button>
             </div>
 
             <div className="pt-6 border-t border-gray-100">
-              <p className="text-xs text-gray-600 text-center font-medium">
+              <p className="text-xs text-gray-500 text-center">
                 📱 Show this code to your rider when they arrive
               </p>
             </div>
           </div>
 
           {/* Order Details */}
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6">
-            <div className="space-y-4 font-inter">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Restaurant</span>
-                <span className="font-semibold text-gray-900">
+          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm mb-6">
+            <div className="divide-y divide-gray-100 font-inter">
+              <div className="flex justify-between pb-4">
+                <span className="text-sm text-gray-500">Restaurant</span>
+                <span className="text-sm font-semibold text-gray-900">
                   {orderData.items[0]?.name || "Order"}
                 </span>
               </div>
-              <div className="flex justify-between border-t pt-4">
-                <span className="text-gray-600">Items</span>
-                <span className="font-semibold text-gray-900">
+              <div className="flex justify-between py-4">
+                <span className="text-sm text-gray-500">Items</span>
+                <span className="text-sm font-semibold text-gray-900">
                   {orderData.items.length} items
                 </span>
               </div>
-              <div className="flex justify-between border-t pt-4">
-                <span className="text-gray-600">Delivery Address</span>
+              <div className="flex justify-between pt-4">
+                <span className="text-sm text-gray-500">Delivery Address</span>
                 <span className="font-semibold text-gray-900 text-right max-w-xs text-sm truncate">
                   {deliveryAddress}
                 </span>
@@ -487,13 +594,13 @@ const PaymentComponent: React.FC = () => {
           {/* Action Buttons */}
           <button
             onClick={() => navigate("/booking")}
-            className="w-full bg-green-600 text-white font-bold py-4 rounded-xl hover:bg-green-700 transition-colors shadow-lg mb-3"
+            className="w-full bg-emerald-600 text-white font-semibold py-4 rounded-xl hover:bg-emerald-700 transition-colors mb-3"
           >
             Track Your Order
           </button>
           <button
             onClick={() => navigate("/market")}
-            className="w-full bg-white text-green-600 font-bold py-4 rounded-xl hover:bg-gray-50 border-2 border-green-200 transition-colors shadow-sm"
+            className="w-full bg-white text-emerald-600 font-semibold py-4 rounded-xl hover:bg-gray-50 border border-emerald-100 transition-colors"
           >
             Continue Shopping
           </button>
@@ -509,13 +616,13 @@ const PaymentComponent: React.FC = () => {
       <Navbar />
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-600 to-emerald-600 shadow-lg sticky top-0 z-20">
+      <div className="bg-emerald-600 sticky top-0 z-20">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-4">
           <ChevronLeft
             className="w-6 h-6 cursor-pointer text-white hover:bg-white/10 rounded-full p-1 transition-all"
             onClick={() => navigate(-1)}
           />
-          <h1 className="text-xl font-bold text-white flex-1 font-inter  tracking-tight">
+          <h1 className="text-lg font-semibold text-white flex-1 font-inter">
             Payment
           </h1>
           <Package className="w-6 h-6 text-white" />
@@ -524,35 +631,162 @@ const PaymentComponent: React.FC = () => {
 
       <div className="max-w-3xl mx-auto p-4 pb-24">
         {/* Delivery Address */}
-        <div className="bg-white rounded-2xl p-6 mb-4 shadow-lg hover:shadow-xl transition-all border border-transparent">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-4">
           <div className="flex items-center gap-2 mb-4">
-            <MapPin className="w-5 h-5 text-green-600" />
-            <h2 className="font-bold text-gray-900 text-lg font-inter  uppercase tracking-tighter">
+            <MapPin className="w-5 h-5 text-emerald-600" />
+            <h2 className="text-base font-semibold text-gray-900 font-inter">
               Delivery Address
             </h2>
           </div>
-          <input
-            type="text"
-            placeholder="Enter your delivery address"
-            value={deliveryAddress}
-            onChange={(e) => setDeliveryAddress(e.target.value)}
-            className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all font-inter"
-          />
+
+          {addressesLoading ? (
+            <div className="flex items-center gap-2 text-sm text-gray-500 py-2">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-emerald-600"></div>
+              Loading saved addresses...
+            </div>
+          ) : savedAddresses.length > 0 ? (
+            <div className="space-y-3 mb-4">
+              {savedAddresses.map((addr, i) => {
+                const isSelected =
+                  (addr.id && addr.id === selectedAddressId) ||
+                  (!addr.id && selectedAddress === addr);
+                return (
+                  <label
+                    key={addr.id || i}
+                    className={`flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-all ${
+                      isSelected
+                        ? "border-emerald-500 bg-emerald-50"
+                        : "border-gray-200 hover:border-emerald-200"
+                    }`}
+                    onClick={() => handleSelectAddress(addr)}
+                  >
+                    <div
+                      className={`mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                        isSelected ? "border-emerald-500" : "border-gray-300"
+                      }`}
+                    >
+                      {isSelected && (
+                        <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full"></div>
+                      )}
+                    </div>
+                    <div className="flex-1 font-inter">
+                      <p className="font-semibold text-gray-900 text-sm">
+                        {addr.address_name || addr.address_type || "Saved address"}
+                        {addr.is_default && (
+                          <span className="ml-2 inline-flex items-center text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-medium">
+                            Default
+                          </span>
+                        )}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">{addr.address}</p>
+                      {addr.delivery_instructions && (
+                        <p className="text-xs text-gray-400 mt-1">
+                          {addr.delivery_instructions}
+                        </p>
+                      )}
+                    </div>
+                  </label>
+                );
+              })}
+
+              <button
+                type="button"
+                onClick={() => setShowAddAddressForm((prev) => !prev)}
+                className="flex items-center gap-2 text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-colors px-1 py-1"
+              >
+                <Plus className="w-4 h-4" />
+                Add new address
+              </button>
+            </div>
+          ) : null}
+
+          {showAddAddressForm && (
+            <div className="border border-gray-200 rounded-xl p-4 space-y-3 mb-4">
+              <input
+                type="text"
+                placeholder="Address name (e.g. Home, Office)"
+                value={newAddress.address_name}
+                onChange={(e) =>
+                  setNewAddress((prev) => ({
+                    ...prev,
+                    address_name: e.target.value,
+                  }))
+                }
+                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-inter"
+              />
+              <textarea
+                placeholder="Full delivery address"
+                value={newAddress.address}
+                onChange={(e) =>
+                  setNewAddress((prev) => ({
+                    ...prev,
+                    address: e.target.value,
+                  }))
+                }
+                rows={2}
+                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-inter resize-none"
+              />
+              <select
+                value={newAddress.address_type}
+                onChange={(e) =>
+                  setNewAddress((prev) => ({
+                    ...prev,
+                    address_type: e.target.value,
+                  }))
+                }
+                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-inter"
+              >
+                <option value="Home">Home</option>
+                <option value="Work">Work</option>
+                <option value="Other">Other</option>
+              </select>
+              <input
+                type="text"
+                placeholder="Delivery instructions (optional)"
+                value={newAddress.delivery_instructions}
+                onChange={(e) =>
+                  setNewAddress((prev) => ({
+                    ...prev,
+                    delivery_instructions: e.target.value,
+                  }))
+                }
+                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-inter"
+              />
+              <button
+                type="button"
+                onClick={handleSaveNewAddress}
+                disabled={savingAddress || !newAddress.address.trim()}
+                className="w-full bg-emerald-600 text-white font-semibold py-3 rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors text-sm font-inter"
+              >
+                {savingAddress ? "Saving..." : "Save Address"}
+              </button>
+            </div>
+          )}
+
+          {!showAddAddressForm && savedAddresses.length === 0 && !addressesLoading && (
+            <input
+              type="text"
+              placeholder="Enter your delivery address"
+              value={deliveryAddress}
+              onChange={(e) => setDeliveryAddress(e.target.value)}
+              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-inter"
+            />
+          )}
         </div>
 
         {/* Order Items */}
-        <div className="bg-white rounded-2xl p-6 mb-4 shadow-lg border border-transparent">
-          <h2 className="font-bold text-gray-900 text-lg mb-4 flex items-center gap-2 font-inter  uppercase tracking-tighter">
-            <Package className="w-5 h-5 text-green-600" />
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-4">
+          <h2 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2 font-inter">
+            <Package className="w-5 h-5 text-emerald-600" />
             Order Items ({orderData.items.length})
           </h2>
-          <div className="space-y-4">
+          <div className="divide-y divide-gray-100">
             {orderData.items.map((item, i) => (
               <div
                 key={i}
-                className="flex gap-4 items-center pb-4 border-b border-gray-100 last:border-b-0 last:pb-0"
+                className="flex gap-4 items-center py-4 first:pt-0 last:pb-0"
               >
-                <div className="w-20 h-20 bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl overflow-hidden flex-shrink-0 shadow-md">
+                <div className="w-20 h-20 bg-emerald-50 rounded-xl overflow-hidden flex-shrink-0">
                   {item.image_url?.startsWith("http") ? (
                     <img
                       src={item.image_url}
@@ -566,15 +800,15 @@ const PaymentComponent: React.FC = () => {
                   )}
                 </div>
                 <div className="flex-1">
-                  <p className="font-bold text-gray-900 text-lg font-inter">
+                  <p className="font-semibold text-gray-900 text-base font-inter">
                     {item.name}
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-500">
                     Quantity:{" "}
-                    <span className="font-semibold">{item.quantity}</span>
+                    <span className="font-medium text-gray-700">{item.quantity}</span>
                   </p>
                 </div>
-                <p className="font-bold text-green-600 text-lg font-inter">
+                <p className="font-semibold text-emerald-600 text-base font-inter">
                   ₦{(item.price * item.quantity).toLocaleString()}
                 </p>
               </div>
@@ -583,10 +817,10 @@ const PaymentComponent: React.FC = () => {
         </div>
 
         {/* Promo Code */}
-        <div className="bg-white rounded-2xl p-6 mb-4 shadow-lg border border-transparent">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-4">
           <div className="flex items-center gap-2 mb-4">
             <span className="text-xl">🏷️</span>
-            <h2 className="font-bold text-gray-900 text-lg font-inter uppercase tracking-tighter">
+            <h2 className="text-base font-semibold text-gray-900 font-inter">
               Promo Code
             </h2>
           </div>
@@ -597,7 +831,7 @@ const PaymentComponent: React.FC = () => {
               value={promoCode}
               onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
               disabled={!!discountInfo || isValidatingPromo}
-              className="flex-1 px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-green-500 transition-all font-inter uppercase"
+              className="flex-1 px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-inter uppercase disabled:bg-gray-50 disabled:text-gray-400"
             />
             {discountInfo ? (
               <button
@@ -605,7 +839,7 @@ const PaymentComponent: React.FC = () => {
                   setDiscountInfo(null);
                   setPromoCode("");
                 }}
-                className="px-6 py-3 bg-red-50 text-red-600 font-bold rounded-xl hover:bg-red-100 transition-all"
+                className="px-6 py-3 bg-red-50 text-red-600 font-semibold rounded-lg hover:bg-red-100 transition-all"
               >
                 Remove
               </button>
@@ -613,50 +847,51 @@ const PaymentComponent: React.FC = () => {
               <button
                 onClick={handleApplyPromoCode}
                 disabled={!promoCode.trim() || isValidatingPromo}
-                className="px-6 py-3 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 disabled:opacity-50 transition-all"
+                className="px-6 py-3 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-all"
               >
                 {isValidatingPromo ? "..." : "Apply"}
               </button>
             )}
           </div>
           {discountInfo && (
-            <p className="text-sm text-green-600 mt-2 font-medium">
-              ✓ Promo code {discountInfo.code} applied!
-            </p>
+            <div className="mt-3">
+              <span className="inline-flex items-center gap-1 text-sm text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full font-medium">
+                ✓ Promo code {discountInfo.code} applied
+              </span>
+            </div>
           )}
         </div>
 
         {/* Order Summary */}
-        <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 mb-4 shadow-lg border-2 border-green-100">
-          <h2 className="font-bold text-gray-900 text-lg mb-4 font-inter  uppercase tracking-tighter">
+        <div className="bg-emerald-50 rounded-2xl border border-emerald-100 shadow-sm p-6 mb-4">
+          <h2 className="text-base font-semibold text-gray-900 mb-4 font-inter">
             Order Summary
           </h2>
-          <div className="space-y-3 text-base font-inter">
-            <div className="flex justify-between text-gray-700">
-              <span>Subtotal</span>
-              <span className="font-semibold">
-                {" "}
+          <div className="divide-y divide-gray-100 font-inter">
+            <div className="flex justify-between text-gray-600 pb-3">
+              <span className="text-sm">Subtotal</span>
+              <span className="text-sm font-semibold text-gray-900">
                 ₦{subtotal.toLocaleString()}
               </span>
             </div>
-            <div className="flex justify-between text-gray-700">
-              <span>Delivery Fee</span>
-              <span className="font-semibold">
+            <div className="flex justify-between text-gray-600 py-3">
+              <span className="text-sm">Delivery Fee</span>
+              <span className="text-sm font-semibold text-gray-900">
                 ₦{delivery.toLocaleString()}
               </span>
             </div>
             {discount > 0 && (
-              <div className="flex justify-between text-green-600">
-                <span>Discount ({discountInfo?.code})</span>
-                <span className="font-semibold">
+              <div className="flex justify-between text-emerald-600 py-3">
+                <span className="text-sm">Discount ({discountInfo?.code})</span>
+                <span className="text-sm font-semibold">
                   -₦{discount.toLocaleString()}
                 </span>
               </div>
             )}
             {orderData.spiceLevel && (
-              <div className="flex justify-between text-gray-600 text-sm pt-2 border-t font-medium">
-                <span>Spice Level</span>
-                <span className="font-semibold text-green-600">
+              <div className="flex justify-between text-gray-500 py-3">
+                <span className="text-sm">Spice Level</span>
+                <span className="text-sm font-semibold text-emerald-600">
                   {orderData.spiceLevel === 0
                     ? "Mild"
                     : orderData.spiceLevel > 50
@@ -666,65 +901,65 @@ const PaymentComponent: React.FC = () => {
               </div>
             )}
             {orderData.specialInstructions && (
-              <div className="pt-2 border-t">
-                <p className="text-gray-600 text-sm mb-1 font-medium ">
+              <div className="py-3">
+                <p className="text-gray-500 text-sm mb-1">
                   Special Instructions:
                 </p>
-                <p className="text-gray-800 text-sm bg-white p-3 rounded-lg border">
+                <p className="text-gray-700 text-sm bg-white p-3 rounded-lg border border-gray-100">
                   {orderData.specialInstructions}
                 </p>
               </div>
             )}
-            <div className="border-t-2 border-green-200 pt-4 mt-4 flex justify-between font-bold text-xl uppercase  tracking-tighter">
-              <span className="text-gray-900">Total Amount</span>
-              <span className="text-green-600">₦{total.toLocaleString()}</span>
+            <div className="pt-4 mt-1 flex justify-between items-center">
+              <span className="text-base font-semibold text-gray-900">Total Amount</span>
+              <span className="text-xl font-semibold text-emerald-600">₦{total.toLocaleString()}</span>
             </div>
           </div>
         </div>
 
         {/* Payment Method Seçimi */}
-        <div className="bg-white rounded-2xl p-5 mb-6 shadow-lg border border-transparent">
-          <h2 className="font-bold text-gray-900 text-lg mb-4 font-inter  uppercase tracking-tighter">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-6">
+          <h2 className="text-base font-semibold text-gray-900 mb-4 font-inter">
             Choose Payment Method
           </h2>
           <div className="space-y-3">
             <label
-              className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+              className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all ${
                 paymentMethod === "online"
-                  ? "border-green-500 bg-green-50"
-                  : "border-gray-100 hover:border-green-200"
+                  ? "border-emerald-500 bg-emerald-50"
+                  : "border-gray-200 hover:border-emerald-200"
               }`}
               onClick={() => setPaymentMethod("online")}
             >
               <div
-                className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                   paymentMethod === "online"
-                    ? "border-green-500"
+                    ? "border-emerald-500"
                     : "border-gray-300"
                 }`}
               >
                 {paymentMethod === "online" && (
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full"></div>
                 )}
               </div>
               <div className="flex-1 font-inter">
-                <p className="font-bold text-gray-900 ">
+                <p className="font-semibold text-gray-900">
                   Pay Online (Paystack)
                 </p>
-                <p className="text-xs text-gray-600">
+                <p className="text-xs text-gray-500">
                   Secure payment with Card, Transfer, USSD
                 </p>
               </div>
-              <CreditCard className="w-6 h-6 text-green-600" />
+              <CreditCard className="w-5 h-5 text-emerald-600" />
             </label>
 
             <label
-              className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all ${
+              className={`flex items-center gap-4 p-4 rounded-xl border transition-all ${
                 vendorInfo && !vendorInfo.accept_cod
-                  ? "opacity-50 cursor-not-allowed border-gray-100 bg-gray-50"
+                  ? "opacity-50 cursor-not-allowed border-gray-200 bg-gray-50"
                   : paymentMethod === "cod"
-                    ? "border-green-500 bg-green-50"
-                    : "border-gray-100 hover:border-green-200 cursor-pointer"
+                    ? "border-emerald-500 bg-emerald-50"
+                    : "border-gray-200 hover:border-emerald-200 cursor-pointer"
               }`}
               onClick={() => {
                 if (vendorInfo?.accept_cod) {
@@ -738,30 +973,30 @@ const PaymentComponent: React.FC = () => {
               }}
             >
               <div
-                className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                   paymentMethod === "cod"
-                    ? "border-green-500"
+                    ? "border-emerald-500"
                     : "border-gray-300"
                 }`}
               >
                 {paymentMethod === "cod" && (
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full"></div>
                 )}
               </div>
               <div className="flex-1 font-inter">
                 <div className="flex items-center gap-2">
-                  <p className="font-bold text-gray-900 ">Cash on Delivery</p>
+                  <p className="font-semibold text-gray-900">Cash on Delivery</p>
                   {vendorInfo && !vendorInfo.accept_cod && (
-                    <span className="text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-bold uppercase">
+                    <span className="text-[10px] bg-red-50 text-red-600 px-2 py-0.5 rounded-full font-medium">
                       Unavailable
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-gray-600">
+                <p className="text-xs text-gray-500">
                   Pay with cash when your order arrives
                 </p>
               </div>
-              <MapPin className="w-6 h-6 text-green-600" />
+              <MapPin className="w-5 h-5 text-emerald-600" />
             </label>
           </div>
         </div>
@@ -770,7 +1005,7 @@ const PaymentComponent: React.FC = () => {
         <button
           onClick={handlePayment}
           disabled={loading || !deliveryAddress.trim()}
-          className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold py-5 rounded-2xl hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-1 active:scale-95 text-lg uppercase font-inter  tracking-tighter"
+          className="w-full bg-emerald-600 text-white font-semibold py-4 rounded-xl hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-base font-inter"
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">

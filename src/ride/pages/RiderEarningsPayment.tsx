@@ -12,12 +12,15 @@ import {
 
 import { RiderNav } from "../component/RiderNav";
 import { backendAuthService } from "../../services/backendAuthService";
+import { useToast } from "../../context/ToastContext";
 import {
   getRiderTransactions,
   getRiderBankInfo,
   saveRiderBankInfo,
   getRiderEarningsHistory,
   getRiderStats,
+  requestRiderWithdrawal,
+  getRiderEarningsReport,
 } from "../../services/api";
 
 const RiderEarningsPayment = () => {
@@ -29,6 +32,13 @@ const RiderEarningsPayment = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [withdrawing, setWithdrawing] = useState(false);
+  const [reportLoading, setReportLoading] = useState(false);
+  const [reportData, setReportData] = useState<Record<string, unknown> | null>(
+    null,
+  );
+  const [showReport, setShowReport] = useState(false);
+  const toast = useToast();
 
   // Rider specific state
   const [riderId, setRiderId] = useState<string | null>(null);
@@ -116,6 +126,47 @@ const RiderEarningsPayment = () => {
       setError(err.message || "Failed to save bank information");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleWithdraw = async () => {
+    if (!stats.todayEarnings || withdrawing) return;
+    setWithdrawing(true);
+    try {
+      await requestRiderWithdrawal(stats.todayEarnings);
+      toast.success(
+        `Withdrawal of ₦${stats.todayEarnings.toLocaleString()} requested successfully`,
+        "Withdrawal Authorized",
+      );
+      if (riderId) await loadRiderData(riderId);
+    } catch (err: any) {
+      toast.error(
+        err?.response?.data?.detail ||
+          err?.message ||
+          "Failed to request withdrawal",
+        "Withdrawal Failed",
+      );
+    } finally {
+      setWithdrawing(false);
+    }
+  };
+
+  const handleGenerateReport = async () => {
+    if (reportLoading) return;
+    setReportLoading(true);
+    try {
+      const res = await getRiderEarningsReport();
+      setReportData((res.data as Record<string, unknown>) || {});
+      setShowReport(true);
+    } catch (err: any) {
+      toast.error(
+        err?.response?.data?.detail ||
+          err?.message ||
+          "Failed to generate earnings report",
+        "Report Failed",
+      );
+    } finally {
+      setReportLoading(false);
     }
   };
 
@@ -428,16 +479,81 @@ const RiderEarningsPayment = () => {
         {/* Action Footbar */}
         <div className="flex flex-col gap-4">
           <button
-            disabled={stats.todayEarnings === 0}
-            className="w-full py-6 bg-green-600 text-white rounded-3xl font-black  uppercase tracking-widest shadow-xl shadow-green-600/20 active:scale-95 transition-all text-sm disabled:opacity-50"
+            onClick={handleWithdraw}
+            disabled={stats.todayEarnings === 0 || withdrawing}
+            className="w-full py-6 bg-green-600 text-white rounded-3xl font-black  uppercase tracking-widest shadow-xl shadow-green-600/20 active:scale-95 transition-all text-sm disabled:opacity-50 flex items-center justify-center gap-3"
           >
-            Authorize Withdrawal
+            {withdrawing ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" /> Processing...
+              </>
+            ) : (
+              "Authorize Withdrawal"
+            )}
           </button>
-          <button className="w-full py-6 bg-white border border-gray-100 text-gray-500 rounded-3xl font-black  uppercase tracking-widest shadow-lg active:scale-95 transition-all text-sm">
-            Generate Intel Report
+          <button
+            onClick={handleGenerateReport}
+            disabled={reportLoading}
+            className="w-full py-6 bg-white border border-gray-100 text-gray-500 rounded-3xl font-black  uppercase tracking-widest shadow-lg active:scale-95 transition-all text-sm flex items-center justify-center gap-3 disabled:opacity-50"
+          >
+            {reportLoading ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" /> Generating...
+              </>
+            ) : (
+              "Generate Intel Report"
+            )}
           </button>
         </div>
       </div>
+
+      {/* Earnings Report Modal */}
+      {showReport && (
+        <div
+          className="fixed inset-0 bg-black/40 z-50 flex items-end sm:items-center justify-center p-4"
+          onClick={() => setShowReport(false)}
+        >
+          <div
+            className="bg-white rounded-2xl border border-gray-100 shadow-sm w-full max-w-md max-h-[80vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <h3 className="text-base font-semibold text-gray-800">
+                Earnings Report
+              </h3>
+              <button
+                onClick={() => setShowReport(false)}
+                className="text-gray-400 hover:text-gray-600 text-sm px-2 py-1 rounded-full bg-gray-50"
+              >
+                Close
+              </button>
+            </div>
+            <div className="p-6 space-y-3">
+              {reportData && Object.keys(reportData).length > 0 ? (
+                Object.entries(reportData).map(([key, value]) => (
+                  <div
+                    key={key}
+                    className="flex items-center justify-between gap-4 py-2 border-b border-gray-50 last:border-b-0"
+                  >
+                    <span className="text-sm text-gray-500 capitalize">
+                      {key.replace(/_/g, " ")}
+                    </span>
+                    <span className="text-sm font-semibold text-gray-800 text-right break-all">
+                      {typeof value === "object"
+                        ? JSON.stringify(value)
+                        : String(value)}
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-gray-400 text-center py-6">
+                  No report data available yet.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

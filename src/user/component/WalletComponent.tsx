@@ -179,7 +179,7 @@ export default function WalletComponent() {
             </p>
             <button
               onClick={() => setView("main")}
-              className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-8 py-3 rounded-lg font-semibold transition transform hover:scale-105 inline-flex items-center gap-2 shadow-lg"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-lg font-semibold transition inline-flex items-center gap-2 shadow-sm"
             >
               <Plus size={20} />
               Add Payment Method
@@ -207,14 +207,14 @@ export default function WalletComponent() {
         <div className="p-6 max-w-2xl mx-auto">
           {/* Card Preview */}
           <div className="mb-8">
-            <div className="relative h-56 rounded-2xl overflow-hidden group cursor-pointer shadow-2xl">
+            <div className="relative h-56 rounded-2xl overflow-hidden group cursor-pointer shadow-md">
               <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 via-teal-600 to-cyan-700"></div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
 
               <div className="relative h-full p-6 flex flex-col justify-between text-white">
                 <div className="flex justify-between items-start">
                   <div className="w-14 h-10 bg-gradient-to-br from-yellow-300 to-yellow-500 rounded-lg flex items-center justify-center">
-                    <span className="text-sm font-bold text-gray-900">
+                    <span className="text-sm font-semibold text-gray-900">
                       CARD
                     </span>
                   </div>
@@ -223,7 +223,7 @@ export default function WalletComponent() {
 
                 <div>
                   <p className="text-xs opacity-75 mb-2">Card Number</p>
-                  <p className="text-2xl font-light tracking-widest mb-6">
+                  <p className="text-2xl font-light mb-6">
                     {formData.cardNumber || "•••• •••• •••• ••••"}
                   </p>
                   <div className="flex justify-between items-center">
@@ -247,7 +247,7 @@ export default function WalletComponent() {
 
           <div className="space-y-4">
             <div>
-              <label className="text-gray-700 font-semibold text-sm block mb-3">
+              <label className="text-gray-700 font-medium text-sm block mb-3">
                 Card Number
               </label>
               <input
@@ -256,14 +256,14 @@ export default function WalletComponent() {
                 value={formData.cardNumber}
                 onChange={handleInputChange}
                 placeholder="1234 5678 9101 1121"
-                className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition"
+                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition"
                 maxLength={16}
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-gray-700 font-semibold text-sm block mb-3">
+                <label className="text-gray-700 font-medium text-sm block mb-3">
                   Expiry Month
                 </label>
                 <input
@@ -272,12 +272,12 @@ export default function WalletComponent() {
                   value={formData.mm}
                   onChange={handleInputChange}
                   placeholder="MM"
-                  className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition"
+                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition"
                   maxLength={2}
                 />
               </div>
               <div>
-                <label className="text-gray-700 font-semibold text-sm block mb-3">
+                <label className="text-gray-700 font-medium text-sm block mb-3">
                   Expiry Year
                 </label>
                 <input
@@ -286,14 +286,14 @@ export default function WalletComponent() {
                   value={formData.yy}
                   onChange={handleInputChange}
                   placeholder="YY"
-                  className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition"
+                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition"
                   maxLength={2}
                 />
               </div>
             </div>
 
             <div>
-              <label className="text-gray-700 font-semibold text-sm block mb-3">
+              <label className="text-gray-700 font-medium text-sm block mb-3">
                 CVV
               </label>
               <input
@@ -302,13 +302,13 @@ export default function WalletComponent() {
                 value={formData.cvv}
                 onChange={handleInputChange}
                 placeholder="•••"
-                className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition"
+                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition"
                 maxLength={3}
               />
             </div>
 
             <div>
-              <label className="text-gray-700 font-semibold text-sm block mb-3">
+              <label className="text-gray-700 font-medium text-sm block mb-3">
                 Cardholder Name
               </label>
               <input
@@ -317,7 +317,7 @@ export default function WalletComponent() {
                 value={formData.name}
                 onChange={handleInputChange}
                 placeholder="John Doe"
-                className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition"
+                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition"
               />
             </div>
           </div>
@@ -326,7 +326,7 @@ export default function WalletComponent() {
         <div className="fixed bottom-6 left-0 right-0 px-4 max-w-2xl mx-auto w-full">
           <button
             onClick={handleAddCard}
-            className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white py-4 rounded-lg font-semibold transition transform hover:scale-105 shadow-lg"
+            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-lg font-semibold transition shadow-sm"
           >
             Add Card
           </button>
@@ -353,18 +353,18 @@ export default function WalletComponent() {
 
       {/* Wallet Section */}
       <div className="px-4 pt-6">
-        <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-8 border border-emerald-200 shadow-md">
+        <div className="bg-emerald-50 rounded-2xl p-8 border border-emerald-100 shadow-sm">
           <p className="text-emerald-700 text-sm font-medium mb-2">
             Available Balance
           </p>
           <div className="flex items-end justify-between">
-            <h1 className="text-5xl font-bold text-emerald-600">
+            <h1 className="text-3xl font-semibold text-gray-900">
               $
               {walletBalance.toLocaleString("en-US", {
                 minimumFractionDigits: 2,
               })}
             </h1>
-            <button className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition shadow-lg">
+            <button className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition shadow-sm">
               + Add Funds
             </button>
           </div>
@@ -374,7 +374,7 @@ export default function WalletComponent() {
       {/* Stored Cards Section */}
       <div className="px-4 pt-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-gray-900 text-lg">Payment Cards</h2>
+          <h2 className="text-base font-semibold text-gray-900">Payment Cards</h2>
         </div>
 
         {storedCards.length > 0 ? (
@@ -399,7 +399,7 @@ export default function WalletComponent() {
                     <div className="relative h-full p-6 flex flex-col justify-between text-white">
                       <div className="flex justify-between items-start">
                         <div className="w-12 h-8 bg-gradient-to-br from-yellow-300 to-yellow-500 rounded flex items-center justify-center">
-                          <span className="text-xs font-bold text-gray-900">
+                          <span className="text-xs font-semibold text-gray-900">
                             CARD
                           </span>
                         </div>
@@ -409,7 +409,7 @@ export default function WalletComponent() {
                       </div>
 
                       <div>
-                        <p className="text-lg font-light tracking-widest mb-4">
+                        <p className="text-lg font-light mb-4">
                           {card.number}
                         </p>
                         <div className="flex justify-between items-end">
@@ -484,28 +484,34 @@ export default function WalletComponent() {
 
       {/* Transaction History */}
       <div className="px-4 pt-8">
-        <h2 className="text-center text-emerald-600 font-semibold text-lg mb-6">
+        <h2 className="text-base font-semibold text-gray-900 mb-4">
           Transaction History
         </h2>
-        <div className="space-y-3">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm divide-y divide-gray-100 overflow-hidden">
           {transactions.map((tx, idx) => (
             <div
               key={idx}
-              className="bg-white p-4 rounded-lg flex items-center justify-between hover:shadow-md transition border border-gray-200"
+              className="p-4 flex items-center justify-between"
             >
               <div className="flex items-center gap-4 flex-1">
-                <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center">
                   <CreditCard size={20} className="text-emerald-600" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 text-sm">
                     {tx.bank}
                   </h3>
-                  <p className="text-xs text-gray-500">{tx.date}</p>
+                  <p className="text-xs text-gray-400">{tx.date}</p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="font-semibold text-gray-900">
+                <p
+                  className={`font-semibold ${
+                    tx.status === "Successful"
+                      ? "text-emerald-600"
+                      : "text-gray-900"
+                  }`}
+                >
                   ${tx.amount.toLocaleString()}
                 </p>
                 <div className="flex items-center justify-end gap-1 mt-1">

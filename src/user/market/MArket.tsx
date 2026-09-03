@@ -12,11 +12,18 @@ import {
   Star,
   Flame,
   UtensilsCrossed,
-  Sparkles,
+  Heart,
+  X,
+  MapPin,
+  Phone,
+  Loader2,
 } from "lucide-react";
 import { Navbar } from "../../component/Navbar";
-import { useNavigate } from "react-router-dom";
-import { backendAuthService } from "../../services/backendAuthService";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import {
+  backendAuthService,
+  type Vendor,
+} from "../../services/backendAuthService";
 import { useToast } from "../../context/ToastContext";
 
 type Screen = "kitchen" | "confirm";
@@ -46,6 +53,11 @@ export default function Market() {
   const [items, setItems] = useState<MenuItem[]>([]);
   const [spiceLevel, setSpiceLevel] = useState(30);
   const [scheduleOrder, setScheduleOrder] = useState(true);
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [detailItem, setDetailItem] = useState<MenuItem | null>(null);
+  const [detailVendor, setDetailVendor] = useState<Vendor | null>(null);
+  const [detailVendorLoading, setDetailVendorLoading] = useState(false);
   // Add these new states
   const firstItem = items.find((item) => item.quantity > 0);
   const [vendorInfo, setVendorInfo] = useState<{
@@ -87,6 +99,11 @@ export default function Market() {
       console.error("Error fetching vendor details:", error);
     }
   };
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [screen]);
+
   useEffect(() => {
     const loadMenu = async () => {
       try {
@@ -121,6 +138,57 @@ export default function Market() {
     };
     loadMenu();
   }, []);
+
+  useEffect(() => {
+    const loadFavorites = async () => {
+      try {
+        const favs = await backendAuthService.getMealFavorites();
+        setFavoriteIds(
+          new Set((favs || []).map((f) => String(f.menu_item_id))),
+        );
+      } catch (error) {
+        console.error("Failed to load meal favorites:", error);
+      }
+    };
+    loadFavorites();
+  }, []);
+
+  const toggleMealFavorite = async (itemId: number) => {
+    const key = String(itemId);
+    const wasFavorited = favoriteIds.has(key);
+
+    // Optimistic update
+    setFavoriteIds((prev) => {
+      const next = new Set(prev);
+      if (wasFavorited) {
+        next.delete(key);
+      } else {
+        next.add(key);
+      }
+      return next;
+    });
+
+    try {
+      if (wasFavorited) {
+        await backendAuthService.removeMealFavorite(key);
+      } else {
+        await backendAuthService.addMealFavorite(key);
+      }
+    } catch (error) {
+      console.error("Failed to update meal favorite:", error);
+      // Revert on error
+      setFavoriteIds((prev) => {
+        const next = new Set(prev);
+        if (wasFavorited) {
+          next.add(key);
+        } else {
+          next.delete(key);
+        }
+        return next;
+      });
+      toast.error("Could not update favorite. Please try again.", "Error");
+    }
+  };
   // const formattedItems = data.map((item: any) => ({
   //   ...item,
   //   quantity: 0,
@@ -227,6 +295,45 @@ export default function Market() {
     toast.success("Item added to cart!", "Cart Updated");
   };
 
+  const openItemDetail = (item: MenuItem) => {
+    setDetailItem(item);
+    setDetailVendor(null);
+    setSearchParams({ item: String(item.id) }, { replace: true });
+
+    if (item.vendor_id) {
+      setDetailVendorLoading(true);
+      backendAuthService
+        .getVendorByID(item.vendor_id)
+        .then((vendor) => {
+          const resolved = Array.isArray(vendor) ? vendor[0] : vendor;
+          setDetailVendor(resolved || null);
+        })
+        .catch((error) => {
+          console.error("Failed to load vendor details:", error);
+        })
+        .finally(() => setDetailVendorLoading(false));
+    }
+  };
+
+  const closeItemDetail = () => {
+    setDetailItem(null);
+    setDetailVendor(null);
+    searchParams.delete("item");
+    setSearchParams(searchParams, { replace: true });
+  };
+
+  // Open the detail view automatically when arriving via a "View Details" deep link
+  useEffect(() => {
+    if (items.length === 0) return;
+    const itemId = searchParams.get("item");
+    if (!itemId) return;
+    const match = items.find((i) => String(i.id) === itemId);
+    if (match && (!detailItem || String(detailItem.id) !== itemId)) {
+      openItemDetail(match);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items]);
+
   const handleConfirmOrder = async () => {
     const cart = getCart();
     if (cart.length === 0) {
@@ -313,13 +420,13 @@ export default function Market() {
           <div className="max-w-7xl mx-auto px-6 py-6">
             <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
               <div className="flex-1 w-full relative group">
-                <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-green-500 transition-colors" />
+                <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-emerald-600 transition-colors" />
                 <input
                   type="text"
                   placeholder="Search for available items..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-14 pr-6 py-4 bg-gray-50 border border-gray-100 rounded-3xl text-sm focus:outline-none focus:ring-4 focus:ring-green-500/10 transition-all font-bold"
+                  className="w-full pl-14 pr-6 py-4 bg-gray-50 border border-gray-100 rounded-xl text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 transition-all"
                 />
               </div>
               <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 w-full md:w-auto">
@@ -327,10 +434,10 @@ export default function Market() {
                   <button
                     key={cat}
                     onClick={() => setSelectedCategory(cat)}
-                    className={`px-6 py-3 rounded-2xl text-xs font-black uppercase  tracking-widest transition-all whitespace-nowrap ${
+                    className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
                       selectedCategory === cat
-                        ? "bg-green-600 text-white shadow-xl shadow-green-500/30"
-                        : "bg-gray-50 border border-gray-100 text-gray-400 hover:text-green-600"
+                        ? "bg-emerald-600 text-white"
+                        : "bg-gray-50 border border-gray-100 text-gray-500 hover:text-emerald-600"
                     }`}
                   >
                     {cat}
@@ -345,7 +452,7 @@ export default function Market() {
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            className="relative h-[300px] rounded-[3rem] overflow-hidden mb-16 group shadow-2xl"
+            className="relative h-[300px] rounded-2xl overflow-hidden mb-16 group border border-gray-100 shadow-sm"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent z-10" />
             <img
@@ -362,16 +469,15 @@ export default function Market() {
               }}
             />
             <div className="absolute inset-0 z-20 flex flex-col justify-center px-12">
-              <div className="flex items-center gap-3 text-green-400 font-bold uppercase  tracking-widest text-xs mb-4">
-                <Sparkles className="w-4 h-4" />
+              <div className="flex items-center gap-2 text-emerald-400 font-medium text-xs mb-4">
                 <span>Trending Now</span>
               </div>
-              <h2 className="text-5xl md:text-6xl font-black text-white font-inter  tracking-tighter uppercase leading-none mb-6">
-                {/* Mardiya <span className="text-green-500">Kitchen</span> */}
+              <h2 className="text-4xl md:text-5xl font-semibold text-white leading-tight mb-4">
+                {/* Mardiya <span className="text-emerald-400">Kitchen</span> */}
                 {items[0]?.businessName || "Mardiya"}{" "}
-                <span className="text-green-500">Kitchen</span>
+                <span className="text-emerald-400">Kitchen</span>
               </h2>
-              <p className="text-white/70 max-w-md font-medium text-lg  mb-8">
+              <p className="text-white/70 max-w-md text-base mb-8">
                 Experience the finest culinary treasures delivered with
                 cinematic speed.
               </p>
@@ -399,15 +505,36 @@ export default function Market() {
                     hidden: { opacity: 0, y: 20 },
                     show: { opacity: 1, y: 0 },
                   }}
-                  whileHover={{ y: -10 }}
-                  className="bg-white rounded-[2.5rem] overflow-hidden shadow-xl border border-transparent hover:border-green-500/30 transition-all group relative"
+                  whileHover={{ y: -4 }}
+                  className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all group relative"
                 >
-                  <div className="relative h-64 overflow-hidden">
-                    <div className="absolute top-4 left-4 z-20 bg-green-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase  tracking-widest">
+                  <div
+                    className="relative h-64 overflow-hidden cursor-pointer"
+                    onClick={() => openItemDetail(item)}
+                  >
+                    <div className="absolute top-4 left-4 z-20 bg-emerald-600 text-white px-3 py-1 rounded-full text-xs font-medium">
                       {item.discount}% OFF
                     </div>
-                    <div className="absolute top-4 right-4 z-20 bg-black/40 backdrop-blur-md text-white p-2 rounded-xl border border-white/20">
-                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+                      <div className="bg-black/40 backdrop-blur-md text-white p-2 rounded-xl border border-white/20">
+                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleMealFavorite(item.id);
+                        }}
+                        className="bg-black/40 backdrop-blur-md p-2 rounded-xl border border-white/20 hover:bg-black/60 transition-all"
+                        aria-label="Toggle favorite"
+                      >
+                        <Heart
+                          className={`w-4 h-4 transition-all ${
+                            favoriteIds.has(String(item.id))
+                              ? "fill-red-500 text-red-500"
+                              : "text-white"
+                          }`}
+                        />
+                      </button>
                     </div>
                     <img
                       src={item.image_url}
@@ -416,48 +543,53 @@ export default function Market() {
                     />
                   </div>
 
-                  <div className="p-8">
-                    <h4 className="font-black text-xl text-gray-800 font-inter tracking-tight mb-2  uppercase">
-                      {item.name}
-                    </h4>
-                    <div className="flex items-center gap-3 mb-6">
-                      <span className="text-green-600 font-black text-2xl  tracking-tighter">
-                        ₦{discountedPrice}
-                      </span>
-                      <span className="text-gray-400 text-sm line-through font-bold">
-                        ₦{item.price.toLocaleString()}
-                      </span>
+                  <div className="p-6">
+                    <div
+                      className="cursor-pointer"
+                      onClick={() => openItemDetail(item)}
+                    >
+                      <h4 className="font-semibold text-lg text-gray-900 mb-2">
+                        {item.name}
+                      </h4>
+                      <div className="flex items-center gap-3 mb-6">
+                        <span className="text-emerald-600 font-semibold text-xl">
+                          ₦{discountedPrice}
+                        </span>
+                        <span className="text-gray-400 text-sm line-through">
+                          ₦{item.price.toLocaleString()}
+                        </span>
+                      </div>
                     </div>
 
                     <div className="flex flex-col gap-4">
-                      <div className="flex items-center justify-between bg-gray-50 rounded-2xl p-2 border border-gray-100">
+                      <div className="flex items-center justify-between bg-gray-50 rounded-xl p-2 border border-gray-100">
                         <button
                           onClick={() => updateQuantity(item.id, -1)}
-                          className="w-10 h-10 flex items-center justify-center bg-white rounded-xl shadow-sm active:scale-95 transition-all"
+                          className="w-10 h-10 flex items-center justify-center bg-white rounded-lg border border-gray-100 transition-colors hover:bg-gray-50"
                         >
-                          <Minus className="w-4 h-4" />
+                          <Minus className="w-4 h-4 text-gray-600" />
                         </button>
-                        <span className="text-lg font-black text-gray-800 font-inter ">
+                        <span className="text-base font-semibold text-gray-900">
                           {item.quantity}
                         </span>
                         <button
                           onClick={() => updateQuantity(item.id, 1)}
-                          className="w-10 h-10 flex items-center justify-center bg-white rounded-xl shadow-sm active:scale-95 transition-all"
+                          className="w-10 h-10 flex items-center justify-center bg-white rounded-lg border border-gray-100 transition-colors hover:bg-gray-50"
                         >
-                          <Plus className="w-4 h-4" />
+                          <Plus className="w-4 h-4 text-gray-600" />
                         </button>
                       </div>
 
                       <div className="grid grid-cols-2 gap-3">
                         <button
                           onClick={() => addToCart(item)}
-                          className="flex items-center justify-center gap-2 py-4 bg-gray-50 text-gray-800 rounded-2xl font-black text-[10px] uppercase  tracking-widest hover:bg-gray-100 transition-all border border-gray-100"
+                          className="flex items-center justify-center gap-2 py-3 bg-gray-50 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-100 transition-all border border-gray-100"
                         >
                           <ShoppingBag className="w-3.5 h-3.5" /> Cart
                         </button>
                         <button
                           onClick={() => handleOrderNow(item)}
-                          className="flex items-center justify-center gap-2 py-4 bg-green-600 text-white rounded-2xl font-black text-[10px] uppercase  tracking-widest hover:bg-green-700 transition-all shadow-lg active:scale-95"
+                          className="flex items-center justify-center gap-2 py-3 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 transition-all"
                         >
                           Order
                         </button>
@@ -476,17 +608,17 @@ export default function Market() {
               initial={{ y: 100, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 100, opacity: 0 }}
-              className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-2xl px-10 py-6 bg-black/90 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 shadow-3xl flex items-center justify-between"
+              className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-2xl px-8 py-5 bg-gray-900 rounded-2xl shadow-md flex items-center justify-between"
             >
-              <div className="flex items-center gap-6">
-                <div className="w-14 h-14 bg-green-600 rounded-2xl flex items-center justify-center">
-                  <ShoppingBag className="w-7 h-7 text-white" />
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-emerald-600 rounded-xl flex items-center justify-center">
+                  <ShoppingBag className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <p className="text-white text-lg font-black font-inter  uppercase tracking-tighter">
+                  <p className="text-white text-base font-semibold">
                     {getCart().reduce((sum, i) => sum + i.quantity, 0)} Items
                   </p>
-                  <p className="text-green-400 font-bold text-xs uppercase  animate-pulse">
+                  <p className="text-emerald-400 text-xs">
                     Total: ₦
                     {getCart()
                       .reduce((sum, i) => sum + i.price, 0)
@@ -503,9 +635,9 @@ export default function Market() {
                     setScreen("confirm");
                   }
                 }}
-                className="px-10 py-4 bg-white text-black font-black  uppercase tracking-tighter rounded-2xl flex items-center gap-3"
+                className="px-8 py-3 bg-white text-gray-900 text-sm font-semibold rounded-xl flex items-center gap-2 hover:bg-gray-100 transition-colors"
               >
-                Checkout <ArrowRight className="w-5 h-5" />
+                Checkout <ArrowRight className="w-4 h-4" />
               </button>
             </motion.div>
           )}
@@ -519,11 +651,11 @@ export default function Market() {
       <div className="sticky top-0 bg-white/80 backdrop-blur-xl z-50 border-b border-gray-100 px-6 py-6 flex items-center justify-between">
         <button
           onClick={() => setScreen("kitchen")}
-          className="w-12 h-12 flex items-center justify-center bg-gray-50 rounded-2xl active:scale-95 transition-all"
+          className="w-10 h-10 flex items-center justify-center bg-gray-50 rounded-xl border border-gray-100 hover:bg-gray-100 transition-colors"
         >
-          <ChevronLeft className="w-6 h-6" />
+          <ChevronLeft className="w-5 h-5 text-gray-700" />
         </button>
-        <h1 className="text-xl font-black  tracking-tighter uppercase">
+        <h1 className="text-lg font-semibold text-gray-900">
           Confirm Order
         </h1>
         <div className="w-12" />
@@ -534,10 +666,10 @@ export default function Market() {
         animate={{ opacity: 1, y: 0 }}
         className="max-w-3xl mx-auto px-6 py-12"
       >
-        <div className="bg-white border border-transparent rounded-[2.5rem] shadow-2xl p-10 mb-10 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-40 h-40 bg-green-500/5 rounded-bl-full pointer-events-none" />
-          <div className="flex gap-10">
-            <div className="w-32 h-32 bg-gray-50 rounded-3xl overflow-hidden ring-4 ring-green-600/10 shadow-xl">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mb-10 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-40 h-40 bg-emerald-50 rounded-bl-full pointer-events-none" />
+          <div className="flex gap-8">
+            <div className="w-28 h-28 bg-gray-50 rounded-2xl overflow-hidden border border-gray-100">
               <img
                 src={
                   vendorInfo?.image_url ||
@@ -549,17 +681,17 @@ export default function Market() {
               />
             </div>
             <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
-                <UtensilsCrossed className="w-4 h-4 text-green-600" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+              <div className="flex items-center gap-2 mb-2">
+                <UtensilsCrossed className="w-4 h-4 text-emerald-600" />
+                <span className="text-xs text-gray-400">
                   Premium Kitchen
                 </span>
               </div>
-              <h2 className="text-4xl font-black  tracking-tighter uppercase mb-4">
+              <h2 className="text-2xl font-semibold text-gray-900 mb-4">
                 {firstItem?.businessName || "Mardiya Kitchen"}
               </h2>
               <div className="flex items-center gap-6">
-                <div className="flex items-center gap-2 text-green-600 font-black text-sm uppercase ">
+                <div className="flex items-center gap-2 text-emerald-600 text-sm font-medium">
                   <Clock className="w-4 h-4" /> 15 Mins
                 </div>
               </div>
@@ -568,17 +700,13 @@ export default function Market() {
         </div>
 
         <div className="space-y-8">
-          <div className="bg-white rounded-[2rem] p-8 shadow-xl border border-transparent">
-            <div className="flex justify-between mb-8">
-              <h3 className="font-black  uppercase tracking-tighter">
+          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="font-semibold text-gray-900">
                 Spice Level
               </h3>
               <Flame
-                className={
-                  spiceLevel > 66
-                    ? "text-red-500 animate-bounce"
-                    : "text-amber-500"
-                }
+                className={spiceLevel > 66 ? "text-red-500" : "text-amber-500"}
               />
             </div>
             <input
@@ -587,42 +715,42 @@ export default function Market() {
               max="100"
               value={spiceLevel}
               onChange={(e) => setSpiceLevel(Number(e.target.value))}
-              className="w-full h-3 bg-gray-100 rounded-full appearance-none accent-green-600"
+              className="w-full h-2 bg-gray-100 rounded-full appearance-none accent-emerald-600"
             />
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             {getCart().map((item, i) => (
               <div
                 key={i}
-                className="bg-white rounded-[1.5rem] p-6 flex justify-between items-center shadow-lg border border-transparent"
+                className="bg-white rounded-2xl p-5 flex justify-between items-center border border-gray-100 shadow-sm"
               >
                 <div className="flex items-center gap-4">
-                  <span className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center font-black text-green-600 ">
+                  <span className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center font-semibold text-emerald-600">
                     {item.quantity}x
                   </span>
-                  <span className="font-black  uppercase tracking-tighter text-lg">
+                  <span className="font-medium text-gray-900 text-base">
                     {item.name}
                   </span>
                 </div>
-                <span className="font-black text-green-600  text-xl">
+                <span className="font-semibold text-emerald-600 text-lg">
                   ₦{item.price.toLocaleString()}
                 </span>
               </div>
             ))}
           </div>
 
-          <div className="bg-white rounded-[2.5rem] p-10 shadow-xl border border-transparent">
+          <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm">
             <div className="flex items-center justify-between mb-8">
-              <h3 className="text-2xl font-black  uppercase tracking-tighter">
+              <h3 className="text-lg font-semibold text-gray-900">
                 Scheduling
               </h3>
               <button
                 onClick={() => setScheduleOrder(!scheduleOrder)}
-                className={`w-16 h-8 rounded-full transition-all relative ${scheduleOrder ? "bg-green-600" : "bg-gray-300"}`}
+                className={`w-14 h-7 rounded-full transition-all relative ${scheduleOrder ? "bg-emerald-600" : "bg-gray-300"}`}
               >
                 <div
-                  className={`absolute top-1 left-1 w-6 h-6 bg-white rounded-full transition-all ${scheduleOrder ? "translate-x-8" : ""}`}
+                  className={`absolute top-1 left-1 w-5 h-5 bg-white rounded-full transition-all ${scheduleOrder ? "translate-x-7" : ""}`}
                 />
               </button>
             </div>
@@ -630,21 +758,21 @@ export default function Market() {
             {scheduleOrder && (
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase text-gray-400">
+                  <label className="text-xs text-gray-400">
                     Date
                   </label>
                   <input
                     type="date"
-                    className="w-full bg-gray-50 p-4 rounded-2xl outline-none font-bold  border border-transparent focus:border-green-500"
+                    className="w-full bg-gray-50 p-3 rounded-xl outline-none text-sm border border-gray-100 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase text-gray-400">
+                  <label className="text-xs text-gray-400">
                     Time
                   </label>
                   <input
                     type="time"
-                    className="w-full bg-gray-50 p-4 rounded-2xl outline-none font-bold  border border-transparent focus:border-green-500"
+                    className="w-full bg-gray-50 p-3 rounded-xl outline-none text-sm border border-gray-100 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10"
                   />
                 </div>
               </div>
@@ -653,15 +781,15 @@ export default function Market() {
 
           <textarea
             placeholder="Special instructions (allergies, door codes...)"
-            className="w-full bg-white rounded-[2rem] p-8 text-sm h-40 resize-none outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-500 border border-transparent shadow-xl"
+            className="w-full bg-white rounded-2xl p-6 text-sm h-40 resize-none outline-none focus:ring-2 focus:ring-emerald-600/10 focus:border-emerald-600 border border-gray-100 shadow-sm"
           />
         </div>
 
         <button
           onClick={handleConfirmOrder}
-          className="w-full mt-10 bg-green-600 hover:bg-green-700 text-white font-black py-6 rounded-[2rem] shadow-3xl flex items-center justify-center gap-4 text-xl  uppercase tracking-tighter active:scale-95 transition-all"
+          className="w-full mt-10 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-4 rounded-xl flex items-center justify-center gap-3 text-base transition-colors"
         >
-          Secure Checkout <ArrowRight className="w-6 h-6" />
+          Secure Checkout <ArrowRight className="w-5 h-5" />
         </button>
       </motion.div>
     </div>
@@ -689,6 +817,194 @@ export default function Market() {
             transition={{ duration: 0.3 }}
           >
             <ConfirmView />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {detailItem && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-6"
+          >
+            <div
+              className="absolute inset-0 bg-black/50"
+              onClick={closeItemDetail}
+            />
+            <motion.div
+              initial={{ y: 40, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 20, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="relative w-full sm:max-w-lg max-h-[90vh] overflow-y-auto bg-white rounded-t-2xl sm:rounded-2xl border border-gray-100 shadow-sm"
+            >
+              <button
+                onClick={closeItemDetail}
+                className="absolute top-4 right-4 z-10 bg-white/90 backdrop-blur-md p-2 rounded-xl border border-gray-100 hover:bg-gray-50 transition-colors"
+                aria-label="Close"
+              >
+                <X className="w-4 h-4 text-gray-600" />
+              </button>
+
+              <div className="relative h-64 overflow-hidden rounded-t-2xl">
+                <img
+                  src={detailItem.image_url}
+                  alt={detailItem.name}
+                  className="w-full h-full object-cover"
+                />
+                {detailItem.discount > 0 && (
+                  <div className="absolute top-4 left-4 bg-emerald-600 text-white px-3 py-1 rounded-full text-xs font-medium">
+                    {detailItem.discount}% OFF
+                  </div>
+                )}
+              </div>
+
+              <div className="p-6">
+                <div className="flex items-start justify-between gap-4 mb-2">
+                  <h2 className="text-xl font-semibold text-gray-900">
+                    {detailItem.name}
+                  </h2>
+                  <button
+                    onClick={() => toggleMealFavorite(detailItem.id)}
+                    className="flex-shrink-0 p-2 rounded-xl border border-gray-100 hover:bg-gray-50 transition-colors"
+                    aria-label="Toggle favorite"
+                  >
+                    <Heart
+                      className={`w-4 h-4 transition-all ${
+                        favoriteIds.has(String(detailItem.id))
+                          ? "fill-red-500 text-red-500"
+                          : "text-gray-400"
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="text-emerald-600 font-semibold text-xl">
+                    ₦
+                    {(
+                      detailItem.price *
+                      (1 - detailItem.discount / 100)
+                    ).toFixed(2)}
+                  </span>
+                  {detailItem.discount > 0 && (
+                    <span className="text-gray-400 text-sm line-through">
+                      ₦{detailItem.price.toLocaleString()}
+                    </span>
+                  )}
+                </div>
+
+                {detailItem.description && (
+                  <p className="text-sm text-gray-500 leading-relaxed mb-6">
+                    {detailItem.description}
+                  </p>
+                )}
+
+                {/* Vendor info */}
+                <div className="bg-gray-50 rounded-xl p-4 mb-6 border border-gray-100">
+                  {detailVendorLoading ? (
+                    <div className="flex items-center gap-2 text-sm text-gray-400">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Loading kitchen details...
+                    </div>
+                  ) : detailVendor ? (
+                    <div className="flex gap-4">
+                      {detailVendor.logo_url && (
+                        <img
+                          src={detailVendor.logo_url}
+                          alt={detailVendor.business_name || "Vendor"}
+                          className="w-14 h-14 rounded-xl object-cover border border-gray-100 flex-shrink-0"
+                        />
+                      )}
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="font-semibold text-gray-900 text-sm truncate">
+                            {detailVendor.business_name ||
+                              detailItem.vendor_name}
+                          </p>
+                          <span
+                            className={`text-[11px] font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${
+                              detailVendor.is_open
+                                ? "bg-emerald-50 text-emerald-700"
+                                : "bg-gray-100 text-gray-500"
+                            }`}
+                          >
+                            {detailVendor.is_open ? "Open" : "Closed"}
+                          </span>
+                        </div>
+                        {detailVendor.business_description && (
+                          <p className="text-xs text-gray-500 mb-2 line-clamp-2">
+                            {detailVendor.business_description}
+                          </p>
+                        )}
+                        {detailVendor.business_address && (
+                          <p className="text-xs text-gray-400 flex items-center gap-1 mb-1">
+                            <MapPin className="w-3 h-3 flex-shrink-0" />
+                            {detailVendor.business_address}
+                          </p>
+                        )}
+                        {detailVendor.business_phone && (
+                          <p className="text-xs text-gray-400 flex items-center gap-1">
+                            <Phone className="w-3 h-3 flex-shrink-0" />
+                            {detailVendor.business_phone}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-500">
+                      {detailItem.vendor_name || "Unknown Vendor"}
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-between bg-gray-50 rounded-xl p-2 border border-gray-100 mb-4">
+                  <button
+                    onClick={() => updateQuantity(detailItem.id, -1)}
+                    className="w-10 h-10 flex items-center justify-center bg-white rounded-lg border border-gray-100 transition-colors hover:bg-gray-50"
+                  >
+                    <Minus className="w-4 h-4 text-gray-600" />
+                  </button>
+                  <span className="text-base font-semibold text-gray-900">
+                    {items.find((i) => i.id === detailItem.id)?.quantity ??
+                      detailItem.quantity}
+                  </span>
+                  <button
+                    onClick={() => updateQuantity(detailItem.id, 1)}
+                    className="w-10 h-10 flex items-center justify-center bg-white rounded-lg border border-gray-100 transition-colors hover:bg-gray-50"
+                  >
+                    <Plus className="w-4 h-4 text-gray-600" />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => {
+                      const current = items.find(
+                        (i) => i.id === detailItem.id,
+                      );
+                      if (current) addToCart(current);
+                    }}
+                    className="flex items-center justify-center gap-2 py-3 bg-gray-50 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-100 transition-all border border-gray-100"
+                  >
+                    <ShoppingBag className="w-3.5 h-3.5" /> Cart
+                  </button>
+                  <button
+                    onClick={() => {
+                      const current = items.find(
+                        (i) => i.id === detailItem.id,
+                      );
+                      if (current) handleOrderNow(current);
+                    }}
+                    className="flex items-center justify-center gap-2 py-3 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 transition-all"
+                  >
+                    Order
+                  </button>
+                </div>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

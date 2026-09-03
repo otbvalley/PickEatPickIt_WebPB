@@ -130,23 +130,11 @@ const RiderProfileSettings = () => {
     if (file && profileData.id) {
       try {
         setIsSaving(true);
-        // Upload via API directly using FormData
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("document_type", "profile_photo");
-
-        const response = await fetch(
-          `http://localhost:8000/api/riders/upload-document?document_type=profile_photo`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-            },
-            body: formData,
-          },
+        const result = await backendAuthService.uploadRiderDocument(
+          profileData.id,
+          file,
+          "selfie",
         );
-
-        const result = await response.json();
         if (result.success) {
           setProfileData((prev) => ({ ...prev, profileImage: result.url }));
         }

@@ -111,6 +111,26 @@ export interface FavoriteVendor {
   vendor_id: string;
 }
 
+export interface FavoriteMeal {
+  menu_item_id: string;
+}
+
+export interface Address {
+  id?: string;
+  address: string;
+  address_name?: string;
+  address_type?: string;
+  building_type?: string;
+  apartment?: string;
+  building_name?: string;
+  delivery_option?: string;
+  delivery_instructions?: string;
+  latitude?: number;
+  longitude?: number;
+  is_default?: boolean;
+  created_at?: string;
+}
+
 export interface VendorRegistrationPayload {
   user_id: string;
   business_name?: string;
@@ -172,10 +192,17 @@ export interface OrderTracking {
 }
 
 export interface PaymentData {
-  order_id: string;
   amount: number;
-  email: string;
-  callback_url?: string;
+  vendor_id: string;
+  payment_method: string;
+  promo_code?: string;
+  customer_email: string;
+  customer_phone?: string;
+  customer_name?: string;
+  delivery_address: string;
+  delivery_type?: string;
+  metadata?: Record<string, unknown>;
+  callback_url: string;
 }
 
 export interface PaymentResponse {
@@ -203,6 +230,16 @@ export interface PromoCodeValidation {
   discount_type: string;
   discount_value: number;
   message?: string;
+}
+
+export interface Notification {
+  id: string;
+  title?: string;
+  message: string;
+  type?: string;
+  is_read: boolean;
+  created_at: string;
+  related_order_id?: string;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -698,6 +735,96 @@ class BackendAuthService {
     }
   }
 
+  // ── Customer: Meal Favorites ───────────────────────────────────────────────
+
+  async getMealFavorites(): Promise<FavoriteMeal[]> {
+    try {
+      const response = await api.get("/customer/meal-favorites");
+      return response.data as FavoriteMeal[];
+    } catch (error) {
+      if (error instanceof APIError) throw error;
+      extractError(error, "Failed to get meal favorites.");
+    }
+  }
+
+  async addMealFavorite(
+    menuItemId: string,
+  ): Promise<{ message: string; menu_item_id: string }> {
+    try {
+      const response = await api.post("/customer/meal-favorites", {
+        menu_item_id: menuItemId,
+      });
+      return response.data as { message: string; menu_item_id: string };
+    } catch (error) {
+      if (error instanceof APIError) throw error;
+      extractError(error, "Failed to add meal favorite.");
+    }
+  }
+
+  async removeMealFavorite(
+    menuItemId: string,
+  ): Promise<{ message: string; menu_item_id: string }> {
+    try {
+      const response = await api.delete(
+        `/customer/meal-favorites/${menuItemId}`,
+      );
+      return response.data as { message: string; menu_item_id: string };
+    } catch (error) {
+      if (error instanceof APIError) throw error;
+      extractError(error, "Failed to remove meal favorite.");
+    }
+  }
+
+  // ── Customer: Addresses ────────────────────────────────────────────────────
+
+  async getAddresses(): Promise<Address[]> {
+    try {
+      const response = await api.get("/customer/addresses");
+      return response.data as Address[];
+    } catch (error) {
+      if (error instanceof APIError) throw error;
+      extractError(error, "Failed to get saved addresses.");
+    }
+  }
+
+  async addAddress(address: Address): Promise<Address> {
+    try {
+      const response = await api.post("/customer/addresses", address);
+      return response.data as Address;
+    } catch (error) {
+      if (error instanceof APIError) throw error;
+      extractError(error, "Failed to save address.");
+    }
+  }
+
+  async updateAddress(
+    addressId: string,
+    address: Partial<Address>,
+  ): Promise<Address> {
+    try {
+      const response = await api.put(
+        `/customer/addresses/${addressId}`,
+        address,
+      );
+      return response.data as Address;
+    } catch (error) {
+      if (error instanceof APIError) throw error;
+      extractError(error, "Failed to update address.");
+    }
+  }
+
+  async deleteAddress(
+    addressId: string,
+  ): Promise<{ message: string; address_id?: string }> {
+    try {
+      const response = await api.delete(`/customer/addresses/${addressId}`);
+      return response.data as { message: string; address_id?: string };
+    } catch (error) {
+      if (error instanceof APIError) throw error;
+      extractError(error, "Failed to delete address.");
+    }
+  }
+
   // ── Customer: Vendors ──────────────────────────────────────────────────────
 
   async getVendors(limit: number = 8): Promise<Vendor[]> {
@@ -752,9 +879,14 @@ class BackendAuthService {
 
   // ── Customer: Promo Codes ──────────────────────────────────────────────────
 
-  async validatePromoCode(code: string): Promise<PromoCodeValidation> {
+  async validatePromoCode(
+    code: string,
+    orderValue: number,
+  ): Promise<PromoCodeValidation> {
     try {
-      const response = await api.get(`/customer/promo-codes/${code}`);
+      const response = await api.get(`/customer/promo-codes/${code}`, {
+        params: { order_value: orderValue },
+      });
       return response.data as PromoCodeValidation;
     } catch (error) {
       if (error instanceof APIError) throw error;
@@ -791,6 +923,40 @@ class BackendAuthService {
     } catch (error) {
       if (error instanceof APIError) throw error;
       extractError(error, "Failed to get order tracking.");
+    }
+  }
+
+  // ── Customer: Notifications ────────────────────────────────────────────────
+
+  async getNotifications(): Promise<Notification[]> {
+    try {
+      const response = await api.get("/customer/notifications");
+      return response.data as Notification[];
+    } catch (error) {
+      if (error instanceof APIError) throw error;
+      extractError(error, "Failed to get notifications.");
+    }
+  }
+
+  async markNotificationRead(notificationId: string): Promise<Notification> {
+    try {
+      const response = await api.post(
+        `/customer/notifications/${notificationId}/read`,
+      );
+      return response.data as Notification;
+    } catch (error) {
+      if (error instanceof APIError) throw error;
+      extractError(error, "Failed to mark notification as read.");
+    }
+  }
+
+  async markAllNotificationsRead(): Promise<{ message: string }> {
+    try {
+      const response = await api.post("/customer/notifications/read-all");
+      return response.data as { message: string };
+    } catch (error) {
+      if (error instanceof APIError) throw error;
+      extractError(error, "Failed to mark all notifications as read.");
     }
   }
 

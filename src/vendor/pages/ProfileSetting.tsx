@@ -171,7 +171,7 @@ const ProfileSetting = () => {
     type?: string;
   }) => (
     <div className="mb-5">
-      <label className="text-xs text-gray-500 mb-2 block font-bold uppercase tracking-widest">
+      <label className="text-xs text-gray-500 mb-2 block font-medium">
         {label}
       </label>
       <div className="flex gap-2">
@@ -182,31 +182,31 @@ const ProfileSetting = () => {
               value={tempValue}
               onChange={(e) => setTempValue(e.target.value)}
               autoFocus
-              className="flex-1 px-4 py-3 bg-blue-50 border-2 border-blue-300 rounded-xl text-gray-900 outline-none focus:border-blue-500 transition-all font-medium"
+              className="flex-1 px-4 py-3 border border-gray-200 rounded-lg text-gray-900 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
             />
             <button
               onClick={() => handleSave(field)}
-              className="px-4 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all active:scale-95"
+              className="px-4 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors"
             >
               <Check className="w-5 h-5" />
             </button>
             <button
               onClick={handleCancel}
-              className="px-4 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-all active:scale-95"
+              className="px-4 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
           </>
         ) : (
           <>
-            <div className="flex-1 px-4 py-3 bg-gray-50 rounded-xl text-gray-800 font-bold border border-gray-100 min-h-[48px] flex items-center">
+            <div className="flex-1 px-4 py-3 bg-gray-50 rounded-lg text-gray-900 font-semibold border border-gray-100 min-h-[48px] flex items-center">
               {value || (
                 <span className="text-gray-300 font-normal">Not set</span>
               )}
             </div>
             <button
               onClick={() => handleEdit(field, value)}
-              className="px-5 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all active:scale-95 font-bold uppercase text-xs tracking-widest"
+              className="px-5 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors text-xs font-medium"
             >
               Edit
             </button>
@@ -220,7 +220,7 @@ const ProfileSetting = () => {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-green-600 animate-spin mx-auto mb-4" />
+          <Loader2 className="w-12 h-12 text-emerald-600 animate-spin mx-auto mb-4" />
           <p className="text-gray-500 font-medium">Loading profile...</p>
         </div>
       </div>
@@ -231,15 +231,15 @@ const ProfileSetting = () => {
       <VendorNav />
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-4 shadow-lg sticky top-0 z-20">
+      <div className="bg-white text-gray-900 px-6 py-4 border-b border-gray-100 sticky top-0 z-20">
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate(-1)}
-            className="p-2 hover:bg-white/20 rounded-lg transition-all active:scale-95"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >
-            <ArrowLeft className="w-6 h-6" />
+            <ArrowLeft className="w-6 h-6 text-gray-700" />
           </button>
-          <h1 className="text-xl font-bold tracking-tighter uppercase">
+          <h1 className="text-lg font-semibold text-gray-900">
             Profile Settings
           </h1>
         </div>
@@ -247,27 +247,27 @@ const ProfileSetting = () => {
 
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-5">
         {/* Status toggle */}
-        <div className="bg-white rounded-[2rem] shadow-xl p-6 border border-gray-50 flex items-center justify-between">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex items-center justify-between">
           <div>
-            <h3 className="font-black text-gray-800 uppercase tracking-tighter">
+            <h3 className="text-base font-semibold text-gray-900">
               Restaurant Status
             </h3>
-            <p className="text-sm text-gray-400 mt-1 font-medium">
+            <p className="text-sm text-gray-500 mt-1">
               {isOpen ? "Currently open for orders" : "Currently closed"}
             </p>
           </div>
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className={`relative w-16 h-8 rounded-full transition-all duration-300 ${isOpen ? "bg-green-600" : "bg-gray-300"}`}
+            className={`relative w-16 h-8 rounded-full transition-colors duration-300 ${isOpen ? "bg-emerald-600" : "bg-gray-300"}`}
           >
             <div
-              className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow-md transition-all duration-300 ${isOpen ? "left-9" : "left-1"}`}
+              className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow-sm transition-all duration-300 ${isOpen ? "left-9" : "left-1"}`}
             />
           </button>
         </div>
 
         {/* Profile card */}
-        <div className="bg-white rounded-[2rem] shadow-xl p-6 border border-gray-50">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <div className="flex flex-col sm:flex-row items-center gap-6">
             {/* Photo */}
             <div className="relative flex-shrink-0">
@@ -280,7 +280,7 @@ const ProfileSetting = () => {
               />
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center shadow-lg cursor-pointer overflow-hidden border-4 border-white relative"
+                className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center cursor-pointer overflow-hidden border-4 border-white shadow-sm relative"
               >
                 {isPhotoLoading && (
                   <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10">
@@ -299,7 +299,7 @@ const ProfileSetting = () => {
               </div>
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="absolute bottom-0 right-0 w-8 h-8 bg-green-600 rounded-full flex items-center justify-center shadow-lg hover:bg-green-700 transition-all active:scale-90"
+                className="absolute bottom-0 right-0 w-8 h-8 bg-emerald-600 rounded-full flex items-center justify-center hover:bg-emerald-700 transition-colors"
               >
                 <Edit2 className="w-4 h-4 text-white" />
               </button>
@@ -307,14 +307,14 @@ const ProfileSetting = () => {
 
             {/* Name preview */}
             <div className="text-center sm:text-left">
-              <h2 className="text-2xl font-black text-gray-800 uppercase tracking-tighter">
+              <h2 className="text-2xl font-semibold text-gray-900">
                 {formData.restaurantName || "Restaurant Name"}
               </h2>
-              <p className="text-green-600 font-bold uppercase text-sm tracking-widest">
+              <p className="text-emerald-600 font-medium text-sm">
                 {formData.category}
               </p>
               <p className="text-gray-400 text-sm mt-1">{formData.email}</p>
-              <p className="text-gray-500 text-sm font-bold">
+              <p className="text-gray-500 text-sm font-medium">
                 {formData.phone}
               </p>
             </div>
@@ -322,8 +322,8 @@ const ProfileSetting = () => {
         </div>
 
         {/* Personal info */}
-        <div className="bg-white rounded-[2rem] shadow-xl p-6 border border-gray-50">
-          <h3 className="font-black text-green-700 uppercase tracking-tighter mb-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+          <h3 className="text-base font-semibold text-gray-900 mb-6">
             Personal Information
           </h3>
           <EditableField
@@ -351,8 +351,8 @@ const ProfileSetting = () => {
         </div>
 
         {/* Address */}
-        <div className="bg-white rounded-[2rem] shadow-xl p-6 border border-gray-50">
-          <h3 className="font-black text-gray-800 uppercase tracking-tighter mb-4">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+          <h3 className="text-base font-semibold text-gray-900 mb-4">
             Address
           </h3>
 
@@ -363,18 +363,18 @@ const ProfileSetting = () => {
                 onChange={(e) => setTempValue(e.target.value)}
                 rows={3}
                 autoFocus
-                className="w-full px-4 py-3 bg-blue-50 border-2 border-blue-300 rounded-xl text-gray-900 outline-none transition-all resize-none"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg text-gray-900 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all resize-none"
               />
               <div className="flex gap-2 mt-2">
                 <button
                   onClick={() => handleSave("address")}
-                  className="flex-1 py-3 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-all active:scale-95"
+                  className="flex-1 py-3 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-colors"
                 >
                   Save
                 </button>
                 <button
                   onClick={handleCancel}
-                  className="flex-1 py-3 bg-red-500 text-white rounded-xl font-bold hover:bg-red-600 transition-all active:scale-95"
+                  className="flex-1 py-3 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition-colors"
                 >
                   Cancel
                 </button>
@@ -383,7 +383,7 @@ const ProfileSetting = () => {
           ) : (
             <div
               onClick={() => handleEdit("address", formData.address)}
-              className="p-4 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-all font-medium text-gray-700 mb-4 min-h-[48px]"
+              className="p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors font-medium text-gray-700 mb-4 min-h-[48px]"
             >
               {formData.address || (
                 <span className="text-gray-300">Click to add address</span>
@@ -398,7 +398,7 @@ const ProfileSetting = () => {
               { label: "State", key: "state" },
             ].map((f) => (
               <div key={f.key}>
-                <label className="text-[10px] text-gray-400 mb-1 block font-bold uppercase tracking-widest">
+                <label className="text-xs text-gray-400 mb-1 block font-medium">
                   {f.label}
                 </label>
                 <input
@@ -407,7 +407,7 @@ const ProfileSetting = () => {
                   onChange={(e) =>
                     setFormData((p) => ({ ...p, [f.key]: e.target.value }))
                   }
-                  className="w-full px-3 py-2.5 bg-gray-50 border-b-2 border-gray-200 rounded-lg text-gray-900 outline-none focus:border-green-500 transition-all font-bold text-sm"
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-gray-900 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-sm"
                 />
               </div>
             ))}
@@ -415,19 +415,19 @@ const ProfileSetting = () => {
         </div>
 
         {/* Delivery range */}
-        <div className="bg-white rounded-[2rem] shadow-xl p-6 border border-gray-50">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-              <MapPin className="w-5 h-5 text-green-600" />
+            <div className="w-10 h-10 bg-emerald-50 rounded-full flex items-center justify-center">
+              <MapPin className="w-5 h-5 text-emerald-600" />
             </div>
             <div>
-              <h3 className="font-black text-gray-800 uppercase tracking-tighter">
+              <h3 className="text-base font-semibold text-gray-900">
                 Delivery Range
               </h3>
               <p className="text-sm text-gray-400">{formData.deliveryRange}</p>
             </div>
           </div>
-          <div className="relative rounded-2xl overflow-hidden h-56 bg-gray-100">
+          <div className="relative rounded-xl overflow-hidden h-56 bg-gray-100">
             <iframe
               width="100%"
               height="100%"
@@ -446,7 +446,7 @@ const ProfileSetting = () => {
           <button
             onClick={handleSaveChanges}
             disabled={isSaving}
-            className="w-full py-5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-2xl font-black uppercase tracking-widest shadow-xl hover:from-green-700 hover:to-emerald-700 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3"
+            className="w-full py-4 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-3"
           >
             {isSaving && <Loader2 className="w-5 h-5 animate-spin" />}
             {isSaving ? "Saving..." : "Save Changes"}

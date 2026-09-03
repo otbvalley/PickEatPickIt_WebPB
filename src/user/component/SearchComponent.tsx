@@ -151,7 +151,7 @@ const SearchComponent: React.FC = () => {
   };
 
   const SearchView: React.FC = () => (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gray-50">
       {/* Header with Status Bar */}
       <div className="bg-white">
         <Navbar />
@@ -160,7 +160,7 @@ const SearchComponent: React.FC = () => {
           <button className="p-2 -ml-2 hover:bg-gray-100 rounded-full transition-colors">
             <ChevronLeft className="w-6 h-6 text-gray-900" />
           </button>
-          <h1 className="text-xl font-bold text-gray-900">Search</h1>
+          <h1 className="text-base font-semibold text-gray-900">Search</h1>
           <div className="w-10"></div>
         </div>
       </div>
@@ -175,10 +175,10 @@ const SearchComponent: React.FC = () => {
               placeholder="What you craving for?"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-transparent rounded-xl focus:outline-none focus:border-green-600 focus:bg-white transition-all text-gray-900 placeholder:text-gray-400"
+              className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white transition-all text-gray-900 placeholder:text-gray-400"
             />
           </div>
-          <button className="px-4 py-3.5 text-green-600 font-semibold flex items-center gap-2 border-2 border-gray-100 rounded-xl hover:border-green-600 hover:bg-green-50 transition-all">
+          <button className="px-4 py-3.5 text-emerald-600 font-medium flex items-center gap-2 border border-gray-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50 transition-all">
             <span className="text-sm">Filter</span>
             <Filter className="w-4 h-4" />
           </button>
@@ -186,15 +186,15 @@ const SearchComponent: React.FC = () => {
       </div>
 
       {/* Category Pills */}
-      <div className="bg-white px-4 py-4 flex gap-3 overflow-x-auto border-b border-gray-100 scrollbar-hide">
+      <div className="bg-white px-4 py-4 flex gap-2 overflow-x-auto border-b border-gray-100 scrollbar-hide">
         {categories.map((category) => (
           <button
             key={category}
             onClick={() => setSelectedCategory(category)}
-            className={`px-5 py-2.5 rounded-full font-semibold whitespace-nowrap transition-all duration-300 ${
+            className={`px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
               selectedCategory === category
-                ? "bg-green-600 text-white shadow-lg shadow-green-600/30 scale-105"
-                : "bg-white text-gray-600 border-2 border-gray-200 hover:border-green-600 hover:text-green-600"
+                ? "bg-emerald-600 text-white"
+                : "bg-gray-50 text-gray-600 hover:bg-emerald-50 hover:text-emerald-600"
             }`}
           >
             {selectedCategory === category && <span className="mr-1">✓</span>}
@@ -210,21 +210,21 @@ const SearchComponent: React.FC = () => {
             <button
               key={item.id}
               onClick={() => setActiveView("results")}
-              className="relative rounded-2xl overflow-hidden h-48 group shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+              className="relative rounded-2xl overflow-hidden h-48 group border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300"
               style={{ animationDelay: `${index * 50}ms` }}
             >
               <img
                 src={item.image}
                 alt={item.name}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
               <div className="absolute inset-0 flex items-end justify-center pb-6">
-                <h3 className="text-white text-2xl font-bold drop-shadow-2xl tracking-wide">
+                <h3 className="text-white text-xl font-semibold">
                   {item.name}
                 </h3>
               </div>
-              <div className="absolute top-3 right-3 w-2 h-2 bg-green-500 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="absolute top-3 right-3 w-2 h-2 bg-emerald-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
             </button>
           ))}
         </div>
@@ -233,7 +233,7 @@ const SearchComponent: React.FC = () => {
   );
 
   const ResultsView: React.FC = () => (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 pb-24">
+    <div className="min-h-screen bg-gray-50 pb-24">
       <Navbar />
       {/* Header with Status Bar */}
       <div className="bg-white">
@@ -244,7 +244,7 @@ const SearchComponent: React.FC = () => {
           >
             <ChevronLeft className="w-6 h-6 text-gray-900" />
           </button>
-          <h1 className="text-xl font-bold text-gray-900">Search</h1>
+          <h1 className="text-base font-semibold text-gray-900">Search</h1>
           <button className="p-2 -mr-2 hover:bg-gray-100 rounded-full transition-colors relative">
             <Bell className="w-6 h-6 text-gray-900" />
             <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
@@ -260,10 +260,10 @@ const SearchComponent: React.FC = () => {
             <input
               type="text"
               placeholder="Search for available home services"
-              className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-transparent rounded-xl focus:outline-none focus:border-green-600 focus:bg-white transition-all text-gray-900 placeholder:text-gray-400"
+              className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white transition-all text-gray-900 placeholder:text-gray-400"
             />
           </div>
-          <button className="px-4 py-3.5 text-green-600 font-semibold flex items-center gap-2 border-2 border-gray-100 rounded-xl hover:border-green-600 hover:bg-green-50 transition-all">
+          <button className="px-4 py-3.5 text-emerald-600 font-medium flex items-center gap-2 border border-gray-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50 transition-all">
             <span className="text-sm">Filter</span>
             <Filter className="w-4 h-4" />
           </button>
@@ -271,15 +271,15 @@ const SearchComponent: React.FC = () => {
       </div>
 
       {/* Category Pills */}
-      <div className="bg-white px-4 py-4 flex gap-3 overflow-x-auto border-b border-gray-100 scrollbar-hide">
+      <div className="bg-white px-4 py-4 flex gap-2 overflow-x-auto border-b border-gray-100 scrollbar-hide">
         {categories.map((category) => (
           <button
             key={category}
             onClick={() => setSelectedCategory(category)}
-            className={`px-5 py-2.5 rounded-full font-semibold whitespace-nowrap transition-all duration-300 ${
+            className={`px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
               selectedCategory === category
-                ? "bg-green-600 text-white shadow-lg shadow-green-600/30 scale-105"
-                : "bg-white text-gray-600 border-2 border-gray-200 hover:border-green-600 hover:text-green-600"
+                ? "bg-emerald-600 text-white"
+                : "bg-gray-50 text-gray-600 hover:bg-emerald-50 hover:text-emerald-600"
             }`}
           >
             {selectedCategory === category && <span className="mr-1">✓</span>}
@@ -293,17 +293,17 @@ const SearchComponent: React.FC = () => {
         {restaurants.map((restaurant, index) => (
           <div
             key={restaurant.id}
-            className="bg-white rounded-2xl p-4 flex gap-4 shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100"
+            className="bg-white rounded-2xl p-4 flex gap-4 border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-300"
             style={{ animationDelay: `${index * 50}ms` }}
           >
             <div className="relative">
               <img
                 src={restaurant.image}
                 alt={restaurant.name}
-                className="w-24 h-24 rounded-xl object-cover shadow-sm"
+                className="w-24 h-24 rounded-xl object-cover"
               />
               {restaurant.isFreeDelivery && (
-                <div className="absolute -top-2 -left-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
+                <div className="absolute -top-2 -left-2 bg-emerald-600 text-white text-xs font-medium px-2 py-1 rounded-full shadow-sm">
                   FREE
                 </div>
               )}
@@ -312,13 +312,13 @@ const SearchComponent: React.FC = () => {
               <div>
                 <div className="flex items-start justify-between mb-2">
                   <div>
-                    <h3 className="font-bold text-gray-900 text-lg mb-1">
+                    <h3 className="font-semibold text-gray-900 text-base mb-1">
                       {restaurant.name}
                     </h3>
                     <div className="flex items-center gap-2">
-                      <div className="flex items-center gap-1 bg-green-50 px-2.5 py-1 rounded-lg">
-                        <Star className="w-4 h-4 fill-green-600 text-green-600" />
-                        <span className="text-sm font-bold text-gray-900">
+                      <div className="flex items-center gap-1 bg-emerald-50 px-2.5 py-1 rounded-lg">
+                        <Star className="w-4 h-4 fill-emerald-600 text-emerald-600" />
+                        <span className="text-sm font-semibold text-gray-900">
                           {restaurant.rating}
                         </span>
                       </div>
@@ -337,7 +337,7 @@ const SearchComponent: React.FC = () => {
                     <Heart
                       className={`w-6 h-6 transition-all ${
                         favorites.has(restaurant.id)
-                          ? "fill-red-500 text-red-500 scale-110"
+                          ? "fill-red-500 text-red-500"
                           : "text-gray-300 hover:text-red-500"
                       }`}
                     />
@@ -346,10 +346,10 @@ const SearchComponent: React.FC = () => {
               </div>
               <div className="flex items-center justify-between">
                 <span
-                  className={`text-sm font-semibold ${
+                  className={`text-sm font-medium ${
                     restaurant.isFreeDelivery
-                      ? "text-green-600"
-                      : "text-gray-600"
+                      ? "text-emerald-600"
+                      : "text-gray-500"
                   }`}
                 >
                   {restaurant.deliveryFee}

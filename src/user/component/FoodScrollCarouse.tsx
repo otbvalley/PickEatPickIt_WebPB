@@ -1,10 +1,18 @@
 import { useState, useRef, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Star, Clock, MapPin } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Star,
+  Clock,
+  MapPin,
+  Heart,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   backendAuthService,
   type MenuItem,
 } from "../../services/backendAuthService";
+import { useToast } from "../../context/ToastContext";
 
 const BACKEND_BASE_URL = "https://pickeatpickitbe.onrender.com";
 
@@ -40,6 +48,8 @@ export default function FoodScrollCarousel() {
   const [showRightArrow, setShowRightArrow] = useState(true);
   const [foods, setFoods] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
+  const toast = useToast();
 
   useEffect(() => {
     const fetchSpecials = async () => {
@@ -58,6 +68,59 @@ export default function FoodScrollCarousel() {
 
     fetchSpecials();
   }, []);
+
+  useEffect(() => {
+    const loadFavorites = async () => {
+      try {
+        const favs = await backendAuthService.getMealFavorites();
+        setFavoriteIds(
+          new Set((favs || []).map((f) => String(f.menu_item_id))),
+        );
+      } catch (err) {
+        console.error("Failed to load meal favorites:", err);
+      }
+    };
+    loadFavorites();
+  }, []);
+
+  const toggleFavorite = async (
+    e: React.MouseEvent,
+    menuItemId: string,
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const wasFavorited = favoriteIds.has(menuItemId);
+
+    setFavoriteIds((prev) => {
+      const next = new Set(prev);
+      if (wasFavorited) {
+        next.delete(menuItemId);
+      } else {
+        next.add(menuItemId);
+      }
+      return next;
+    });
+
+    try {
+      if (wasFavorited) {
+        await backendAuthService.removeMealFavorite(menuItemId);
+      } else {
+        await backendAuthService.addMealFavorite(menuItemId);
+      }
+    } catch (err) {
+      console.error("Failed to update meal favorite:", err);
+      setFavoriteIds((prev) => {
+        const next = new Set(prev);
+        if (wasFavorited) {
+          next.add(menuItemId);
+        } else {
+          next.delete(menuItemId);
+        }
+        return next;
+      });
+      toast.error("Could not update favorite. Please try again.", "Error");
+    }
+  };
 
   const handleScroll = () => {
     if (scrollRef.current) {
@@ -81,7 +144,7 @@ export default function FoodScrollCarousel() {
 
   if (loading)
     return (
-      <div className="p-10 text-center font-bold text-gray-400">
+      <div className="p-10 text-center font-medium text-gray-400">
         Loading Chef's Specials...
       </div>
     );
@@ -89,13 +152,13 @@ export default function FoodScrollCarousel() {
   if (foods.length === 0) return null;
 
   return (
-    <div className="w-full bg-gradient-to-br from-slate-50 to-slate-100 py-12 px-4 md:px-8">
+    <div className="w-full bg-gray-50 py-12 px-4 md:px-8">
       <div className="w-full mx-auto">
         <div className="mb-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+          <h2 className="text-xl font-semibold text-gray-900 mb-1.5">
             Chef's Specials
           </h2>
-          <p className="text-gray-600 text-lg">
+          <p className="text-gray-500 text-sm">
             Curated dishes from top-rated kitchens
           </p>
         </div>
@@ -104,7 +167,7 @@ export default function FoodScrollCarousel() {
           {showLeftArrow && (
             <button
               onClick={() => scroll("left")}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-3 shadow-xl hover:shadow-2xl transition-all hidden md:flex items-center justify-center"
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white border border-gray-100 rounded-full p-3 shadow-sm hover:shadow-md transition-all hidden md:flex items-center justify-center"
             >
               <ChevronLeft className="w-6 h-6 text-gray-800" />
             </button>
@@ -112,7 +175,7 @@ export default function FoodScrollCarousel() {
           {showRightArrow && (
             <button
               onClick={() => scroll("right")}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-3 shadow-xl hover:shadow-2xl transition-all hidden md:flex items-center justify-center"
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white border border-gray-100 rounded-full p-3 shadow-sm hover:shadow-md transition-all hidden md:flex items-center justify-center"
             >
               <ChevronRight className="w-6 h-6 text-gray-800" />
             </button>
@@ -129,8 +192,8 @@ export default function FoodScrollCarousel() {
                 key={item.id}
                 className="flex-shrink-0 w-80 group cursor-pointer"
               >
-                <div className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 h-full flex flex-col">
-                  <div className="relative overflow-hidden h-48 bg-gray-200 flex items-center justify-center">
+                <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 h-full flex flex-col">
+                  <div className="relative overflow-hidden h-48 bg-gray-100 flex items-center justify-center">
                     <img
                       src={constructImageUrl(
                         item.image_url,
@@ -148,14 +211,28 @@ export default function FoodScrollCarousel() {
                     />
 
                     {item.discount > 0 && (
-                      <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full font-bold text-sm shadow-lg">
+                      <div className="absolute top-4 right-14 bg-amber-50 text-amber-700 px-3 py-1 rounded-full font-medium text-xs">
                         {item.discount}% OFF
                       </div>
                     )}
 
-                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center gap-1 shadow-lg">
-                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                      <span className="font-bold text-sm text-gray-900">
+                    <button
+                      onClick={(e) => toggleFavorite(e, String(item.id))}
+                      className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-sm hover:bg-white transition-all"
+                      aria-label="Toggle favorite"
+                    >
+                      <Heart
+                        className={`w-4 h-4 transition-all ${
+                          favoriteIds.has(String(item.id))
+                            ? "fill-red-500 text-red-500"
+                            : "text-gray-400 hover:text-red-500"
+                        }`}
+                      />
+                    </button>
+
+                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center gap-1 shadow-sm">
+                      <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                      <span className="font-medium text-sm text-gray-900">
                         4.9
                       </span>
                     </div>
@@ -163,35 +240,35 @@ export default function FoodScrollCarousel() {
 
                   <div className="p-5 flex flex-col flex-1">
                     <div className="mb-3">
-                      <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
                         {item.name}
                       </h3>
                       <div className="flex items-center gap-2">
-                        <span className="text-2xl font-bold text-green-600">
+                        <span className="text-xl font-semibold text-emerald-600">
                           ₦{getDiscountedPrice(item.price, item.discount)}
                         </span>
                         {item.discount > 0 && (
-                          <span className="text-lg text-gray-400 line-through">
+                          <span className="text-sm text-gray-400 line-through">
                             ₦{item.price.toFixed(2)}
                           </span>
                         )}
                       </div>
                     </div>
 
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                    <p className="text-gray-500 text-sm mb-4 line-clamp-2">
                       {item.description}
                     </p>
 
-                    <div className="bg-gradient-to-r from-slate-50 to-slate-100 rounded-xl p-4 mb-4">
+                    <div className="bg-gray-50 rounded-xl p-4 mb-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold overflow-hidden border-2 border-white shadow-sm">
+                        <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 font-semibold overflow-hidden border-2 border-white shadow-sm">
                           {item.vendor_name?.charAt(0) ?? "V"}
                         </div>
                         <div className="flex-1">
-                          <p className="font-bold text-gray-900 text-sm">
+                          <p className="font-semibold text-gray-900 text-sm">
                             {item.vendor_name ?? "Professional Chef"}
                           </p>
-                          <div className="flex items-center gap-1 text-xs text-gray-600">
+                          <div className="flex items-center gap-1 text-xs text-gray-500">
                             <MapPin className="w-3 h-3" />
                             Nearby
                           </div>
@@ -199,15 +276,15 @@ export default function FoodScrollCarousel() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-4 text-xs text-gray-600 mb-4 pb-4 border-b border-gray-200">
+                    <div className="flex items-center gap-4 text-xs text-gray-500 mb-4 pb-4 border-b border-gray-100">
                       <div className="flex items-center gap-1">
-                        <Clock className="w-4 h-4 text-green-600" />
+                        <Clock className="w-4 h-4 text-emerald-600" />
                         <span>25-30 min</span>
                       </div>
                     </div>
 
                     <Link to={`/market?item=${item.id}`} className="w-full">
-                      <button className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold py-3 rounded-lg transition-all hover:shadow-lg active:scale-95">
+                      <button className="w-full bg-emerald-600 text-white font-semibold py-3 rounded-xl hover:bg-emerald-700 transition-colors">
                         View Details
                       </button>
                     </Link>
@@ -220,7 +297,7 @@ export default function FoodScrollCarousel() {
 
         <div className="flex justify-center mt-8">
           <Link to="/market">
-            <button className="bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold px-8 py-4 rounded-lg transition-all hover:scale-105 shadow-xl text-lg">
+            <button className="bg-emerald-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-emerald-700 transition-colors text-sm">
               View All Dishes
             </button>
           </Link>

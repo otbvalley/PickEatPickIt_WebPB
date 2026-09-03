@@ -47,182 +47,139 @@ export default function RiderLogin() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-black font-inter">
-      {/* CINEMATIC BACKGROUND */}
-      <div className="absolute inset-0 z-0">
-        <motion.img
-          initial={{ scale: 1.1, opacity: 0 }}
-          animate={{ scale: 1, opacity: 0.4 }}
-          transition={{ duration: 1.5 }}
-          src="https://images.unsplash.com/photo-1526367790999-0150786686a2?q=80&w=2000&auto=format&fit=crop"
-          alt="Delivery background"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-black" />
-      </div>
+    <div className="min-h-screen relative bg-gray-50 font-inter">
+      <div className="relative z-10 min-h-screen flex items-center justify-center p-6">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="w-full max-w-lg"
+        >
+          {/* LOGO & BRAND */}
+          <div className="flex flex-col items-center mb-10 text-center">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="w-16 h-16 mb-6 rounded-full bg-orange-50 flex items-center justify-center"
+            >
+              <Bike className="w-8 h-8 text-orange-500" />
+            </motion.div>
+            <div className="inline-block px-3 py-1 bg-orange-50 text-orange-500 rounded-full text-xs font-medium mb-4">
+              Rider Portal
+            </div>
+            <h1 className="text-3xl font-semibold text-gray-900 mb-2">
+              Rider Login
+            </h1>
+            <p className="text-sm text-gray-500">
+              Enter your details to start your shift
+            </p>
+          </div>
 
-      {/* AMBIENT LIGHTS (ORANGE/AMBER FOR RIDERS) */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-orange-500/10 blur-[120px] rounded-full" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-amber-500/10 blur-[120px] rounded-full" />
+          {/* LOGIN CARD */}
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 md:p-12">
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm font-medium text-center"
+              >
+                {error}
+              </motion.div>
+            )}
 
-      <div className="relative z-10 min-h-screen flex items-center justify-center p-6 lg:p-12">
-        <div className="w-full max-w-6xl flex flex-col lg:flex-row gap-16 items-center">
-          
-          {/* LEFT SIDE: PHILOSOPHY */}
-          <motion.div 
-             initial={{ opacity: 0, x: -50 }}
-             animate={{ opacity: 1, x: 0 }}
-             transition={{ duration: 1, ease: "easeOut" }}
-             className="hidden lg:block lg:w-1/2"
-          >
-             <div className="inline-block px-4 py-1 bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded-full text-[10px] font-black uppercase tracking-[0.3em] mb-8">
-                Logistics Terminal
-             </div>
-             <h2 className="text-6xl xl:text-8xl font-black uppercase leading-[0.9] text-white mb-8 tracking-tighter">
-                OWN THE <br />
-                <span className="text-orange-500">STREETS</span>
-             </h2>
-             <p className="text-gray-400 text-lg font-medium max-w-md leading-relaxed mb-12">
-                Join the elite fleet of independent logistics operators. Real-time routing, instant payouts, total autonomy.
-             </p>
-             
-             <div className="flex gap-12">
-                <div>
-                   <div className="text-3xl font-black text-white">24/7</div>
-                   <div className="text-[10px] uppercase tracking-widest text-orange-500 font-bold">Operational Window</div>
+            <div className="space-y-6">
+              {/* Email Input */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700 ml-1">
+                  Email Address
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="rider@fleet.com"
+                    className="w-full pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all text-sm"
+                  />
                 </div>
-                <div>
-                   <div className="text-3xl font-black text-white">FAST</div>
-                   <div className="text-[10px] uppercase tracking-widest text-orange-500 font-bold">Payout Cycles</div>
-                </div>
-             </div>
-          </motion.div>
+              </div>
 
-          {/* RIGHT SIDE: AUTH CARD */}
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="w-full lg:w-1/2 max-w-lg"
-          >
-            <div className="bg-zinc-900/40 backdrop-blur-2xl rounded-[3rem] p-8 md:p-12 border border-white/5 shadow-2xl relative overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
-
-              <div className="relative z-10">
-                <div className="flex justify-between items-start mb-12">
-                   <div>
-                      <h2 className="text-3xl font-black tracking-tighter uppercase text-white mb-2">
-                         Rider Login
-                      </h2>
-                      <p className="text-gray-400 text-sm font-medium">Enter your details to start your shift</p>
-                   </div>
-                   <motion.div 
-                      animate={{ y: [0, -5, 0] }}
-                      transition={{ duration: 3, repeat: Infinity }}
-                      className="w-16 h-16 bg-orange-500/20 rounded-2xl flex items-center justify-center border border-orange-500/30"
-                   >
-                      <Bike className="w-8 h-8 text-orange-400" />
-                   </motion.div>
-                </div>
-
-                {error && (
-                  <motion.div 
-                     initial={{ opacity: 0, height: 0 }}
-                     animate={{ opacity: 1, height: "auto" }}
-                     className="mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-xs font-bold uppercase tracking-widest text-center"
-                  >
-                     {error}
-                  </motion.div>
-                )}
-
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 ml-4">Email Address</label>
-                    <div className="relative group/input">
-                      <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within/input:text-orange-500 transition-colors" />
-                      <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        onKeyPress={handleKeyPress}
-                        placeholder="rider@fleet.com"
-                        className="w-full pl-14 pr-6 py-5 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-600 focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all font-bold text-sm"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                     <div className="flex justify-between items-center px-4">
-                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">Password</label>
-                        <Link to="/forgot-password?type=rider" className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-500 hover:text-white transition-colors">Recover?</Link>
-                     </div>
-                    <div className="relative group/input">
-                      <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within/input:text-orange-500 transition-colors" />
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        onKeyPress={handleKeyPress}
-                        placeholder="••••••••"
-                        className="w-full pl-14 pr-14 py-5 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-600 focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all font-bold text-sm"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-orange-500 transition-colors"
-                      >
-                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-12 space-y-4">
-                  <motion.button
-                    whileHover={{ scale: 1.02, y: -2 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={handleLogin}
-                    disabled={isLoading}
-                    className="w-full bg-white text-black font-black uppercase tracking-widest py-5 rounded-2xl shadow-xl hover:shadow-orange-500/20 transition-all disabled:opacity-50 flex items-center justify-center gap-3"
-                  >
-                    {isLoading ? (
-                       <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <>
-                        Login Now
-                        <ArrowRight className="w-5 h-5" />
-                      </>
-                    )}
-                  </motion.button>
-
-                  <Link to="/" className="block">
-                     <button className="w-full py-5 text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 hover:text-white transition-colors flex items-center justify-center gap-2">
-                        <ArrowLeft className="w-3 h-3" /> Back to Home
-                     </button>
+              {/* Password Input */}
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <label className="text-sm font-medium text-gray-700">
+                    Password
+                  </label>
+                  <Link to="/forgot-password?type=rider" className="text-sm font-medium text-orange-500 hover:text-orange-600 transition-colors">
+                    Recover?
                   </Link>
+                </div>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="••••••••"
+                    className="w-full pl-12 pr-12 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-orange-500 transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
                 </div>
               </div>
             </div>
 
-            <div className="mt-10 text-center">
-               <p className="text-gray-500 font-bold uppercase tracking-tighter">
-                 Request Fleet Access?{" "}
-                 <Link to="/rider-registration">
-                   <span className="text-orange-500 hover:text-white transition-colors cursor-pointer border-b border-orange-500/30">Submit Application</span>
-                 </Link>
-               </p>
+            <div className="mt-10 space-y-4">
+              <motion.button
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleLogin}
+                disabled={isLoading}
+                className="w-full bg-orange-500 text-white font-medium py-3 rounded-xl shadow-sm hover:bg-orange-600 transition-all disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-3"
+              >
+                {isLoading ? (
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <>
+                    Login Now
+                    <ArrowRight className="w-5 h-5" />
+                  </>
+                )}
+              </motion.button>
+
+              <Link to="/" className="block">
+                <button className="w-full py-3 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors flex items-center justify-center gap-2">
+                  <ArrowLeft className="w-4 h-4" /> Back to Home
+                </button>
+              </Link>
             </div>
+          </div>
+
+          {/* REGISTER LINK */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="text-center mt-10"
+          >
+            <p className="text-gray-500 text-sm">
+              Request Fleet Access?{" "}
+              <Link to="/rider-registration">
+                <span className="text-orange-500 hover:text-orange-600 transition-colors cursor-pointer font-medium border-b border-orange-200">
+                  Submit Application
+                </span>
+              </Link>
+            </p>
           </motion.div>
-        </div>
+        </motion.div>
       </div>
-      
-      {/* SCANNER LINE EFFECT */}
-      <motion.div 
-         animate={{ left: ["0%", "100%", "0%"] }}
-         transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-         className="absolute top-0 bottom-0 w-[1px] bg-orange-500/20 z-0 pointer-events-none"
-      />
     </div>
   );
 }

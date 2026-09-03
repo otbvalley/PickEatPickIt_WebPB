@@ -51,7 +51,7 @@ const Terms: React.FC = () => {
 
             <div className="mt-12 bg-white/5 border border-white/10 p-6 rounded-2xl flex items-start gap-4 text-left">
               <AlertCircle className="w-6 h-6 text-green-500 flex-shrink-0 mt-1" />
-              <p className="text-sm text-gray-300 leading-relaxed italic">
+              <p className="text-sm text-gray-300 leading-relaxed">
                 <strong className="text-white uppercase tracking-wider block mb-1">Important Notice:</strong>
                 Please read these Terms of Service carefully before using the PickEat PickIT platform. By using our services, you agree to be bound by these terms.
               </p>

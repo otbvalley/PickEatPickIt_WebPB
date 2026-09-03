@@ -10,13 +10,13 @@ const SupportPage: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50">
+    <div className="min-h-screen bg-gray-50">
       <VendorNav />
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-600 to-emerald-600 shadow-lg">
+      <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center h-16 sm:h-20">
-            <button className="text-white hover:bg-white/10 rounded-full p-2 transition-all duration-200 hover:scale-110">
+            <button className="text-gray-700 hover:bg-gray-100 rounded-full p-2 transition-colors">
               <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
           </div>
@@ -27,42 +27,41 @@ const SupportPage: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Title */}
         <div
-          className={`mb-8 sm:mb-12 transform transition-all duration-700 ${
-            isVisible ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0"
+          className={`mb-8 sm:mb-12 transition-opacity duration-500 ${
+            isVisible ? "opacity-100" : "opacity-0"
           }`}
         >
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-green-700 mb-2">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-gray-900 mb-2">
             Support
           </h1>
-          <p className="text-gray-600 text-sm sm:text-base">
+          <p className="text-gray-500 text-sm sm:text-base">
             We're here to help you 24/7
           </p>
         </div>
 
         {/* Order Issues Card */}
         <div
-          className={`mb-8 sm:mb-12 transform transition-all duration-700 delay-100 ${
-            isVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+          className={`mb-8 sm:mb-12 transition-opacity duration-500 ${
+            isVisible ? "opacity-100" : "opacity-0"
           }`}
         >
-          <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden group">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="p-6 sm:p-8 lg:p-10 flex items-center justify-between">
               <div className="flex-1">
-                <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-green-700 mb-3 group-hover:text-green-600 transition-colors">
+                <h2 className="text-base font-semibold text-gray-900 mb-3">
                   Order Issues
                 </h2>
-                <p className="text-gray-600 text-sm sm:text-base lg:text-lg">
+                <p className="text-gray-500 text-sm sm:text-base">
                   Report anything wrong with an order
                 </p>
               </div>
-              <div className="ml-4 sm:ml-6 relative">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 animate-pulse">
+              <div className="ml-4 sm:ml-6">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 bg-amber-50 rounded-full flex items-center justify-center">
                   <AlertCircle
-                    className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 text-white"
-                    strokeWidth={2.5}
+                    className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 text-amber-500"
+                    strokeWidth={2}
                   />
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full blur-xl opacity-30 group-hover:opacity-50 transition-opacity"></div>
               </div>
             </div>
           </div>
@@ -70,15 +69,15 @@ const SupportPage: React.FC = () => {
 
         {/* Support Section */}
         <div
-          className={`transform transition-all duration-700 delay-200 ${
-            isVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+          className={`transition-opacity duration-500 ${
+            isVisible ? "opacity-100" : "opacity-0"
           }`}
         >
-          <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl p-6 sm:p-8 lg:p-10">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8 lg:p-10">
+            <h2 className="text-base font-semibold text-gray-900 mb-2">
               PickItPickEat Support
             </h2>
-            <p className="text-gray-600 mb-8 sm:mb-10 text-sm sm:text-base">
+            <p className="text-gray-500 mb-8 sm:mb-10 text-sm sm:text-base">
               Chat with PickItPickEat Customer care support
             </p>
 
@@ -88,20 +87,20 @@ const SupportPage: React.FC = () => {
               <div className="group">
                 <a
                   href="mailto:Support@PickItPickEat.com"
-                  className="flex items-center p-5 sm:p-6 lg:p-7 bg-gradient-to-r from-gray-50 to-green-50 rounded-xl sm:rounded-2xl hover:from-green-50 hover:to-emerald-50 transition-all duration-300 border-2 border-transparent hover:border-green-200 hover:shadow-lg transform hover:-translate-y-1"
+                  className="flex items-center p-5 sm:p-6 lg:p-7 bg-gray-50 rounded-2xl hover:bg-emerald-50 transition-colors border border-gray-100"
                 >
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 bg-emerald-600 rounded-xl flex items-center justify-center">
                     <Mail className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                   </div>
                   <div className="ml-4 sm:ml-6 flex-1">
-                    <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-800 mb-1">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
                       Email PickItPickEat Support
                     </h3>
-                    <p className="text-green-600 font-semibold text-sm sm:text-base group-hover:text-green-700 transition-colors">
+                    <p className="text-emerald-600 font-medium text-sm sm:text-base">
                       Support@PickItPickEat.com
                     </p>
                   </div>
-                  <div className="ml-2 text-green-600 group-hover:translate-x-2 transition-transform duration-300">
+                  <div className="ml-2 text-emerald-600">
                     <svg
                       className="w-5 h-5 sm:w-6 sm:h-6"
                       fill="none"
@@ -123,20 +122,20 @@ const SupportPage: React.FC = () => {
               <div className="group">
                 <a
                   href="https://wa.me/2349012345678"
-                  className="flex items-center p-5 sm:p-6 lg:p-7 bg-gradient-to-r from-gray-50 to-green-50 rounded-xl sm:rounded-2xl hover:from-green-50 hover:to-emerald-50 transition-all duration-300 border-2 border-transparent hover:border-green-200 hover:shadow-lg transform hover:-translate-y-1"
+                  className="flex items-center p-5 sm:p-6 lg:p-7 bg-gray-50 rounded-2xl hover:bg-emerald-50 transition-colors border border-gray-100"
                 >
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 bg-emerald-600 rounded-xl flex items-center justify-center">
                     <MessageCircle className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                   </div>
                   <div className="ml-4 sm:ml-6 flex-1">
-                    <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-800 mb-1">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
                       Chat PickItPickEat Support on Whatsapp
                     </h3>
-                    <p className="text-green-600 font-semibold text-sm sm:text-base group-hover:text-green-700 transition-colors">
+                    <p className="text-emerald-600 font-medium text-sm sm:text-base">
                       +234 901 2345 678
                     </p>
                   </div>
-                  <div className="ml-2 text-green-600 group-hover:translate-x-2 transition-transform duration-300">
+                  <div className="ml-2 text-emerald-600">
                     <svg
                       className="w-5 h-5 sm:w-6 sm:h-6"
                       fill="none"
@@ -159,11 +158,11 @@ const SupportPage: React.FC = () => {
 
         {/* Footer Help Text */}
         <div
-          className={`mt-8 sm:mt-12 text-center transform transition-all duration-700 delay-300 ${
-            isVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+          className={`mt-8 sm:mt-12 text-center transition-opacity duration-500 ${
+            isVisible ? "opacity-100" : "opacity-0"
           }`}
         >
-          <p className="text-gray-500 text-xs sm:text-sm">
+          <p className="text-gray-400 text-xs sm:text-sm">
             Need immediate assistance? Our team responds within minutes
           </p>
         </div>

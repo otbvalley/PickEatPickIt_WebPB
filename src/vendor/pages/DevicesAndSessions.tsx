@@ -36,13 +36,13 @@ const DevicesAndSessions: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50">
+    <div className="min-h-screen bg-white">
       {/* Header */}
       <VendorNav />
-      <div className="bg-gradient-to-r from-green-600 to-emerald-600 shadow-lg sticky top-0 z-10">
+      <div className="bg-white border-b border-gray-100 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center h-16 sm:h-20">
-            <button className="text-white hover:bg-white/10 rounded-full p-2 transition-all duration-200 hover:scale-110 active:scale-95">
+            <button className="text-gray-600 hover:bg-gray-100 rounded-full p-2 transition-colors">
               <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
           </div>
@@ -57,11 +57,11 @@ const DevicesAndSessions: React.FC = () => {
             isVisible ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0"
           }`}
         >
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-green-700 to-emerald-600 bg-clip-text text-transparent mb-3">
+          <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-3">
             Devices and Sessions
           </h1>
-          <p className="text-gray-600 text-sm sm:text-base flex items-center gap-2">
-            <Clock className="w-4 h-4 text-green-600" />
+          <p className="text-gray-500 text-sm sm:text-base flex items-center gap-2">
+            <Clock className="w-4 h-4 text-emerald-600" />
             Manage your active sessions and devices
           </p>
         </div>
@@ -81,37 +81,16 @@ const DevicesAndSessions: React.FC = () => {
               onMouseLeave={() => setHoveredDevice(null)}
             >
               <div
-                className={`bg-white rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden border-2 ${
-                  device.isActive
-                    ? "border-green-200 hover:border-green-300"
-                    : "border-gray-100 hover:border-gray-200"
-                } ${
-                  hoveredDevice === device.id
-                    ? "transform -translate-y-1 scale-[1.02]"
-                    : ""
-                }`}
+                className={`bg-white rounded-2xl shadow-sm transition-shadow overflow-hidden border ${
+                  device.isActive ? "border-emerald-100" : "border-gray-100"
+                } ${hoveredDevice === device.id ? "shadow-md" : ""}`}
               >
-                <div className="p-5 sm:p-6 lg:p-8 flex items-center gap-4 sm:gap-6 relative overflow-hidden">
-                  {/* Animated Background Gradient */}
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-r ${
-                      device.isActive
-                        ? "from-green-50/50 to-emerald-50/50"
-                        : "from-gray-50/30 to-slate-50/30"
-                    } transition-opacity duration-500 ${
-                      hoveredDevice === device.id ? "opacity-100" : "opacity-0"
-                    }`}
-                  ></div>
-
+                <div className="p-5 sm:p-6 lg:p-8 flex items-center gap-4 sm:gap-6">
                   {/* Device Icon */}
-                  <div className="relative z-10">
+                  <div className="relative">
                     <div
-                      className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl flex items-center justify-center shadow-lg transition-all duration-500 ${
-                        device.isActive
-                          ? "bg-gradient-to-br from-green-500 to-emerald-600"
-                          : "bg-gradient-to-br from-gray-400 to-slate-500"
-                      } ${
-                        hoveredDevice === device.id ? "scale-110 rotate-3" : ""
+                      className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center transition-colors duration-300 ${
+                        device.isActive ? "bg-emerald-600" : "bg-gray-400"
                       }`}
                     >
                       <Smartphone
@@ -123,15 +102,14 @@ const DevicesAndSessions: React.FC = () => {
                     {/* Status Indicator */}
                     {device.isActive && (
                       <div className="absolute -top-1 -right-1 flex items-center justify-center">
-                        <div className="w-4 h-4 sm:w-5 sm:h-5 bg-green-500 rounded-full border-2 border-white shadow-lg animate-pulse"></div>
-                        <div className="absolute w-4 h-4 sm:w-5 sm:h-5 bg-green-400 rounded-full animate-ping"></div>
+                        <div className="w-4 h-4 sm:w-5 sm:h-5 bg-emerald-500 rounded-full border-2 border-white"></div>
                       </div>
                     )}
                   </div>
 
                   {/* Device Info */}
-                  <div className="flex-1 relative z-10 min-w-0">
-                    <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 sm:mb-2 truncate">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1 sm:mb-2 truncate">
                       {device.name}
                     </h3>
                     <div className="flex items-center gap-2">
@@ -139,8 +117,8 @@ const DevicesAndSessions: React.FC = () => {
                         Last seen -
                       </span>
                       <span
-                        className={`text-xs sm:text-sm font-bold ${
-                          device.isActive ? "text-green-600" : "text-gray-700"
+                        className={`text-xs sm:text-sm font-semibold ${
+                          device.isActive ? "text-emerald-600" : "text-gray-700"
                         }`}
                       >
                         {device.lastSeen}
@@ -149,13 +127,13 @@ const DevicesAndSessions: React.FC = () => {
                   </div>
 
                   {/* Action Button */}
-                  <div className="relative z-10">
+                  <div>
                     <button
-                      className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center transition-all duration-300 ${
+                      className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center transition-colors duration-300 ${
                         device.isActive
-                          ? "bg-green-100 text-green-600 hover:bg-green-200"
+                          ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
                           : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                      } hover:scale-110 active:scale-95 shadow-md hover:shadow-lg`}
+                      }`}
                     >
                       <svg
                         className="w-5 h-5 sm:w-6 sm:h-6"
@@ -173,11 +151,6 @@ const DevicesAndSessions: React.FC = () => {
                     </button>
                   </div>
                 </div>
-
-                {/* Bottom Border Accent */}
-                {device.isActive && (
-                  <div className="h-1 bg-gradient-to-r from-green-500 via-emerald-500 to-green-500 animate-gradient"></div>
-                )}
               </div>
             </div>
           ))}
@@ -189,13 +162,13 @@ const DevicesAndSessions: React.FC = () => {
             isVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
           }`}
         >
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl sm:rounded-3xl p-5 sm:p-6 lg:p-8 border-2 border-blue-100">
+          <div className="bg-blue-50 rounded-2xl p-5 sm:p-6 lg:p-8 border border-blue-100">
             <div className="flex gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg">
+              <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center flex-shrink-0">
                 <Monitor className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="text-base sm:text-lg font-bold text-gray-800 mb-2">
+                <h3 className="text-base font-semibold text-gray-900 mb-2">
                   Security Tip
                 </h3>
                 <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
@@ -214,37 +187,25 @@ const DevicesAndSessions: React.FC = () => {
             isVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
           }`}
         >
-          <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-lg hover:shadow-xl transition-shadow">
-            <div className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-2">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sm:p-6">
+            <div className="text-3xl sm:text-4xl font-semibold text-emerald-600 mb-2">
               {devices.filter((d) => d.isActive).length}
             </div>
-            <div className="text-xs sm:text-sm text-gray-600">
+            <div className="text-xs sm:text-sm text-gray-500">
               Active Session
               {devices.filter((d) => d.isActive).length !== 1 ? "s" : ""}
             </div>
           </div>
-          <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-lg hover:shadow-xl transition-shadow">
-            <div className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-gray-600 to-slate-600 bg-clip-text text-transparent mb-2">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sm:p-6">
+            <div className="text-3xl sm:text-4xl font-semibold text-gray-700 mb-2">
               {devices.length}
             </div>
-            <div className="text-xs sm:text-sm text-gray-600">
+            <div className="text-xs sm:text-sm text-gray-500">
               Total Device{devices.length !== 1 ? "s" : ""}
             </div>
           </div>
         </div>
       </div>
-
-      <style>{`
-        @keyframes gradient {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        .animate-gradient {
-          background-size: 200% 200%;
-          animation: gradient 3s ease infinite;
-        }
-      `}</style>
     </div>
   );
 };

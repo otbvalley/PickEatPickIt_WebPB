@@ -467,6 +467,16 @@ const RiderOrder = () => {
                 <p className="text-sm text-gray-700 font-bold uppercase leading-relaxed">
                   {selectedOrder.delivery_address}
                 </p>
+                {activeTab !== "pending" && (
+                  <button
+                    onClick={() =>
+                      navigate(`/map?orderId=${selectedOrder.id}`)
+                    }
+                    className="mt-4 flex items-center gap-2 text-xs text-blue-600 font-black uppercase tracking-widest hover:underline"
+                  >
+                    <MapPin size={14} /> Navigate
+                  </button>
+                )}
               </div>
             </div>
 

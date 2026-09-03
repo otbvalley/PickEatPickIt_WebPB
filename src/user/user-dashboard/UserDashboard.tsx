@@ -9,7 +9,7 @@ import {
   Award,
   Clock,
   ChevronRight,
-  Sparkles,
+  Tag,
   ShoppingBag,
   Zap,
 } from "lucide-react";
@@ -216,7 +216,7 @@ export default function UserDashboard() {
               </div>
             </div>
             <div className="px-4 sm:px-6 py-6 max-w-7xl mx-auto w-full space-y-5">
-              <div className="w-full h-72 sm:h-96 md:h-[60vh] lg:h-[90vh] rounded-3xl bg-gray-100 animate-pulse" />
+              <div className="w-full h-72 sm:h-96 md:h-[60vh] lg:h-[90vh] rounded-2xl bg-gray-100 animate-pulse" />
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[1, 2, 3, 4].map((i) => (
                   <div
@@ -250,15 +250,15 @@ export default function UserDashboard() {
                   <div className="flex items-center gap-3">
                     <motion.div
                       whileHover={{ scale: 1.05 }}
-                      className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center text-white font-black text-sm shadow-md shadow-green-500/20 flex-shrink-0"
+                      className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white font-semibold text-sm flex-shrink-0"
                     >
                       {initials || "G"}
                     </motion.div>
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 leading-none mb-0.5">
+                      <p className="text-xs text-gray-400 leading-none mb-0.5">
                         Welcome back
                       </p>
-                      <h1 className="text-sm font-black tracking-tight text-gray-900">
+                      <h1 className="text-sm font-semibold text-gray-900">
                         {fullName}
                       </h1>
                     </div>
@@ -280,7 +280,7 @@ export default function UserDashboard() {
                       className="w-10 h-10 bg-gray-50 border border-gray-200 flex items-center justify-center rounded-xl text-gray-600 relative hover:bg-gray-100 transition-colors flex-shrink-0"
                     >
                       <Bell className="w-4 h-4" />
-                      <span className="absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full border-2 border-white" />
+                      <span className="absolute top-2 right-2 w-2 h-2 bg-emerald-500 rounded-full border-2 border-white" />
                     </Link>
                   </div>
                 </div>
@@ -293,14 +293,14 @@ export default function UserDashboard() {
                 <motion.div
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+                  className="bg-emerald-600 rounded-2xl p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <div className="w-9 h-9 bg-white/15 rounded-xl flex items-center justify-center flex-shrink-0">
                       <Zap className="w-4.5 h-4.5 text-white" />
                     </div>
                     <div>
-                      <p className="font-black text-sm text-white tracking-tight">
+                      <p className="font-semibold text-sm text-white">
                         {offers[0]?.discount || 15}% OFF Today!
                       </p>
                       <p className="text-white/75 text-xs">{offers[0]?.name}</p>
@@ -308,7 +308,7 @@ export default function UserDashboard() {
                   </div>
                   <button
                     onClick={() => navigate("/market")}
-                    className="bg-white text-green-600 font-black text-xs px-3.5 py-2 rounded-xl hover:bg-green-50 transition-colors flex-shrink-0 whitespace-nowrap"
+                    className="bg-white text-emerald-600 font-semibold text-xs px-3.5 py-2 rounded-xl hover:bg-emerald-50 transition-colors flex-shrink-0 whitespace-nowrap"
                   >
                     Order Now
                   </button>
@@ -321,7 +321,7 @@ export default function UserDashboard() {
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="rounded-3xl overflow-hidden shadow-xl border border-gray-100 h-72 sm:h-96 md:h-[60vh] lg:h-[90vh] xl:h-[120vh] 2xl:h-[140vh]"
+                className="rounded-2xl overflow-hidden shadow-sm border border-gray-100 h-72 sm:h-96 md:h-[60vh] lg:h-[90vh] xl:h-[120vh] 2xl:h-[140vh]"
               >
                 <HeroFoodCarousel />
               </motion.div>
@@ -339,9 +339,9 @@ export default function UserDashboard() {
                   {
                     label: "Trending",
                     icon: TrendingUp,
-                    color: "text-green-600",
-                    bg: "bg-green-50",
-                    border: "border-green-100",
+                    color: "text-emerald-600",
+                    bg: "bg-emerald-50",
+                    border: "border-emerald-100",
                   },
                   {
                     label: "Featured",
@@ -359,7 +359,7 @@ export default function UserDashboard() {
                   },
                   {
                     label: "New",
-                    icon: Sparkles,
+                    icon: Tag,
                     color: "text-purple-600",
                     bg: "bg-purple-50",
                     border: "border-purple-100",
@@ -370,14 +370,12 @@ export default function UserDashboard() {
                     variants={fadeUp}
                     whileTap={{ scale: 0.97 }}
                     onClick={() => navigate("/market")}
-                    className={`${item.bg} border ${item.border} rounded-2xl p-3.5 flex items-center gap-3 cursor-pointer hover:shadow-md transition-all`}
+                    className={`${item.bg} border ${item.border} rounded-2xl p-3.5 flex items-center gap-3 cursor-pointer hover:shadow-sm transition-all`}
                   >
                     <div className="w-8 h-8 bg-white rounded-xl flex items-center justify-center shadow-sm flex-shrink-0">
                       <item.icon className={`w-4 h-4 ${item.color}`} />
                     </div>
-                    <span
-                      className={`font-black text-[11px] uppercase tracking-wider ${item.color}`}
-                    >
+                    <span className={`font-semibold text-xs ${item.color}`}>
                       {item.label}
                     </span>
                   </motion.div>
@@ -390,13 +388,13 @@ export default function UserDashboard() {
               {foods.length > 0 && (
                 <section>
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-black tracking-tight text-gray-900 flex items-center gap-2.5">
-                      <span className="w-1 h-5 bg-green-500 rounded-full" />
+                    <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2.5">
+                      <span className="w-1 h-5 bg-emerald-500 rounded-full" />
                       Featured Foods
                     </h2>
                     <Link
                       to="/market"
-                      className="text-green-600 font-bold text-xs uppercase tracking-widest hover:text-green-700 flex items-center gap-1"
+                      className="text-emerald-600 font-medium text-sm hover:text-emerald-700 flex items-center gap-1"
                     >
                       See All <ChevronRight className="w-3.5 h-3.5" />
                     </Link>
@@ -408,9 +406,9 @@ export default function UserDashboard() {
                       <button
                         key={cat}
                         onClick={() => setActiveCategory(cat)}
-                        className={`flex-shrink-0 px-3.5 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all ${
+                        className={`flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${
                           activeCategory === cat
-                            ? "bg-green-600 text-white shadow-md shadow-green-200"
+                            ? "bg-emerald-600 text-white"
                             : "bg-gray-100 text-gray-500 hover:bg-gray-200"
                         }`}
                       >
@@ -450,12 +448,12 @@ export default function UserDashboard() {
                                 }}
                               />
                               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end p-2.5">
-                                <p className="text-white font-black text-sm">
+                                <p className="text-white font-semibold text-sm">
                                   ₦{food.price.toLocaleString()}
                                 </p>
                               </div>
                               {food.discount && food.discount > 0 && (
-                                <div className="absolute top-2 right-2 bg-green-500 text-white text-[10px] font-black px-2 py-0.5 rounded-lg">
+                                <div className="absolute top-2 right-2 bg-emerald-50 text-emerald-700 text-xs font-medium px-2 py-0.5 rounded-full">
                                   -{food.discount}%
                                 </div>
                               )}
@@ -464,16 +462,16 @@ export default function UserDashboard() {
                                   e.preventDefault();
                                   navigate(`/market?item=${food.id}`);
                                 }}
-                                className="absolute bottom-2 left-2 bg-white text-green-600 w-7 h-7 rounded-lg flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-all font-black text-lg leading-none"
+                                className="absolute bottom-2 left-2 bg-white text-emerald-600 w-7 h-7 rounded-lg flex items-center justify-center shadow-sm opacity-0 group-hover:opacity-100 transition-all font-semibold text-lg leading-none"
                               >
                                 +
                               </button>
                             </div>
-                            <h3 className="font-bold text-gray-800 text-xs truncate">
+                            <h3 className="font-medium text-gray-800 text-xs truncate">
                               {food.name}
                             </h3>
                             <div className="flex items-center justify-between mt-0.5">
-                              <p className="text-green-600 font-black text-sm">
+                              <p className="text-emerald-600 font-semibold text-sm">
                                 ₦
                                 {food.discount > 0
                                   ? Math.round(
@@ -482,7 +480,7 @@ export default function UserDashboard() {
                                   : food.price.toLocaleString()}
                               </p>
                               {food.vendor_name && (
-                                <p className="text-gray-400 text-[10px] truncate max-w-[55%]">
+                                <p className="text-gray-400 text-xs truncate max-w-[55%]">
                                   {food.vendor_name}
                                 </p>
                               )}
@@ -499,13 +497,13 @@ export default function UserDashboard() {
               {offers.length > 0 && (
                 <section>
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-black tracking-tight text-gray-900 flex items-center gap-2.5">
-                      <span className="w-1 h-5 bg-orange-500 rounded-full" />
+                    <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2.5">
+                      <span className="w-1 h-5 bg-amber-500 rounded-full" />
                       Special Offers
                     </h2>
                     <Link
                       to="/market"
-                      className="text-orange-500 font-bold text-xs uppercase tracking-widest hover:text-orange-600 flex items-center gap-1"
+                      className="text-amber-600 font-medium text-sm hover:text-amber-700 flex items-center gap-1"
                     >
                       See All <ChevronRight className="w-3.5 h-3.5" />
                     </Link>
@@ -516,7 +514,7 @@ export default function UserDashboard() {
                         key={offer.id}
                         whileHover={{ scale: 1.015 }}
                         transition={{ duration: 0.2 }}
-                        className="relative h-48 rounded-2xl overflow-hidden cursor-pointer border border-gray-100 group shadow-md"
+                        className="relative h-48 rounded-2xl overflow-hidden cursor-pointer border border-gray-100 group shadow-sm"
                         onClick={() => navigate(`/market?item=${offer.id}`)}
                       >
                         <img
@@ -532,21 +530,21 @@ export default function UserDashboard() {
                               FOOD_FALLBACKS[index % FOOD_FALLBACKS.length];
                           }}
                         />
-                        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
                         <div className="absolute inset-0 p-5 flex flex-col justify-end">
-                          <span className="inline-flex w-fit items-center bg-orange-500 text-white px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider mb-2">
+                          <span className="inline-flex w-fit items-center bg-amber-50 text-amber-700 px-2.5 py-0.5 rounded-full text-xs font-medium mb-2">
                             {offer.discount}% Off
                           </span>
-                          <h3 className="text-base font-black text-white tracking-tight leading-snug">
+                          <h3 className="text-base font-semibold text-white leading-snug">
                             {offer.name}
                           </h3>
                           {offer.vendor_name && (
-                            <p className="text-white/55 text-xs mt-0.5">
+                            <p className="text-white/70 text-xs mt-0.5">
                               by {offer.vendor_name}
                             </p>
                           )}
                         </div>
-                        <div className="absolute top-3 right-3 bg-white text-green-700 font-black text-xs px-2.5 py-1 rounded-xl shadow-md">
+                        <div className="absolute top-3 right-3 bg-white text-emerald-700 font-semibold text-xs px-2.5 py-1 rounded-xl shadow-sm">
                           ₦
                           {Math.round(
                             offer.price * (1 - offer.discount / 100),
@@ -562,13 +560,13 @@ export default function UserDashboard() {
               {vendors.length > 0 && (
                 <section>
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-black tracking-tight text-gray-900 flex items-center gap-2.5">
-                      <span className="w-1 h-5 bg-red-500 rounded-full" />
+                    <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2.5">
+                      <span className="w-1 h-5 bg-rose-500 rounded-full" />
                       Kitchens Near You
                     </h2>
                     <Link
                       to="/market"
-                      className="text-red-500 font-bold text-xs uppercase tracking-widest hover:text-red-600 flex items-center gap-1"
+                      className="text-rose-500 font-medium text-sm hover:text-rose-600 flex items-center gap-1"
                     >
                       See All <ChevronRight className="w-3.5 h-3.5" />
                     </Link>
@@ -588,7 +586,7 @@ export default function UserDashboard() {
                         onClick={() =>
                           navigate(`/market?vendor=${vendor.vendor_id}`)
                         }
-                        className="bg-white border border-gray-100 rounded-2xl p-5 cursor-pointer hover:shadow-lg transition-all group shadow-sm"
+                        className="bg-white border border-gray-100 rounded-2xl p-5 cursor-pointer hover:shadow-md transition-all group shadow-sm"
                       >
                         <div className="flex items-start justify-between mb-4">
                           <div className="w-12 h-12 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden flex-shrink-0">
@@ -643,32 +641,30 @@ export default function UserDashboard() {
                           </motion.button>
                         </div>
 
-                        <h3 className="text-sm font-black tracking-tight text-gray-900 mb-1.5 truncate group-hover:text-green-600 transition-colors">
+                        <h3 className="text-sm font-semibold text-gray-900 mb-1.5 truncate group-hover:text-emerald-600 transition-colors">
                           {vendor.business_name ?? "Unnamed Kitchen"}
                         </h3>
 
                         <div className="flex items-center gap-2 mb-3 flex-wrap">
-                          <div className="flex items-center gap-1 text-yellow-500">
+                          <div className="flex items-center gap-1 text-amber-500">
                             <Star size={11} fill="currentColor" />
-                            <span className="text-[11px] font-bold">4.5</span>
+                            <span className="text-xs font-medium">4.5</span>
                           </div>
                           <div className="flex items-center gap-1 text-gray-400">
                             <MapPin size={10} />
-                            <span className="text-[10px] font-medium">
-                              2.4km
-                            </span>
+                            <span className="text-xs font-medium">2.4km</span>
                           </div>
                           <span
-                            className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                            className={`text-xs font-medium px-2 py-0.5 rounded-full ${
                               vendor.is_open
-                                ? "bg-green-50 text-green-600"
+                                ? "bg-emerald-50 text-emerald-700"
                                 : "bg-red-50 text-red-500"
                             }`}
                           >
                             {vendor.is_open ? "Open" : "Closed"}
                           </span>
                           {vendor.accept_cod && (
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-600">
+                            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-50 text-blue-600">
                               COD
                             </span>
                           )}
@@ -679,7 +675,7 @@ export default function UserDashboard() {
                             "Premium kitchen with fresh ingredients."}
                         </p>
 
-                        <button className="w-full py-2 bg-green-50 text-green-700 rounded-xl text-xs font-black uppercase tracking-wider hover:bg-green-100 transition-colors flex items-center justify-center gap-1.5">
+                        <button className="w-full py-2 bg-emerald-600 text-white rounded-xl text-xs font-medium hover:bg-emerald-700 transition-colors flex items-center justify-center gap-1.5">
                           <ShoppingBag size={12} />
                           Order Now
                         </button>

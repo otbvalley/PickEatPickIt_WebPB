@@ -359,7 +359,7 @@ export const createOrder = (
   orderItems?: OrderItem[],
 ) => {
   const payload = { ...orderData, items: orderItems };
-  return api.post("/orders/", payload);
+  return api.post("/customer/orders", payload);
 };
 
 export const getOrders = (params: Record<string, unknown>) =>
@@ -472,6 +472,28 @@ export const getRiderProfile = () => api.get("/riders/profile");
 
 export const updateRiderProfile = (updates: Record<string, unknown>) =>
   api.patch("/riders/profile", updates);
+
+export const requestRiderWithdrawal = (amount: number) =>
+  api.post("/riders/withdraw", { amount });
+
+export const getRiderEarningsReport = (params?: Record<string, unknown>) =>
+  api.get("/riders/earnings-report", { params });
+
+export const riderResetPassword = (data: Record<string, unknown>) =>
+  api.post("/riders/reset-password", data);
+
+export const riderChangePassword = (data: Record<string, unknown>) =>
+  api.post("/riders/change-password", data);
+
+export const deleteRiderAccount = () => api.delete("/riders/account");
+
+export const riderHeartbeat = (data: { latitude: number; longitude: number }) =>
+  api.post("/riders/heartbeat", data);
+
+export const riderMarkArrived = (orderId: string) =>
+  api.post(`/riders/orders/${orderId}/arrived`);
+
+export const getRiderReviews = () => api.get("/riders/reviews");
 
 // ─── User profile ─────────────────────────────────────────────────────────────
 
@@ -702,6 +724,50 @@ export const deleteFilter = async (filterId: string) => {
   const res = await api.delete(`/system/filters/${filterId}`);
   return { data: res.data, error: null };
 };
+
+// ─── Location ─────────────────────────────────────────────────────────────────
+
+export interface Country {
+  id: number;
+  name: string;
+  iso2: string | null;
+  iso3: string | null;
+  phone_code: string | null;
+  currency: string;
+  currency_symbol: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface LocationState {
+  id: number;
+  name: string;
+  iso_code: string | null;
+  country_id: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface LocationCity {
+  id: number;
+  name: string;
+  state_id?: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export const getCountries = () => api.get("/location/countries");
+
+export const getStates = (countryName: string) =>
+  api.get(`/location/countries/${encodeURIComponent(countryName)}/states`);
+
+export const getCities = (countryName: string, stateName: string) =>
+  api.get(
+    `/location/countries/${encodeURIComponent(countryName)}/states/${encodeURIComponent(stateName)}/cities`,
+  );
+
+export const searchCountries = (query: string) =>
+  api.get("/location/search/countries", { params: { query } });
 
 // ─── Misc ─────────────────────────────────────────────────────────────────────
 

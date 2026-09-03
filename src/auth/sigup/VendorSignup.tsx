@@ -9,7 +9,6 @@ import {
   Phone,
   Clock,
   CheckCircle2,
-  Sparkles,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast, ToastContainer } from "../../component/Toast";
@@ -62,25 +61,10 @@ const VendorSignupShell = ({
   step: number;
   totalSteps: number;
 }) => (
-  <div className="min-h-screen relative bg-black text-white font-inter overflow-hidden">
-    <div className="absolute inset-0 z-0">
-      <motion.img
-        initial={{ scale: 1.1, opacity: 0 }}
-        animate={{ scale: 1, opacity: 0.3 }}
-        transition={{ duration: 1.5 }}
-        src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?q=80&w=2000&auto=format&fit=crop"
-        className="w-full h-full object-cover"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-black" />
-    </div>
-
-    <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[50%] bg-blue-500/10 blur-[150px] rounded-full" />
-    <div className="absolute bottom-[-20%] left-[-10%] w-[50%] h-[50%] bg-indigo-500/10 blur-[150px] rounded-full" />
-
-    <div className="fixed top-0 left-0 right-0 h-1 bg-white/5 z-[100]">
+  <div className="min-h-screen relative bg-gray-50 font-inter">
+    <div className="fixed top-0 left-0 right-0 h-1 bg-gray-100 z-[100]">
       <motion.div
-        className="h-full bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]"
+        className="h-full bg-blue-600"
         initial={{ width: "0%" }}
         animate={{ width: `${(step / totalSteps) * 100}%` }}
         transition={{ duration: 0.5, ease: "circOut" }}
@@ -167,23 +151,17 @@ const SignUpPage = ({ onNavigate, onUpdate }: PageProps) => {
       className="w-full max-w-xl"
     >
       <div className="text-center mb-10">
-        <motion.img
-          src={logo}
-          alt="Logo"
-          className="w-20 h-20 mx-auto mb-6 drop-shadow-[0_0_15px_rgba(59,130,246,0.2)]"
-        />
-        <h1 className="text-3xl font-black tracking-tighter uppercase mb-2">
-          Vendor <span className="text-blue-500">Sign Up</span>
+        <motion.img src={logo} alt="Logo" className="w-16 h-16 mx-auto mb-6" />
+        <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+          Vendor <span className="text-blue-600">Sign Up</span>
         </h1>
-        <p className="text-[10px] tracking-[0.3em] uppercase text-gray-500 font-black">
-          Step 01: Personal Information
-        </p>
+        <p className="text-sm text-gray-500">Step 1: Personal Information</p>
       </div>
 
-      <div className="bg-zinc-900/40 backdrop-blur-2xl rounded-[2.5rem] p-8 md:p-12 border border-white/5 shadow-2xl space-y-6">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 md:p-10 space-y-6">
         <div className="grid grid-cols-2 gap-6">
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-4">
+            <label className="text-sm font-medium text-gray-700 ml-1">
               First Name
             </label>
             <input
@@ -191,11 +169,11 @@ const SignUpPage = ({ onNavigate, onUpdate }: PageProps) => {
               onChange={(e) =>
                 setFormData({ ...formData, firstname: e.target.value })
               }
-              className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-600 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 transition-all font-bold text-sm"
+              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm"
             />
           </div>
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-4">
+            <label className="text-sm font-medium text-gray-700 ml-1">
               Last Name
             </label>
             <input
@@ -203,17 +181,17 @@ const SignUpPage = ({ onNavigate, onUpdate }: PageProps) => {
               onChange={(e) =>
                 setFormData({ ...formData, lastname: e.target.value })
               }
-              className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-600 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 transition-all font-bold text-sm"
+              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm"
             />
           </div>
         </div>
 
         <div className="space-y-2">
-          <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-4">
+          <label className="text-sm font-medium text-gray-700 ml-1">
             Phone Number
           </label>
           <div className="relative">
-            <Phone className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="tel"
               placeholder="Phone Number"
@@ -221,17 +199,17 @@ const SignUpPage = ({ onNavigate, onUpdate }: PageProps) => {
               onChange={(e) =>
                 setFormData({ ...formData, phone: e.target.value })
               }
-              className="w-full pl-12 pr-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-600 focus:outline-none focus:ring-4 focus:ring-blue-500/10 font-bold text-sm"
+              className="w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm"
             />
           </div>
         </div>
 
         <div className="space-y-2">
-          <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-4">
+          <label className="text-sm font-medium text-gray-700 ml-1">
             Email Address
           </label>
           <div className="relative">
-            <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="email"
               placeholder="email@enterprise.com"
@@ -239,14 +217,14 @@ const SignUpPage = ({ onNavigate, onUpdate }: PageProps) => {
               onChange={(e) =>
                 setFormData({ ...formData, email: e.target.value })
               }
-              className="w-full pl-12 pr-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-600 focus:outline-none focus:ring-4 focus:ring-blue-500/10 font-bold text-sm"
+              className="w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm"
             />
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-6">
           <div className="relative">
-            <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
@@ -254,7 +232,7 @@ const SignUpPage = ({ onNavigate, onUpdate }: PageProps) => {
               onChange={(e) =>
                 setFormData({ ...formData, password: e.target.value })
               }
-              className="w-full pl-12 pr-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-600 focus:outline-none focus:ring-4 focus:ring-blue-500/10 font-bold text-xs"
+              className="w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm"
             />
           </div>
           <div className="relative">
@@ -265,11 +243,11 @@ const SignUpPage = ({ onNavigate, onUpdate }: PageProps) => {
               onChange={(e) =>
                 setFormData({ ...formData, confirmPassword: e.target.value })
               }
-              className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-600 focus:outline-none focus:ring-4 focus:ring-blue-500/10 font-bold text-xs"
+              className="w-full px-4 pr-10 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm"
             />
             <button
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
             >
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
@@ -277,26 +255,20 @@ const SignUpPage = ({ onNavigate, onUpdate }: PageProps) => {
         </div>
 
         <motion.button
-          whileHover={{ scale: 1.02 }}
+          whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.98 }}
           onClick={handleSignUp}
           disabled={isLoading}
-          className="w-full bg-white text-black font-black uppercase tracking-widest py-5 rounded-2xl shadow-xl hover:shadow-blue-500/20 transition-all flex items-center justify-center gap-2 group"
+          className="w-full bg-blue-600 text-white font-medium py-3 rounded-xl shadow-sm hover:bg-blue-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
         >
-          {isLoading ? (
-            "Creating Account..."
-          ) : (
-            <>
-              <Sparkles className="w-5 h-5" /> Create Vendor Account
-            </>
-          )}
+          {isLoading ? "Creating Account..." : "Create Vendor Account"}
         </motion.button>
 
-        <p className="text-center text-[10px] text-gray-500 font-bold uppercase tracking-widest">
+        <p className="text-center text-sm text-gray-500">
           Already a partner?{" "}
           <Link
             to="/vendor-login"
-            className="text-blue-500 hover:text-white transition-colors"
+            className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
           >
             Login Here
           </Link>
@@ -343,17 +315,17 @@ const EmailOTPScreen = ({ onNavigate, onUpdate }: PageProps) => {
       className="w-full max-w-lg"
     >
       <div className="text-center mb-10">
-        <h1 className="text-3xl font-black tracking-tighter uppercase mb-2">
-          Verify <span className="text-blue-500">Email</span>
+        <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+          Verify <span className="text-blue-600">Email</span>
         </h1>
-        <p className="text-xs text-gray-500 font-medium">
+        <p className="text-sm text-gray-500">
           Verification signal sent to{" "}
-          <span className="text-white">{email}</span>
+          <span className="text-gray-900 font-medium">{email}</span>
         </p>
       </div>
 
-      <div className="bg-zinc-900/40 backdrop-blur-2xl rounded-[2.5rem] p-8 md:p-12 border border-white/5 shadow-2xl space-y-8 text-center">
-        <div className="flex gap-2 justify-center">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 md:p-10 space-y-8 text-center">
+        <div className="flex gap-3 justify-center">
           {otp.map((digit, i) => (
             <input
               key={i}
@@ -375,16 +347,17 @@ const EmailOTPScreen = ({ onNavigate, onUpdate }: PageProps) => {
                   inputRefs.current[i - 1]?.focus();
                 }
               }}
-              className="w-12 h-16 bg-white/5 border border-white/10 rounded-xl text-2xl font-black text-blue-500 text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-12 h-16 bg-white border border-gray-200 rounded-xl text-2xl font-semibold text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-center"
             />
           ))}
         </div>
 
         <motion.button
-          whileHover={{ scale: 1.02 }}
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.98 }}
           onClick={handleVerify}
           disabled={isLoading}
-          className="w-full bg-white text-black font-black uppercase tracking-widest py-5 rounded-2xl shadow-xl"
+          className="w-full bg-blue-600 text-white font-medium py-3 rounded-xl shadow-sm hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
         >
           {isLoading ? "Verifying..." : "Verify Code"}
         </motion.button>
@@ -399,7 +372,7 @@ const EmailOTPScreen = ({ onNavigate, onUpdate }: PageProps) => {
               toast.error(err.message || "Failed to resend");
             }
           }}
-          className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 hover:text-blue-500 transition-colors w-full mt-4"
+          className="text-sm font-medium text-gray-500 hover:text-blue-600 transition-colors w-full mt-4"
         >
           Didn't receive code? <span className="underline">Resend Signal</span>
         </button>
@@ -455,18 +428,16 @@ const CreateProfile1 = ({ onNavigate, onUpdate }: PageProps) => {
       className="w-full max-w-4xl"
     >
       <div className="text-center mb-10">
-        <h1 className="text-3xl font-black tracking-tighter uppercase mb-2">
-          Business <span className="text-blue-500">Information</span>
+        <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+          Business <span className="text-blue-600">Information</span>
         </h1>
-        <p className="text-[10px] tracking-[0.3em] uppercase text-gray-500 font-black">
-          Step 03: Business Details
-        </p>
+        <p className="text-sm text-gray-500">Step 3: Business Details</p>
       </div>
 
-      <div className="bg-zinc-900/40 backdrop-blur-2xl rounded-[3rem] p-8 lg:p-12 border border-white/5 shadow-2xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 lg:p-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div className="space-y-4">
           <div className="space-y-1">
-            <label className="text-[10px] font-black uppercase text-gray-500 ml-4">
+            <label className="text-sm font-medium text-gray-700 ml-1">
               Establishment Name
             </label>
             <input
@@ -478,11 +449,11 @@ const CreateProfile1 = ({ onNavigate, onUpdate }: PageProps) => {
                   business_name: e.target.value,
                 })
               }
-              className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white font-bold text-sm"
+              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
             />
           </div>
           <div className="space-y-1">
-            <label className="text-[10px] font-black uppercase text-gray-500 ml-4">
+            <label className="text-sm font-medium text-gray-700 ml-1">
               Legal Representative
             </label>
             <input
@@ -491,11 +462,11 @@ const CreateProfile1 = ({ onNavigate, onUpdate }: PageProps) => {
               onChange={(e) =>
                 setProfileData({ ...profileData, full_name: e.target.value })
               }
-              className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white font-bold text-sm"
+              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
             />
           </div>
           <div className="space-y-1">
-            <label className="text-[10px] font-black uppercase text-gray-500 ml-4">
+            <label className="text-sm font-medium text-gray-700 ml-1">
               Operational Email
             </label>
             <input
@@ -507,14 +478,14 @@ const CreateProfile1 = ({ onNavigate, onUpdate }: PageProps) => {
                   business_email: e.target.value,
                 })
               }
-              className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white font-bold text-sm"
+              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
             />
           </div>
         </div>
 
         <div className="space-y-4">
           <div className="space-y-1">
-            <label className="text-[10px] font-black uppercase text-gray-500 ml-4">
+            <label className="text-sm font-medium text-gray-700 ml-1">
               Profession
             </label>
             <select
@@ -522,7 +493,7 @@ const CreateProfile1 = ({ onNavigate, onUpdate }: PageProps) => {
               onChange={(e) =>
                 setProfileData({ ...profileData, profession: e.target.value })
               }
-              className="w-full px-6 py-4 bg-zinc-800 border-white/10 rounded-2xl text-white font-bold text-sm appearance-none cursor-pointer"
+              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm cursor-pointer"
             >
               <option value="">Select Profession</option>
               <option value="chef">Chef</option>
@@ -531,7 +502,7 @@ const CreateProfile1 = ({ onNavigate, onUpdate }: PageProps) => {
             </select>
           </div>
           <div className="space-y-1">
-            <label className="text-[10px] font-black uppercase text-gray-500 ml-4">
+            <label className="text-sm font-medium text-gray-700 ml-1">
               Vendor Type
             </label>
             <select
@@ -539,7 +510,7 @@ const CreateProfile1 = ({ onNavigate, onUpdate }: PageProps) => {
               onChange={(e) =>
                 setProfileData({ ...profileData, vendor_type: e.target.value })
               }
-              className="w-full px-6 py-4 bg-zinc-800 border-white/10 rounded-2xl text-white font-bold text-sm appearance-none cursor-pointer"
+              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm cursor-pointer"
             >
               <option value="">Select Category</option>
               <option value="restaurant">Restaurant</option>
@@ -547,7 +518,7 @@ const CreateProfile1 = ({ onNavigate, onUpdate }: PageProps) => {
             </select>
           </div>
           <div className="space-y-1">
-            <label className="text-[10px] font-black uppercase text-gray-500 ml-4">
+            <label className="text-sm font-medium text-gray-700 ml-1">
               Years of Experience
             </label>
             <select
@@ -558,7 +529,7 @@ const CreateProfile1 = ({ onNavigate, onUpdate }: PageProps) => {
                   years_of_experience: e.target.value,
                 })
               }
-              className="w-full px-6 py-4 bg-zinc-800 border-white/10 rounded-2xl text-white font-bold text-sm appearance-none cursor-pointer"
+              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm cursor-pointer"
             >
               <option value="">Select Years</option>
               <option value="1">1-3 Years</option>
@@ -570,7 +541,7 @@ const CreateProfile1 = ({ onNavigate, onUpdate }: PageProps) => {
 
         <div className="space-y-4">
           <div className="space-y-1">
-            <label className="text-[10px] font-black uppercase text-gray-500 ml-4">
+            <label className="text-sm font-medium text-gray-700 ml-1">
               Business Phone
             </label>
             <input
@@ -582,11 +553,11 @@ const CreateProfile1 = ({ onNavigate, onUpdate }: PageProps) => {
                   business_phone: e.target.value,
                 })
               }
-              className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white font-bold text-sm"
+              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
             />
           </div>
           <div className="space-y-1">
-            <label className="text-[10px] font-black uppercase text-gray-500 ml-4">
+            <label className="text-sm font-medium text-gray-700 ml-1">
               Business Address
             </label>
             <input
@@ -598,34 +569,35 @@ const CreateProfile1 = ({ onNavigate, onUpdate }: PageProps) => {
                   business_address: e.target.value,
                 })
               }
-              className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white font-bold text-sm"
+              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
             />
           </div>
-          <div className="flex items-center gap-4 h-[60px] pt-4">
+          <div className="flex items-center gap-3 h-[52px] pt-2">
             <input
               type="checkbox"
               checked={agreed}
               onChange={(e) => setAgreed(e.target.checked)}
-              className="w-5 h-5 accent-blue-500"
+              className="w-5 h-5 accent-blue-600"
             />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+            <span className="text-sm font-medium text-gray-700">
               I accept corporate terms
             </span>
           </div>
         </div>
 
-        <div className="col-span-1 md:col-span-2 lg:col-span-3 pt-8 flex gap-4">
+        <div className="col-span-1 md:col-span-2 lg:col-span-3 pt-6 flex gap-4">
           <motion.button
-            whileHover={{ scale: 1.02 }}
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.98 }}
             onClick={handleSave}
             disabled={isLoading || !agreed}
-            className="flex-1 bg-white text-black font-black uppercase tracking-widest py-5 rounded-2xl shadow-xl transition-all"
+            className="flex-1 bg-blue-600 text-white font-medium py-3 rounded-xl shadow-sm hover:bg-blue-700 transition-all disabled:opacity-50"
           >
             {isLoading ? "Saving Details..." : "Save and Continue"}
           </motion.button>
           <button
             onClick={() => onNavigate("main")}
-            className="px-8 font-black uppercase tracking-widest text-gray-500 hover:text-white transition-colors"
+            className="px-8 font-medium text-sm text-gray-500 hover:text-gray-700 transition-colors"
           >
             Abort
           </button>
@@ -685,17 +657,15 @@ const CreateProfile2 = ({ onNavigate, onUpdate }: PageProps) => {
       className="w-full max-w-2xl"
     >
       <div className="text-center mb-10">
-        <h1 className="text-3xl font-black tracking-tighter uppercase mb-2">
-          Business <span className="text-blue-500">Photos</span>
+        <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+          Business <span className="text-blue-600">Photos</span>
         </h1>
-        <p className="text-[10px] tracking-[0.3em] uppercase text-gray-500 font-black">
-          Step 04: Upload Photos
-        </p>
+        <p className="text-sm text-gray-500">Step 4: Upload Photos</p>
       </div>
 
-      <div className="bg-zinc-900/40 backdrop-blur-2xl rounded-[3rem] p-8 md:p-12 border border-white/5 shadow-2xl space-y-8">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 md:p-12 space-y-8">
         <div className="grid grid-cols-2 gap-8">
-          <label className="relative aspect-video bg-white/5 border-2 border-dashed border-white/10 rounded-[2rem] flex flex-col items-center justify-center cursor-pointer hover:border-blue-500/50 transition-all group overflow-hidden">
+          <label className="relative aspect-video bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-blue-400 transition-all group overflow-hidden">
             {logoPreview ? (
               <img
                 src={logoPreview}
@@ -704,8 +674,8 @@ const CreateProfile2 = ({ onNavigate, onUpdate }: PageProps) => {
               />
             ) : (
               <>
-                <Camera className="w-8 h-8 text-gray-500 group-hover:text-blue-500 transition-colors mb-2" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">
+                <Camera className="w-8 h-8 text-gray-400 group-hover:text-blue-600 transition-colors mb-2" />
+                <span className="text-sm font-medium text-gray-500">
                   Profile Logo
                 </span>
               </>
@@ -717,7 +687,7 @@ const CreateProfile2 = ({ onNavigate, onUpdate }: PageProps) => {
               onChange={(e) => handleUpload(e, "logo")}
             />
           </label>
-          <label className="relative aspect-video bg-white/5 border-2 border-dashed border-white/10 rounded-[2rem] flex flex-col items-center justify-center cursor-pointer hover:border-blue-500/50 transition-all group overflow-hidden">
+          <label className="relative aspect-video bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-blue-400 transition-all group overflow-hidden">
             {coverPreview ? (
               <img
                 src={coverPreview}
@@ -726,8 +696,8 @@ const CreateProfile2 = ({ onNavigate, onUpdate }: PageProps) => {
               />
             ) : (
               <>
-                <Camera className="w-8 h-8 text-gray-500 group-hover:text-blue-500 transition-colors mb-2" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">
+                <Camera className="w-8 h-8 text-gray-400 group-hover:text-blue-600 transition-colors mb-2" />
+                <span className="text-sm font-medium text-gray-500">
                   Cover Display
                 </span>
               </>
@@ -742,22 +712,23 @@ const CreateProfile2 = ({ onNavigate, onUpdate }: PageProps) => {
         </div>
 
         <div className="space-y-2">
-          <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-4">
+          <label className="text-sm font-medium text-gray-700 ml-1">
             Business Description
           </label>
           <textarea
             placeholder="Describe your culinary vision..."
             value={desc}
             onChange={(e) => setDesc(e.target.value)}
-            className="w-full px-8 py-6 bg-white/5 border border-white/10 rounded-[2rem] text-white font-bold text-sm min-h-[150px] resize-none focus:outline-none focus:ring-4 focus:ring-blue-500/10"
+            className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 text-sm min-h-[150px] resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 leading-relaxed"
           />
         </div>
 
         <motion.button
-          whileHover={{ scale: 1.02 }}
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.98 }}
           onClick={handleSave}
           disabled={isLoading}
-          className="w-full bg-blue-500 text-white font-black uppercase tracking-widest py-6 rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2"
+          className="w-full bg-blue-600 text-white font-medium py-3 rounded-xl shadow-sm hover:bg-blue-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
         >
           {isLoading ? "Saving Photos..." : "Save and Continue"}
         </motion.button>
@@ -799,41 +770,39 @@ const AvailabilityScreen = ({ onNavigate, onUpdate }: PageProps) => {
       className="w-full max-w-2xl"
     >
       <div className="text-center mb-10">
-        <h1 className="text-3xl font-black tracking-tighter uppercase mb-2">
-          Opening <span className="text-blue-500">Hours</span>
+        <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+          Opening <span className="text-blue-600">Hours</span>
         </h1>
-        <p className="text-[10px] tracking-[0.3em] uppercase text-gray-500 font-black">
-          Step 05: Set Availability
-        </p>
+        <p className="text-sm text-gray-500">Step 5: Set Availability</p>
       </div>
 
-      <div className="bg-zinc-900/40 backdrop-blur-2xl rounded-[3rem] p-8 md:p-12 border border-white/5 shadow-2xl space-y-10">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 md:p-12 space-y-10">
         <div className="grid grid-cols-2 gap-8">
           <div className="space-y-4">
-            <div className="flex items-center gap-4 mb-2">
-              <Clock className="w-4 h-4 text-blue-500" />
-              <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest">
+            <div className="flex items-center gap-3 mb-2">
+              <Clock className="w-4 h-4 text-blue-600" />
+              <span className="text-sm font-medium text-gray-700">
                 Active Days
               </span>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               <select
                 value={availData.day_from}
                 onChange={(e) =>
                   setAvailData({ ...availData, day_from: e.target.value })
                 }
-                className="flex-1 bg-white/5 border-white/10 rounded-xl p-3 text-xs font-bold text-white uppercase appearance-none"
+                className="flex-1 bg-white border border-gray-200 rounded-lg p-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="MONDAY">Mon</option>
                 <option value="FRIDAY">Fri</option>
               </select>
-              <span className="pt-3">→</span>
+              <span className="text-gray-400">→</span>
               <select
                 value={availData.day_to}
                 onChange={(e) =>
                   setAvailData({ ...availData, day_to: e.target.value })
                 }
-                className="flex-1 bg-white/5 border-white/10 rounded-xl p-3 text-xs font-bold text-white uppercase appearance-none"
+                className="flex-1 bg-white border border-gray-200 rounded-lg p-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="SUNDAY">Sun</option>
                 <option value="SATURDAY">Sat</option>
@@ -841,39 +810,40 @@ const AvailabilityScreen = ({ onNavigate, onUpdate }: PageProps) => {
             </div>
           </div>
           <div className="space-y-4">
-            <div className="flex items-center gap-4 mb-2">
-              <Clock className="w-4 h-4 text-blue-500" />
-              <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest">
+            <div className="flex items-center gap-3 mb-2">
+              <Clock className="w-4 h-4 text-blue-600" />
+              <span className="text-sm font-medium text-gray-700">
                 Shift Hours
               </span>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               <input
                 type="time"
                 value={availData.opening_time}
                 onChange={(e) =>
                   setAvailData({ ...availData, opening_time: e.target.value })
                 }
-                className="flex-1 bg-white/5 border-white/10 rounded-xl p-3 text-xs font-bold text-white"
+                className="flex-1 bg-white border border-gray-200 rounded-lg p-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
-              <span className="pt-3">→</span>
+              <span className="text-gray-400">→</span>
               <input
                 type="time"
                 value={availData.closing_time}
                 onChange={(e) =>
                   setAvailData({ ...availData, closing_time: e.target.value })
                 }
-                className="flex-1 bg-white/5 border-white/10 rounded-xl p-3 text-xs font-bold text-white"
+                className="flex-1 bg-white border border-gray-200 rounded-lg p-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
         </div>
 
         <motion.button
-          whileHover={{ scale: 1.02 }}
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.98 }}
           onClick={handleSave}
           disabled={isLoading}
-          className="w-full bg-white text-black font-black uppercase tracking-widest py-6 rounded-2xl shadow-xl transition-all"
+          className="w-full bg-blue-600 text-white font-medium py-3 rounded-xl shadow-sm hover:bg-blue-700 transition-all disabled:opacity-50"
         >
           {isLoading ? "Saving Hours..." : "Save Availability"}
         </motion.button>
@@ -970,18 +940,16 @@ const PaymentOption = ({ onNavigate, registrationData }: PageProps) => {
       className="w-full max-w-xl"
     >
       <div className="text-center mb-10">
-        <h1 className="text-3xl font-black tracking-tighter uppercase mb-2">
-          Bank <span className="text-blue-500">Details</span>
+        <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+          Bank <span className="text-blue-600">Details</span>
         </h1>
-        <p className="text-[10px] tracking-[0.3em] uppercase text-gray-500 font-black">
-          Step 06: Payment Information
-        </p>
+        <p className="text-sm text-gray-500">Step 6: Payment Information</p>
       </div>
 
-      <div className="bg-zinc-900/40 backdrop-blur-2xl rounded-[3rem] p-8 md:p-12 border border-white/5 shadow-2xl space-y-6">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 md:p-10 space-y-6">
         <div className="space-y-4">
           <div className="space-y-1">
-            <label className="text-[10px] font-black uppercase text-gray-500 ml-4">
+            <label className="text-sm font-medium text-gray-700 ml-1">
               Bank Name
             </label>
             <input
@@ -990,11 +958,11 @@ const PaymentOption = ({ onNavigate, registrationData }: PageProps) => {
               onChange={(e) =>
                 setBankData({ ...bankData, bank_name: e.target.value })
               }
-              className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white font-bold text-sm"
+              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
             />
           </div>
           <div className="space-y-1">
-            <label className="text-[10px] font-black uppercase text-gray-500 ml-4">
+            <label className="text-sm font-medium text-gray-700 ml-1">
               Account Number
             </label>
             <input
@@ -1003,11 +971,11 @@ const PaymentOption = ({ onNavigate, registrationData }: PageProps) => {
               onChange={(e) =>
                 setBankData({ ...bankData, account_number: e.target.value })
               }
-              className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white font-bold text-sm tracking-[0.2em]"
+              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm tracking-wide"
             />
           </div>
           <div className="space-y-1">
-            <label className="text-[10px] font-black uppercase text-gray-500 ml-4">
+            <label className="text-sm font-medium text-gray-700 ml-1">
               Account Name
             </label>
             <input
@@ -1016,11 +984,11 @@ const PaymentOption = ({ onNavigate, registrationData }: PageProps) => {
               onChange={(e) =>
                 setBankData({ ...bankData, account_name: e.target.value })
               }
-              className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white font-bold text-sm"
+              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
             />
           </div>
 
-          <div className="flex items-center gap-4 px-4 py-2 bg-white/5 rounded-2xl border border-white/10">
+          <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
             <input
               type="checkbox"
               id="accept_cod"
@@ -1028,16 +996,16 @@ const PaymentOption = ({ onNavigate, registrationData }: PageProps) => {
               onChange={(e) =>
                 setBankData({ ...bankData, accept_cod: e.target.checked })
               }
-              className="w-5 h-5 accent-blue-500 cursor-pointer"
+              className="w-5 h-5 accent-blue-600 cursor-pointer"
             />
             <div className="flex flex-col">
               <label
                 htmlFor="accept_cod"
-                className="text-xs font-black uppercase tracking-widest text-white cursor-pointer"
+                className="text-sm font-medium text-gray-900 cursor-pointer"
               >
                 Accept Cash on Delivery
               </label>
-              <span className="text-[10px] text-gray-500 font-bold">
+              <span className="text-sm text-gray-500">
                 Allow customers to pay with cash upon delivery
               </span>
             </div>
@@ -1045,10 +1013,11 @@ const PaymentOption = ({ onNavigate, registrationData }: PageProps) => {
         </div>
 
         <motion.button
-          whileHover={{ scale: 1.02 }}
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.98 }}
           onClick={handleSave}
           disabled={isLoading}
-          className="w-full bg-blue-500 text-white font-black uppercase tracking-widest py-6 rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2"
+          className="w-full bg-blue-600 text-white font-medium py-3 rounded-xl shadow-sm hover:bg-blue-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
         >
           {isLoading ? "Saving Bank Details..." : "Save Bank Details"}
         </motion.button>
@@ -1067,20 +1036,20 @@ const ConfirmationScreen = () => {
       animate={{ opacity: 1, scale: 1 }}
       className="text-center w-full max-w-lg"
     >
-      <div className="w-24 h-24 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_50px_rgba(59,130,246,0.4)]">
-        <CheckCircle2 className="w-12 h-12 text-white" />
+      <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-8">
+        <CheckCircle2 className="w-10 h-10 text-white" />
       </div>
-      <h1 className="text-4xl font-black uppercase tracking-tighter mb-4">
-        VENDOR SIGN UP <span className="text-blue-500">COMPLETE</span>
+      <h1 className="text-2xl font-semibold text-gray-900 mb-4">
+        Vendor Sign Up <span className="text-blue-600">Complete</span>
       </h1>
-      <p className="text-gray-400 font-medium mb-12">
+      <p className="text-sm text-gray-500 mb-12">
         Your account has been created successfully. Welcome to PickEAT PickIT.
       </p>
       <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
         onClick={() => navigate("/vendor-login")}
-        className="bg-white text-black font-black uppercase tracking-widest py-6 px-12 rounded-2xl shadow-2xl"
+        className="bg-blue-600 text-white font-medium py-3 px-10 rounded-xl shadow-sm hover:bg-blue-700 transition-all"
       >
         Go to Dashboard
       </motion.button>
