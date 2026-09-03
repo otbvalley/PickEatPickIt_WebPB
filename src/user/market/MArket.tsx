@@ -952,7 +952,7 @@ export default function Market() {
                         <div className="flex items-center gap-2 mb-1">
                           <p className="font-semibold text-gray-900 text-sm truncate">
                             {detailVendor.business_name ||
-                              detailItem.vendor_name}
+                              detailItem.businessName}
                           </p>
                           <span
                             className={`text-[11px] font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${
@@ -992,7 +992,7 @@ export default function Market() {
                     </div>
                   ) : (
                     <p className="text-sm text-gray-500">
-                      {detailItem.vendor_name || "Unknown Vendor"}
+                      {detailItem.businessName || "Unknown Vendor"}
                     </p>
                   )}
                 </div>
