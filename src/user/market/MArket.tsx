@@ -24,6 +24,7 @@ import {
   backendAuthService,
   type Vendor,
 } from "../../services/backendAuthService";
+import { getVendorPublicReviews } from "../../services/api";
 import { useToast } from "../../context/ToastContext";
 
 type Screen = "kitchen" | "confirm";
@@ -58,6 +59,10 @@ export default function Market() {
   const [detailItem, setDetailItem] = useState<MenuItem | null>(null);
   const [detailVendor, setDetailVendor] = useState<Vendor | null>(null);
   const [detailVendorLoading, setDetailVendorLoading] = useState(false);
+  const [detailVendorReviews, setDetailVendorReviews] = useState<{
+    count: number;
+    average: number;
+  } | null>(null);
   // Add these new states
   const firstItem = items.find((item) => item.quantity > 0);
   const [vendorInfo, setVendorInfo] = useState<{
@@ -298,6 +303,7 @@ export default function Market() {
   const openItemDetail = (item: MenuItem) => {
     setDetailItem(item);
     setDetailVendor(null);
+    setDetailVendorReviews(null);
     setSearchParams({ item: String(item.id) }, { replace: true });
 
     if (item.vendor_id) {
@@ -312,12 +318,36 @@ export default function Market() {
           console.error("Failed to load vendor details:", error);
         })
         .finally(() => setDetailVendorLoading(false));
+
+      getVendorPublicReviews(item.vendor_id)
+        .then((res) => {
+          const raw: any[] = Array.isArray(res.data)
+            ? res.data
+            : (res.data?.reviews ?? []);
+          const count = res.data?.total ?? raw.length;
+          const average =
+            res.data?.average_rating ??
+            (raw.length
+              ? raw.reduce((s: number, r: any) => s + (Number(r.rating) || 0), 0) /
+                raw.length
+              : 0);
+          if (count > 0) {
+            setDetailVendorReviews({
+              count: Number(count),
+              average: Math.round(Number(average) * 10) / 10,
+            });
+          }
+        })
+        .catch((error) => {
+          console.error("Failed to load vendor reviews:", error);
+        });
     }
   };
 
   const closeItemDetail = () => {
     setDetailItem(null);
     setDetailVendor(null);
+    setDetailVendorReviews(null);
     searchParams.delete("item");
     setSearchParams(searchParams, { replace: true });
   };
@@ -949,6 +979,13 @@ export default function Market() {
                           <p className="text-xs text-gray-400 flex items-center gap-1">
                             <Phone className="w-3 h-3 flex-shrink-0" />
                             {detailVendor.business_phone}
+                          </p>
+                        )}
+                        {detailVendorReviews && (
+                          <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
+                            <Star className="w-3 h-3 fill-amber-400 text-amber-400 flex-shrink-0" />
+                            {detailVendorReviews.average} · {detailVendorReviews.count}{" "}
+                            review{detailVendorReviews.count === 1 ? "" : "s"}
                           </p>
                         )}
                       </div>

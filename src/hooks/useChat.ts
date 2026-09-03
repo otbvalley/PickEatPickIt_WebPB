@@ -38,6 +38,9 @@ export interface ChatMessage {
   text: string;
   is_read: boolean;
   created_at: string;
+  type?: string;
+  url?: string;
+  edited?: boolean;
 }
 
 // ─── API helpers ──────────────────────────────────────────────────────────────
@@ -58,11 +61,15 @@ export async function postMessage(
   conversationId: string,
   senderId: string,
   text: string,
+  type: string = "text",
+  url?: string,
 ): Promise<ChatMessage> {
   const res = await api.post("/chat/messages", {
     text,
     conversation_id: conversationId,
     sender_id: senderId,
+    type,
+    url,
   });
   return res.data as ChatMessage;
 }
@@ -81,6 +88,68 @@ export async function getOrCreateConversation(
 export async function searchUsers(phone: string): Promise<Participant[]> {
   const res = await api.get("/users/search", { params: { phone } });
   return res.data as Participant[];
+}
+
+export async function getConversationDetails(
+  conversationId: string,
+): Promise<ConversationRaw> {
+  const res = await api.get(`/chat/conversations/${conversationId}`);
+  return res.data as ConversationRaw;
+}
+
+export async function deleteConversation(
+  conversationId: string,
+): Promise<void> {
+  await api.delete(`/chat/conversations/${conversationId}`);
+}
+
+export async function markConversationRead(
+  conversationId: string,
+): Promise<void> {
+  await api.post(`/chat/conversations/${conversationId}/read`);
+}
+
+export async function clearConversation(
+  conversationId: string,
+): Promise<void> {
+  await api.post(`/chat/conversations/${conversationId}/clear`);
+}
+
+export async function editMessage(
+  messageId: string,
+  text: string,
+): Promise<ChatMessage> {
+  const res = await api.patch(`/chat/messages/${messageId}`, { text });
+  return res.data as ChatMessage;
+}
+
+export async function deleteMessage(messageId: string): Promise<void> {
+  await api.delete(`/chat/messages/${messageId}`);
+}
+
+export interface UploadResult {
+  url: string;
+  type?: string;
+}
+
+// Voice-note upload. There is currently no microphone/record-audio
+// affordance in ChatShell's UI — this is wired up ready for one to call it.
+export async function uploadAudio(file: Blob | File): Promise<UploadResult> {
+  const formData = new FormData();
+  formData.append("file", file, file instanceof File ? file.name : "voice-note.webm");
+  const res = await api.post("/chat/upload-audio", formData, {
+    headers: { "Content-Type": undefined },
+  });
+  return res.data as UploadResult;
+}
+
+export async function uploadAttachment(file: File): Promise<UploadResult> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await api.post("/chat/upload-attachment", formData, {
+    headers: { "Content-Type": undefined },
+  });
+  return res.data as UploadResult;
 }
 
 // ─── Format helpers ───────────────────────────────────────────────────────────
@@ -176,6 +245,9 @@ export function useChat(userId: string | null) {
     setConversations((prev) =>
       prev.map((c) => (c.id === conv.id ? { ...c, unread: 0 } : c)),
     );
+    markConversationRead(conv.id).catch(() => {
+      /* silent */
+    });
   }, []);
 
   const startChat = useCallback(
@@ -230,6 +302,68 @@ export function useChat(userId: string | null) {
     [activeChatId, userId],
   );
 
+  const sendAttachment = useCallback(
+    async (file: File): Promise<void> => {
+      if (!activeChatId || !userId) return;
+      setSending(true);
+      try {
+        const isImage = file.type.startsWith("image/");
+        const uploaded = await uploadAttachment(file);
+        const msg = await postMessage(
+          activeChatId,
+          userId,
+          file.name,
+          isImage ? "image" : "file",
+          uploaded.url,
+        );
+        setMessages((prev) => [...prev, msg]);
+        setConversations((prev) =>
+          prev.map((c) =>
+            c.id === activeChatId
+              ? {
+                  ...c,
+                  message: isImage ? "Photo" : file.name,
+                  time: formatTime(msg.created_at),
+                }
+              : c,
+          ),
+        );
+      } catch {
+        /* silent */
+      } finally {
+        setSending(false);
+      }
+    },
+    [activeChatId, userId],
+  );
+
+  const clearChat = useCallback(async (): Promise<void> => {
+    if (!activeChatId) return;
+    try {
+      await clearConversation(activeChatId);
+      setMessages([]);
+      setConversations((prev) =>
+        prev.map((c) =>
+          c.id === activeChatId ? { ...c, message: "No messages yet" } : c,
+        ),
+      );
+    } catch {
+      /* silent */
+    }
+  }, [activeChatId]);
+
+  const removeChat = useCallback(async (): Promise<void> => {
+    if (!activeChatId) return;
+    try {
+      await deleteConversation(activeChatId);
+      setConversations((prev) => prev.filter((c) => c.id !== activeChatId));
+      setMessages([]);
+      setActiveChatId(null);
+    } catch {
+      /* silent */
+    }
+  }, [activeChatId]);
+
   const activeConversation =
     conversations.find((c) => c.id === activeChatId) ?? null;
 
@@ -243,6 +377,9 @@ export function useChat(userId: string | null) {
     openChat,
     startChat,
     sendMessage,
+    sendAttachment,
+    clearChat,
+    removeChat,
     loadConversations,
   };
 }

@@ -8,12 +8,17 @@ import {
   MessageSquare,
   Phone,
   Loader2,
+  ShieldCheck,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { VendorNav } from "../component/VendorNav";
 import { backendAuthService } from "../../services/backendAuthService";
 import { useToast } from "../../context/ToastContext";
-import api from "../../services/api";
+import api, {
+  acceptOrder,
+  patchOrderStatus,
+  verifyRiderPickup,
+} from "../../services/api";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface Order {
@@ -37,9 +42,6 @@ const fetchVendorOrders = (vendorId: string, status?: string) =>
   api.get("/orders/", {
     params: { vendor_id: vendorId, ...(status ? { status } : {}) },
   });
-
-const patchOrder = (orderId: string, status: string) =>
-  api.patch(`/orders/${orderId}`, { status });
 
 const postTracking = (
   orderId: string,
@@ -147,7 +149,7 @@ const OrdersManagement = () => {
   const changeStatus = async (orderId: string, status: string, msg: string) => {
     setActionId(orderId);
     try {
-      await patchOrder(orderId, status);
+      await patchOrderStatus(orderId, status);
       try {
         await postTracking(orderId, { status, message: msg });
       } catch {
@@ -162,8 +164,26 @@ const OrdersManagement = () => {
     }
   };
 
-  const handleAccept = (id: string) =>
-    changeStatus(id, "preparing", "Order accepted and being prepared");
+  const handleAccept = async (id: string) => {
+    setActionId(id);
+    try {
+      await acceptOrder(id);
+      try {
+        await postTracking(id, {
+          status: "accepted",
+          message: "Order accepted and being prepared",
+        });
+      } catch {
+        /* non-blocking */
+      }
+      toast.success("Order accepted!");
+      loadOrders();
+    } catch {
+      toast.error("Failed to accept order");
+    } finally {
+      setActionId(null);
+    }
+  };
   const handleCancel = (id: string) =>
     changeStatus(id, "canceled", "Order canceled by vendor");
   const handleComplete = (id: string) =>
@@ -171,6 +191,30 @@ const OrdersManagement = () => {
 
   const handleMessage = (userId: string) =>
     navigate(`/vendor-chat?recipientId=${userId}`);
+
+  // ── Rider pickup verification ───────────────────────────────────────────────
+  const [pickupOrderId, setPickupOrderId] = useState<string | null>(null);
+  const [pickupCode, setPickupCode] = useState("");
+  const [verifying, setVerifying] = useState(false);
+
+  const handleVerifyPickup = async (orderId: string) => {
+    if (!pickupCode.trim()) {
+      toast.error("Enter the rider's pickup code");
+      return;
+    }
+    setVerifying(true);
+    try {
+      await verifyRiderPickup(orderId, pickupCode.trim());
+      toast.success("Rider pickup verified!");
+      setPickupOrderId(null);
+      setPickupCode("");
+      loadOrders();
+    } catch {
+      toast.error("Invalid or expired pickup code");
+    } finally {
+      setVerifying(false);
+    }
+  };
 
   // ── Derived ──────────────────────────────────────────────────────────────────
   const filteredOrders = orders.filter((o) => {
@@ -381,28 +425,72 @@ const OrdersManagement = () => {
                   )}
 
                   {(order.status === "accepted" ||
-                    order.status === "preparing") && (
-                    <>
-                      <button
-                        onClick={() => handleMessage("")}
-                        className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center hover:bg-emerald-100 transition-colors flex-shrink-0"
-                      >
-                        <MessageSquare size={18} />
-                      </button>
-                      <button
-                        onClick={() => handleComplete(order.id)}
-                        disabled={actionId === order.id}
-                        className="flex-1 py-3 rounded-xl font-medium text-xs text-white bg-emerald-600 hover:bg-emerald-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                      >
-                        {actionId === order.id ? (
-                          <Loader2 size={14} className="animate-spin" />
-                        ) : (
-                          <Check size={14} />
-                        )}
-                        Mark Complete
-                      </button>
-                    </>
-                  )}
+                    order.status === "preparing") &&
+                    pickupOrderId !== order.id && (
+                      <>
+                        <button
+                          onClick={() => handleMessage("")}
+                          className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center hover:bg-emerald-100 transition-colors flex-shrink-0"
+                        >
+                          <MessageSquare size={18} />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setPickupOrderId(order.id);
+                            setPickupCode("");
+                          }}
+                          className="flex-1 py-3 rounded-xl font-medium text-xs text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors flex items-center justify-center gap-2"
+                        >
+                          <ShieldCheck size={14} />
+                          Verify Rider
+                        </button>
+                        <button
+                          onClick={() => handleComplete(order.id)}
+                          disabled={actionId === order.id}
+                          className="flex-1 py-3 rounded-xl font-medium text-xs text-white bg-emerald-600 hover:bg-emerald-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                        >
+                          {actionId === order.id ? (
+                            <Loader2 size={14} className="animate-spin" />
+                          ) : (
+                            <Check size={14} />
+                          )}
+                          Mark Complete
+                        </button>
+                      </>
+                    )}
+
+                  {(order.status === "accepted" ||
+                    order.status === "preparing") &&
+                    pickupOrderId === order.id && (
+                      <div className="w-full flex items-center gap-2">
+                        <input
+                          type="text"
+                          autoFocus
+                          value={pickupCode}
+                          onChange={(e) => setPickupCode(e.target.value)}
+                          placeholder="Rider pickup code"
+                          className="flex-1 py-3 px-3 rounded-xl border border-gray-100 bg-white text-xs text-gray-700 focus:outline-none focus:border-emerald-300"
+                        />
+                        <button
+                          onClick={() => setPickupOrderId(null)}
+                          className="py-3 px-3 rounded-xl text-xs font-medium text-gray-500 bg-gray-50 hover:bg-gray-100 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={() => handleVerifyPickup(order.id)}
+                          disabled={verifying}
+                          className="py-3 px-4 rounded-xl text-xs font-medium text-white bg-emerald-600 hover:bg-emerald-700 transition-colors disabled:opacity-50 flex items-center gap-2"
+                        >
+                          {verifying ? (
+                            <Loader2 size={14} className="animate-spin" />
+                          ) : (
+                            <ShieldCheck size={14} />
+                          )}
+                          Confirm
+                        </button>
+                      </div>
+                    )}
 
                   {order.status === "canceled" && (
                     <div className="w-full text-center py-3 text-gray-400 text-xs font-medium">

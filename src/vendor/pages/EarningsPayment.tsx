@@ -8,7 +8,13 @@ import {
   Loader2,
 } from "lucide-react";
 import { VendorNav } from "../component/VendorNav";
-import api from "../../services/api";
+import api, {
+  getVendorEarnings,
+  getVendorTransactions,
+  requestVendorWithdrawal,
+  getVendorEarningsReport,
+} from "../../services/api";
+import { useToast } from "../../context/ToastContext";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -42,6 +48,7 @@ interface OrderRow {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const EarningsPayment = () => {
+  const toast = useToast();
   const [activeTab, setActiveTab] = useState<"transactions" | "orders">(
     "transactions",
   );
@@ -52,48 +59,100 @@ const EarningsPayment = () => {
   const [accountNo, setAccountNo] = useState("");
   const [loading, setLoading] = useState(true);
   const [totalEarnings, setTotalEarnings] = useState(0);
+  const [pendingPayout, setPendingPayout] = useState(0);
   const [transactions, setTransactions] = useState<TransactionRow[]>([]);
   const [orders, setOrders] = useState<OrderRow[]>([]);
+  const [withdrawing, setWithdrawing] = useState(false);
+  const [reportLoading, setReportLoading] = useState(false);
+  const [reportData, setReportData] = useState<Record<string, unknown> | null>(
+    null,
+  );
+  const [showReport, setShowReport] = useState(false);
 
   useEffect(() => {
     const fetchEarningsData = async () => {
       try {
-        // Get vendor dashboard stats (earnings summary)
-        const statsRes = await api.get("/vendors/dashboard-stats");
-        const stats = statsRes.data as { total_earnings?: number };
-        setTotalEarnings(stats.total_earnings ?? 0);
+        // Get vendor earnings summary
+        let earningsTotal = 0;
+        let pending = 0;
+        try {
+          const earningsRes = await getVendorEarnings();
+          const e = (earningsRes.data ?? {}) as Record<string, unknown>;
+          earningsTotal = Number(e.total_earnings ?? e.totalEarnings ?? 0);
+          pending = Number(
+            e.pending_payout ??
+              e.pendingPayout ??
+              Math.round(earningsTotal * 0.9),
+          );
+        } catch (err) {
+          console.error("Failed to load vendor earnings:", err);
+        }
 
-        // Get vendor orders
+        // Get vendor orders (used for Orders tab + earnings fallback)
         const ordersRes = await api.get("/orders/", {
           params: { limit: 50 },
         });
         const orderData = ordersRes.data as RawOrder[];
 
-        const total = orderData
-          .filter((o) => o.status === "completed" || o.status === "delivered")
-          .reduce(
-            (acc: number, o: RawOrder) =>
-              acc + (Number(o.total_price ?? o.total_amount) || 0),
-            0,
-          );
-        setTotalEarnings(total);
+        if (earningsTotal === 0) {
+          earningsTotal = orderData
+            .filter(
+              (o) => o.status === "completed" || o.status === "delivered",
+            )
+            .reduce(
+              (acc: number, o: RawOrder) =>
+                acc + (Number(o.total_price ?? o.total_amount) || 0),
+              0,
+            );
+          pending = Math.round(earningsTotal * 0.9);
+        }
+        setTotalEarnings(earningsTotal);
+        setPendingPayout(pending);
 
-        setTransactions(
-          orderData.map((o: RawOrder, i: number) => ({
-            id: i + 1,
-            title: `Order from ${o.customer_name ?? "Customer"}`,
-            amount: Number(o.total_price ?? o.total_amount) || 0,
-            commission: Math.round(
-              (Number(o.total_price ?? o.total_amount) || 0) * 0.1,
-            ),
-            date: new Date(o.created_at).toLocaleDateString("en-NG", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            }),
-            status: o.status,
-          })),
-        );
+        // Transactions tab — real vendor transactions
+        try {
+          const txRes = await getVendorTransactions();
+          const txData: any[] = Array.isArray(txRes.data) ? txRes.data : [];
+          setTransactions(
+            txData.map((t: any, i: number) => ({
+              id: t.id ?? i + 1,
+              title: t.title || t.description || `Transaction ${i + 1}`,
+              amount: Number(t.amount) || 0,
+              commission: Number(
+                t.commission ?? Math.round((Number(t.amount) || 0) * 0.1),
+              ),
+              date: t.created_at
+                ? new Date(t.created_at).toLocaleDateString("en-NG", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })
+                : (t.date ?? ""),
+              status: t.status || "completed",
+            })),
+          );
+        } catch (err) {
+          console.error(
+            "Failed to load vendor transactions, deriving from orders:",
+            err,
+          );
+          setTransactions(
+            orderData.map((o: RawOrder, i: number) => ({
+              id: i + 1,
+              title: `Order from ${o.customer_name ?? "Customer"}`,
+              amount: Number(o.total_price ?? o.total_amount) || 0,
+              commission: Math.round(
+                (Number(o.total_price ?? o.total_amount) || 0) * 0.1,
+              ),
+              date: new Date(o.created_at).toLocaleDateString("en-NG", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              }),
+              status: o.status,
+            })),
+          );
+        }
 
         setOrders(
           orderData.map((o: RawOrder, i: number) => ({
@@ -160,6 +219,46 @@ const EarningsPayment = () => {
     setCurrentPage("main");
   };
 
+  const handleWithdraw = async () => {
+    if (!pendingPayout || withdrawing) return;
+    setWithdrawing(true);
+    try {
+      await requestVendorWithdrawal(pendingPayout);
+      toast.success(
+        `Withdrawal of ₦${pendingPayout.toLocaleString()} requested successfully`,
+        "Withdrawal Requested",
+      );
+    } catch (err: any) {
+      toast.error(
+        err?.response?.data?.detail ||
+          err?.message ||
+          "Failed to request withdrawal",
+        "Withdrawal Failed",
+      );
+    } finally {
+      setWithdrawing(false);
+    }
+  };
+
+  const handleGenerateReport = async () => {
+    if (reportLoading) return;
+    setReportLoading(true);
+    try {
+      const res = await getVendorEarningsReport();
+      setReportData((res.data as Record<string, unknown>) || {});
+      setShowReport(true);
+    } catch (err: any) {
+      toast.error(
+        err?.response?.data?.detail ||
+          err?.message ||
+          "Failed to generate earnings report",
+        "Report Failed",
+      );
+    } finally {
+      setReportLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center transition-colors duration-300">
@@ -216,7 +315,7 @@ const EarningsPayment = () => {
                   <p className="text-xs sm:text-sm text-gray-500 mt-1">
                     Pending Payout -{" "}
                     <span className="text-emerald-600 font-semibold">
-                      ₦ {Math.round(totalEarnings * 0.9).toLocaleString()}
+                      ₦ {pendingPayout.toLocaleString()}
                     </span>
                   </p>
                 </div>
@@ -354,7 +453,7 @@ const EarningsPayment = () => {
                 <p className="text-xs sm:text-sm text-gray-500 mt-1">
                   Pending Payout -{" "}
                   <span className="text-emerald-600 font-semibold">
-                    ₦ {Math.round(totalEarnings * 0.9).toLocaleString()}
+                    ₦ {pendingPayout.toLocaleString()}
                   </span>
                 </p>
               </div>
@@ -461,14 +560,82 @@ const EarningsPayment = () => {
 
         {/* Action Buttons */}
         <div className="space-y-3 pb-8">
-          <button className="w-full bg-emerald-600 text-white py-4 rounded-xl font-semibold hover:bg-emerald-700 transition-colors">
-            Request Withdrawal
+          <button
+            onClick={handleWithdraw}
+            disabled={pendingPayout === 0 || withdrawing}
+            className="w-full bg-emerald-600 text-white py-4 rounded-xl font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            {withdrawing ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" /> Processing...
+              </>
+            ) : (
+              "Request Withdrawal"
+            )}
           </button>
-          <button className="w-full bg-white text-emerald-600 py-4 rounded-xl font-semibold border border-gray-200 hover:bg-emerald-50 transition-colors">
-            Download Report
+          <button
+            onClick={handleGenerateReport}
+            disabled={reportLoading}
+            className="w-full bg-white text-emerald-600 py-4 rounded-xl font-semibold border border-gray-200 hover:bg-emerald-50 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            {reportLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" /> Generating...
+              </>
+            ) : (
+              "Download Report"
+            )}
           </button>
         </div>
       </div>
+
+      {/* Earnings Report Modal */}
+      {showReport && (
+        <div
+          className="fixed inset-0 bg-black/40 z-50 flex items-end sm:items-center justify-center p-4"
+          onClick={() => setShowReport(false)}
+        >
+          <div
+            className="bg-white rounded-2xl border border-gray-100 shadow-sm w-full max-w-md max-h-[80vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <h3 className="text-base font-semibold text-gray-800">
+                Earnings Report
+              </h3>
+              <button
+                onClick={() => setShowReport(false)}
+                className="text-gray-400 hover:text-gray-600 text-sm px-2 py-1 rounded-full bg-gray-50"
+              >
+                Close
+              </button>
+            </div>
+            <div className="p-6 space-y-3">
+              {reportData && Object.keys(reportData).length > 0 ? (
+                Object.entries(reportData).map(([key, value]) => (
+                  <div
+                    key={key}
+                    className="flex items-center justify-between gap-4 py-2 border-b border-gray-50 last:border-b-0"
+                  >
+                    <span className="text-sm text-gray-500 capitalize">
+                      {key.replace(/_/g, " ")}
+                    </span>
+                    <span className="text-sm font-semibold text-gray-800 text-right break-all">
+                      {typeof value === "object"
+                        ? JSON.stringify(value)
+                        : String(value)}
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-gray-400 text-center py-6">
+                  No report data available yet.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

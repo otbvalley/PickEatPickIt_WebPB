@@ -11,6 +11,9 @@ import {
   X,
   Check,
   CheckCheck,
+  Trash2,
+  Eraser,
+  FileText,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "react-router-dom";
@@ -64,7 +67,10 @@ export default function ChatShell({ nav, theme = "light" }: Props) {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Participant[]>([]);
   const [searching, setSearching] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const {
     conversations,
@@ -75,6 +81,9 @@ export default function ChatShell({ nav, theme = "light" }: Props) {
     openChat,
     startChat,
     sendMessage,
+    sendAttachment,
+    clearChat,
+    removeChat,
   } = useChat(userId);
 
   // Get current user
@@ -139,6 +148,45 @@ export default function ChatShell({ nav, theme = "light" }: Props) {
     openChat(conv);
     setActiveView("chat");
   };
+
+  const handleAttachmentClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileSelected = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    await sendAttachment(file);
+  };
+
+  const handleClearChat = async () => {
+    setMenuOpen(false);
+    if (!window.confirm("Clear all messages in this conversation?")) return;
+    await clearChat();
+  };
+
+  const handleDeleteConversation = async () => {
+    setMenuOpen(false);
+    if (!window.confirm("Delete this conversation? This cannot be undone."))
+      return;
+    await removeChat();
+    setActiveView("messages");
+  };
+
+  // Close conversation menu on outside click
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, [menuOpen]);
 
   // ── Theme tokens ─────────────────────────────────────────────────────────────
   const isDark = theme === "dark";
@@ -401,17 +449,44 @@ export default function ChatShell({ nav, theme = "light" }: Props) {
                     <p className="text-xs text-green-500">Online</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 relative" ref={menuRef}>
                   <button
                     className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${isDark ? "bg-white/5 text-gray-400 hover:bg-white/10" : "bg-gray-100 text-gray-400 hover:bg-gray-200"}`}
                   >
                     <Phone size={16} />
                   </button>
                   <button
+                    onClick={() => setMenuOpen((v) => !v)}
                     className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${isDark ? "bg-white/5 text-gray-400 hover:bg-white/10" : "bg-gray-100 text-gray-400 hover:bg-gray-200"}`}
                   >
                     <MoreVertical size={16} />
                   </button>
+
+                  <AnimatePresence>
+                    {menuOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -6 }}
+                        className="absolute right-0 top-full mt-2 w-48 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden z-50"
+                      >
+                        <button
+                          onClick={handleClearChat}
+                          className="w-full flex items-center gap-2.5 px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        >
+                          <Eraser size={15} className="text-gray-400" />
+                          Clear chat
+                        </button>
+                        <button
+                          onClick={handleDeleteConversation}
+                          className="w-full flex items-center gap-2.5 px-4 py-3 text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
+                        >
+                          <Trash2 size={15} />
+                          Delete conversation
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               </div>
 
@@ -441,7 +516,25 @@ export default function ChatShell({ nav, theme = "light" }: Props) {
                                 : `${theirBubble} rounded-bl-sm`
                             }`}
                           >
-                            {msg.text}
+                            {msg.type === "image" && msg.url ? (
+                              <img
+                                src={msg.url}
+                                alt={msg.text}
+                                className="rounded-xl max-w-full max-h-64 object-cover"
+                              />
+                            ) : msg.type === "file" && msg.url ? (
+                              <a
+                                href={msg.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 underline"
+                              >
+                                <FileText size={16} />
+                                {msg.text}
+                              </a>
+                            ) : (
+                              msg.text
+                            )}
                           </div>
                           <div
                             className={`flex items-center gap-1 mt-1 px-1 ${isMe ? "justify-end" : "justify-start"}`}
@@ -475,9 +568,18 @@ export default function ChatShell({ nav, theme = "light" }: Props) {
                 className={`px-4 py-3 border-t ${isDark ? "bg-[#111] border-white/5" : "bg-white border-gray-100"}`}
               >
                 <form onSubmit={handleSend} className="flex items-center gap-2">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileSelected}
+                    accept="image/*,.pdf,.doc,.docx,.txt"
+                    className="hidden"
+                  />
                   <button
                     type="button"
-                    className={`p-2 hidden sm:block ${mutedText} hover:text-green-500 flex-shrink-0`}
+                    onClick={handleAttachmentClick}
+                    disabled={sending}
+                    className={`p-2 hidden sm:block ${mutedText} hover:text-green-500 flex-shrink-0 disabled:opacity-40`}
                   >
                     <Paperclip size={18} />
                   </button>

@@ -297,6 +297,32 @@ export const updateVendorProfile = (
   updates: Record<string, unknown>,
 ) => api.patch(`/vendors/${vendorId}`, updates);
 
+export const getVendorNotifications = () => api.get("/vendors/notifications");
+
+export const markVendorNotificationRead = (notificationId: string | number) =>
+  api.post(`/vendors/notifications/${notificationId}/read`);
+
+export const markAllVendorNotificationsRead = () =>
+  api.post("/vendors/notifications/read-all");
+
+export const getVendorEarnings = () => api.get("/vendors/earnings");
+
+export const requestVendorWithdrawal = (amount: number) =>
+  api.post("/vendors/withdraw", { amount });
+
+export const getVendorTransactions = () => api.get("/vendors/transactions");
+
+export const getVendorEarningsReport = (params?: Record<string, unknown>) =>
+  api.get("/vendors/earnings-report", { params });
+
+export const getVendorReviews = () => api.get("/vendors/reviews");
+
+export const getVendorPublicReviews = (vendorId: string | number) =>
+  api.get(`/vendors/${vendorId}/public-reviews`);
+
+export const vendorChangePassword = (data: Record<string, unknown>) =>
+  api.post("/vendors/change-password", data);
+
 // ─── Menu ─────────────────────────────────────────────────────────────────────
 
 export const addMenuItem = (itemData: Record<string, unknown>) =>
@@ -376,6 +402,22 @@ export const getOrderDetails = async (orderId: string | number) => {
   const res = await api.get(`/orders/${orderId}`);
   return { data: res.data, error: null };
 };
+
+// Dedicated status-only update (PATCH /orders/{id}/status), distinct from the
+// generic full-order update above (PATCH /orders/{id}).
+export const patchOrderStatus = (id: string | number, status: string) =>
+  api.patch(`/orders/${id}/status`, null, { params: { status } });
+
+// Vendor accepts a newly placed order.
+export const acceptOrder = (id: string | number) =>
+  api.post(`/orders/${id}/accept`);
+
+// Vendor confirms the rider that showed up to collect an order is the
+// correct/assigned rider, typically via a short code shown in the rider app.
+export const verifyRiderPickup = (
+  id: string | number,
+  pickupCode: string,
+) => api.post(`/orders/${id}/verify-rider-pickup`, { pickup_code: pickupCode });
 
 export const getUserOrders = async (userId: string) => {
   const res = await api.get("/customer/orders", {

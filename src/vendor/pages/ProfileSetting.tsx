@@ -8,12 +8,13 @@ import {
   Check,
   X,
   Loader2,
+  Lock,
 } from "lucide-react";
 import { VendorNav } from "../component/VendorNav";
 import { backendAuthService } from "../../services/backendAuthService";
 // //
 import { useToast } from "../../context/ToastContext";
-import api from "../../services/api";
+import api, { vendorChangePassword } from "../../services/api";
 
 const ProfileSetting = () => {
   const navigate = useNavigate();
@@ -28,6 +29,11 @@ const ProfileSetting = () => {
   const [tempValue, setTempValue] = useState("");
   const [vendorId, setVendorId] = useState<string | null>(null);
   const [profileImage, setProfileImage] = useState<string>("");
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [changingPassword, setChangingPassword] = useState(false);
 
   const [formData, setFormData] = useState({
     restaurantName: "",
@@ -155,6 +161,40 @@ const ProfileSetting = () => {
       toast.error("Failed to save changes");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  // ── Change password ─────────────────────────────────────────────────────────
+  const resetPasswordForm = () => {
+    setOldPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+  };
+
+  const handleChangePassword = async () => {
+    if (!newPassword || newPassword.length < 8) {
+      toast.warning("New password must be at least 8 characters");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.warning("Passwords do not match");
+      return;
+    }
+    setChangingPassword(true);
+    try {
+      await vendorChangePassword({
+        old_password: oldPassword,
+        new_password: newPassword,
+      });
+      toast.success("Password changed successfully!");
+      setShowChangePassword(false);
+      resetPasswordForm();
+    } catch (err) {
+      console.error("Change password error:", err);
+      const e = err as { response?: { data?: { detail?: string } } };
+      toast.error(e.response?.data?.detail || "Failed to change password");
+    } finally {
+      setChangingPassword(false);
     }
   };
 
@@ -438,7 +478,106 @@ const ProfileSetting = () => {
             />
           </div>
         </div>
+        {/* Security */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+          <h3 className="text-base font-semibold text-gray-900 mb-4">
+            Security
+          </h3>
+          <button
+            onClick={() => setShowChangePassword(true)}
+            className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100 hover:bg-gray-100 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-emerald-50 rounded-full flex items-center justify-center">
+                <Lock className="w-5 h-5 text-emerald-600" />
+              </div>
+              <span className="text-sm font-medium text-gray-700">
+                Change Password
+              </span>
+            </div>
+          </button>
+        </div>
       </div>
+
+      {/* Change Password modal */}
+      {showChangePassword && (
+        <div
+          className="fixed inset-0 bg-black/40 z-50 flex items-end sm:items-center justify-center p-4"
+          onClick={() => {
+            setShowChangePassword(false);
+            resetPasswordForm();
+          }}
+        >
+          <div
+            className="bg-white rounded-2xl border border-gray-100 shadow-sm w-full max-w-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <h3 className="text-base font-semibold text-gray-800">
+                Change Password
+              </h3>
+              <button
+                onClick={() => {
+                  setShowChangePassword(false);
+                  resetPasswordForm();
+                }}
+                className="text-gray-400 hover:text-gray-600 p-1.5 rounded-full bg-gray-50"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-gray-500">
+                  Current Password
+                </label>
+                <input
+                  type="password"
+                  value={oldPassword}
+                  onChange={(e) => setOldPassword(e.target.value)}
+                  placeholder="Enter current password"
+                  className="w-full px-4 py-3 bg-white border border-gray-100 rounded-xl text-sm text-gray-800 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-50 transition-all"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-gray-500">
+                  New Password
+                </label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="At least 8 characters"
+                  className="w-full px-4 py-3 bg-white border border-gray-100 rounded-xl text-sm text-gray-800 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-50 transition-all"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-gray-500">
+                  Confirm New Password
+                </label>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Re-enter new password"
+                  className="w-full px-4 py-3 bg-white border border-gray-100 rounded-xl text-sm text-gray-800 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-50 transition-all"
+                />
+              </div>
+              <button
+                onClick={handleChangePassword}
+                disabled={changingPassword}
+                className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium shadow-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {changingPassword ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  "Change Password"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Sticky save bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-gray-100 p-5 z-40">

@@ -1,9 +1,24 @@
-import { useState } from "react";
-import { ChevronLeft, Bell, BellOff, Trash2, Check, Clock } from "lucide-react";
+import { useState, useEffect } from "react";
+import {
+  ChevronLeft,
+  Bell,
+  BellOff,
+  Trash2,
+  Check,
+  Clock,
+  Loader2,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { VendorNav } from "../component/VendorNav";
+import {
+  getVendorNotifications,
+  markVendorNotificationRead,
+  markAllVendorNotificationsRead,
+} from "../../services/api";
+import { useToast } from "../../context/ToastContext";
 
 interface Notification {
-  id: number;
+  id: string;
   type: string;
   title: string;
   description: string;
@@ -15,79 +30,92 @@ interface Notification {
   isRead: boolean;
 }
 
+const FALLBACK_IMAGE =
+  "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&h=100&fit=crop";
+
 const NotificationsPage = () => {
-  const [notifications, setNotifications] = useState<Notification[]>([
-    {
-      id: 1,
-      type: "booking",
-      title: "New booking alert",
-      description: "Rice, Plantain and Chicken.\nCheck it now>>",
-      orderId: "5147",
-      amount: "+$12.36",
-      time: "9:00am",
-      date: "31ST OCT 2023",
-      image:
-        "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&h=100&fit=crop",
-      isRead: false,
-    },
-    {
-      id: 2,
-      type: "booking",
-      title: "New booking alert",
-      description: "Rice, Plantain and Chicken.\nCheck it now>>",
-      orderId: "5147",
-      amount: "+$12.36",
-      time: "9:00am",
-      date: "31ST OCT 2023",
-      image:
-        "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&h=100&fit=crop",
-      isRead: false,
-    },
-    {
-      id: 3,
-      type: "booking",
-      title: "New booking alert",
-      description: "Rice, Plantain and Chicken.\nCheck it now>>",
-      orderId: "5147",
-      amount: "+$12.36",
-      time: "9:00am",
-      date: "31ST OCT 2023",
-      image:
-        "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&h=100&fit=crop",
-      isRead: true,
-    },
-    {
-      id: 4,
-      type: "booking",
-      title: "New booking alert",
-      description: "Rice, Plantain and Chicken.\nCheck it now>>",
-      orderId: "5147",
-      amount: "+$12.36",
-      time: "9:00am",
-      date: "31ST OCT 2023",
-      image:
-        "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&h=100&fit=crop",
-      isRead: true,
-    },
-  ]);
-
+  const navigate = useNavigate();
+  const toast = useToast();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "unread">("all");
+  const [markingAll, setMarkingAll] = useState(false);
 
-  const markAsRead = (id: number) => {
+  useEffect(() => {
+    (async () => {
+      try {
+        setLoading(true);
+        const res = await getVendorNotifications();
+        const raw: any[] = Array.isArray(res.data)
+          ? res.data
+          : (res.data?.notifications ?? []);
+        setNotifications(
+          raw.map((n: any, i: number) => {
+            const created = n.created_at ? new Date(n.created_at) : new Date();
+            return {
+              id: String(n.id ?? n.notification_id ?? i),
+              type: n.type || "general",
+              title: n.title || "Notification",
+              description: n.message || n.description || "",
+              orderId: n.order_id ? String(n.order_id) : "",
+              amount:
+                n.amount !== undefined && n.amount !== null
+                  ? `₦${Number(n.amount).toLocaleString()}`
+                  : "",
+              time: created.toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              }),
+              date: created
+                .toLocaleDateString("en-NG", {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                })
+                .toUpperCase(),
+              image: n.image_url || FALLBACK_IMAGE,
+              isRead: Boolean(n.is_read ?? n.read ?? false),
+            };
+          }),
+        );
+      } catch (e) {
+        console.error("Failed to load notifications:", e);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  const markAsRead = async (id: string) => {
     setNotifications((prev) =>
       prev.map((notif) =>
-        notif.id === id ? { ...notif, isRead: true } : notif
-      )
+        notif.id === id ? { ...notif, isRead: true } : notif,
+      ),
     );
+    try {
+      await markVendorNotificationRead(id);
+    } catch (e) {
+      console.error("Failed to mark notification read:", e);
+    }
   };
 
-  const markAllAsRead = () => {
-    setNotifications((prev) =>
-      prev.map((notif) => ({ ...notif, isRead: true }))
-    );
+  const markAllAsRead = async () => {
+    if (markingAll) return;
+    const prevState = notifications;
+    setMarkingAll(true);
+    setNotifications((prev) => prev.map((notif) => ({ ...notif, isRead: true })));
+    try {
+      await markAllVendorNotificationsRead();
+    } catch (e) {
+      console.error("Failed to mark all notifications read:", e);
+      setNotifications(prevState);
+      toast.error("Failed to mark all as read");
+    } finally {
+      setMarkingAll(false);
+    }
   };
 
-  const deleteNotification = (id: number) => {
+  const deleteNotification = (id: string) => {
     setNotifications((prev) => prev.filter((notif) => notif.id !== id));
   };
 
@@ -106,6 +134,17 @@ const NotificationsPage = () => {
     return acc;
   }, {} as Record<string, Notification[]>);
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-emerald-600 animate-spin mx-auto mb-4" />
+          <p className="text-gray-500 text-sm">Loading notifications...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -114,7 +153,10 @@ const NotificationsPage = () => {
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+              <button
+                onClick={() => navigate(-1)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
                 <ChevronLeft size={24} className="text-gray-700" />
               </button>
               <h1 className="text-2xl font-semibold text-gray-900">Notification</h1>
@@ -156,9 +198,14 @@ const NotificationsPage = () => {
             {unreadCount > 0 && (
               <button
                 onClick={markAllAsRead}
-                className="ml-auto px-4 py-2 rounded-xl text-sm font-medium bg-gray-50 text-gray-600 hover:bg-gray-100 transition-colors flex items-center gap-2"
+                disabled={markingAll}
+                className="ml-auto px-4 py-2 rounded-xl text-sm font-medium bg-gray-50 text-gray-600 hover:bg-gray-100 transition-colors flex items-center gap-2 disabled:opacity-50"
               >
-                <Check size={16} />
+                {markingAll ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <Check size={16} />
+                )}
                 Mark all read
               </button>
             )}
@@ -225,21 +272,29 @@ const NotificationsPage = () => {
                             </span>
                           </div>
 
-                          <p className="text-sm text-gray-600 mb-3 whitespace-pre-line">
-                            {notification.description}
-                          </p>
+                          {notification.description && (
+                            <p className="text-sm text-gray-600 mb-3 whitespace-pre-line">
+                              {notification.description}
+                            </p>
+                          )}
 
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600">
-                              Order ID:{" "}
-                              <span className="font-semibold text-emerald-600">
-                                {notification.orderId}
-                              </span>
-                            </span>
-                            <span className="text-lg font-semibold text-emerald-600">
-                              {notification.amount}
-                            </span>
-                          </div>
+                          {(notification.orderId || notification.amount) && (
+                            <div className="flex items-center justify-between">
+                              {notification.orderId && (
+                                <span className="text-sm text-gray-600">
+                                  Order ID:{" "}
+                                  <span className="font-semibold text-emerald-600">
+                                    {notification.orderId}
+                                  </span>
+                                </span>
+                              )}
+                              {notification.amount && (
+                                <span className="text-lg font-semibold text-emerald-600">
+                                  {notification.amount}
+                                </span>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </div>
 
