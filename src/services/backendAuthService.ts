@@ -191,16 +191,25 @@ export interface OrderTracking {
   message: string;
 }
 
+export interface PaymentOrderItem {
+  id: string | number;
+  name: string;
+  quantity: number;
+  price: number;
+}
+
 export interface PaymentData {
   amount: number;
   vendor_id: string;
   payment_method: string;
   promo_code?: string;
+  email: string;
   customer_email: string;
   customer_phone?: string;
   customer_name?: string;
   delivery_address: string;
   delivery_type?: string;
+  order_items: PaymentOrderItem[];
   metadata?: Record<string, unknown>;
   callback_url: string;
 }

@@ -299,12 +299,19 @@ const PaymentComponent: React.FC = () => {
           vendor_id: vendorInfo.id, // Remove optional chaining to ensure it's required
           payment_method: "paystack",
           promo_code: discountInfo?.code,
+          email: userEmail,
           customer_email: userEmail,
           customer_phone: userData?.phone,
           customer_name: fullName,
           delivery_address: deliveryAddress,
           delivery_type: "delivery",
           callback_url: `${window.location.origin}/payment-verify`,
+          order_items: orderData.items.map((item) => ({
+            id: item.id,
+            name: item.name,
+            quantity: item.quantity,
+            price: item.price,
+          })),
           metadata: {
             order_items: orderData.items,
             spice_level: orderData.spiceLevel,
